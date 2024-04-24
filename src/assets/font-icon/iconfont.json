@@ -1,0 +1,23 @@
+{
+  "id": "4521856",
+  "name": "webDemo1",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "7791978",
+      "name": "密码",
+      "font_class": "ziyuanxhdpi",
+      "unicode": "e64c",
+      "unicode_decimal": 58956
+    },
+    {
+      "icon_id": "40078955",
+      "name": "账号-copy",
+      "font_class": "zhanghao-copy",
+      "unicode": "ea92",
+      "unicode_decimal": 60050
+    }
+  ]
+}
