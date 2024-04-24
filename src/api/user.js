@@ -2,12 +2,12 @@ import request from '@/utils/request.js'
 
 const INDEX_URL = '/admin/system/index/' 
  
-export function login (user){
+// 拿到用户初始化信息
+export function userInfo (){
     return request(
         {
-            url: INDEX_URL + 'login',
-            method: 'POST',
-            data: user
+            url: INDEX_URL + 'info',
+            method: 'GET'
         }
     )
 }

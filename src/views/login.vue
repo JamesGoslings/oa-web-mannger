@@ -7,7 +7,6 @@
             <div class="msgCardBox">
                 <div class="msgCard">
                     <div class="title">登录账号</div>
-
                     <span class="iptBox">
                         <div class="ico iconfont">&#xea92;</div>
                         <input class="ipt" placeholder="用户名" v-model="userMsg.username"/>
@@ -16,7 +15,9 @@
                         <div class="ico iconfont">&#xe64c;</div>
                         <input class="ipt" placeholder="密码" type="password" v-model="userMsg.password"/>
                     </span>
-                    <button class="btn" @click="useLogin()">登录</button>
+                    <span class="errorText">{{errorMsg}}</span>
+
+                    <button class="btn" @click="useLogin()">立即登录</button>
                 </div>
             </div>
         </div>
@@ -25,15 +26,48 @@
 
 <script setup>
 import {login} from '@/api/login.js'
-import request from '@/utils/request.js'
+import {userInfo} from '@/api/user.js'
+import {useRouter} from 'vue-router'
 
+const router = useRouter()
 let userMsg = ref({username: '',password: ''})
+let errorMsg = ref('')
+// 发起登录请求拿到token并放入本地存储
 const useLogin = async()=>{
     console.log(userMsg.value)
-    let res = await login(userMsg.value)
-    console.log('======================')
-    console.log(res)
-    console.log('======================')
+    let username = userMsg.value.username
+    let pwd = userMsg.value.password
+    if(username === '' || username === null){
+        errorMsg.value = '*' + '用户名不能为空'
+        return
+    }
+    if(pwd === '' || pwd === null){
+        errorMsg.value = '*' + '密码不能为空'
+        return
+    }
+    await login(userMsg.value).catch(res=>{
+        // 登录出错回显错误信息
+        errorMsg.value = '*' + res.message
+    }).then(res=>{
+        // 成功就存token
+        localStorage.setItem('token',res.data.token)
+        // 登录成功后加载用户权限信息
+        userInit()
+        .then(()=>{
+            // 跳转路由
+            router.push('/home')
+        })
+    })
+}
+
+// 加载用户的权限信息和基础信息到本地存储
+const userInit = async()=>{
+    let {data} = await userInfo()
+    // 将权限信息存入本地存储
+    localStorage.setItem('userInfo',data)
+    console.log('==========info=======')
+    console.log(data)
+    console.log('==========info=======')
 
 }
 </script>
@@ -89,6 +123,10 @@ const useLogin = async()=>{
                     text-align: center;
                     color: rgb(235,229,225);
                 }
+                .errorText{
+                    font-size: 8px;
+                    color: rgb(249,190,23)
+                }
                 .iptBox{
                     width: 80%;
                     height: 15%;
@@ -120,6 +158,7 @@ const useLogin = async()=>{
                     }
                 }
                 .btn{
+                    outline: none;
                     border-radius: 5px;
                     border: 0px;
                     background: rgb(246,98,86);

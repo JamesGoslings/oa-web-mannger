@@ -26,7 +26,7 @@ export default defineConfig({
       "/devApi": {
         target: "http://localhost:8800", // 目标地址
         changeOrigin: true,            // 是否换源
-        rewrite: (path) => path.replace(/^\/api/, ""),
+        rewrite: (path) => path.replace(/^\/devApi/, "")
       }
     }
   }
