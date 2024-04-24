@@ -154,7 +154,6 @@ const userInit = async()=>{
                         height: 90%;
                         font-size: 10px;
                         color: rgb(199, 192, 188);
-
                     }
                 }
                 .btn{
