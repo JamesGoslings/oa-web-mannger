@@ -16,7 +16,7 @@
                         <div class="ico iconfont">&#xe64c;</div>
                         <input class="ipt" placeholder="密码" type="password" v-model="userMsg.password"/>
                     </span>
-                    <button class="btn" @click="login()">登录</button>
+                    <button class="btn" @click="useLogin()">登录</button>
                 </div>
             </div>
         </div>
@@ -24,9 +24,17 @@
 </template>
 
 <script setup>
+import {login} from '@/api/login.js'
+import request from '@/utils/request.js'
+
 let userMsg = ref({username: '',password: ''})
-function login(){
+const useLogin = async()=>{
     console.log(userMsg.value)
+    let res = await login(userMsg.value)
+    console.log('======================')
+    console.log(res)
+    console.log('======================')
+
 }
 </script>
 
