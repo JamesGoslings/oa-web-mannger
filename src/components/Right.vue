@@ -2,10 +2,23 @@
 <template>
     <div class="rightAll">
         <div class="line"></div>
-        <div class="topMenuOne" v-for="(menu,index) in menus" :key="index">
-            <span class="iconfont menuIco" v-html="menu.icon"></span>
-            <span class="icoText">{{menu.name}}</span>
-        </div>
+        <div v-for="(menu,index) in menus" :key="index">
+            <div class="topMenuOne" @click="isChoose[index] = true" v-if="!isChoose[index]">
+                <div class="msg">
+                    <span class="iconfont menuIco" v-html="menu.icon"></span>
+                    <span class="icoText">{{menu.name}}</span>
+                </div>
+                <span class="tip"></span>
+            </div>
+            <div class="topMenuOne" :style="{color: actStyle.fontColor,background: actStyle.backColor}"
+             @click="isChoose[index] = false" v-else>
+                <div class="msg">
+                    <span class="iconfont menuIco" v-html="menu.icon"></span>
+                    <span class="icoText">{{menu.name}}</span>
+                </div>
+                <span class="tip" :style="{background: actStyle.tipColor}"></span>
+            </div>
+         </div>
     </div>
 </template>
 
@@ -33,6 +46,15 @@ let menus = ref([
         name: '考勤管理'
     }
 ])
+// 判断是否选中
+let isChoose = ref([false,false])
+// 菜单被点击后的样式
+const actStyle = ref({
+    tipColor: 'rgb(60,118,244)',
+    backColor: 'rgb(244,249,255)',
+    fontColor: 'rgb(60,118,244)'
+})
+
 </script>
 
 <style lang="scss" scoped>
@@ -54,22 +76,35 @@ let menus = ref([
         height: 0.2vh;
         background: rgb(228,229,237);
         margin-top: 6.5vh;
-        margin-bottom: 2vh;
     }
     .topMenuOne{
+        width: 100%;
         height: 5vh;
         color: rgb(136,136,136);
         display: flex;
         align-items: center;
-        margin-bottom: 2vh;
-        .menuIco{
-            margin-left: 1vw;
-            font-size: 15px;
+        justify-content: space-between;
+        padding: 1vh 0;
+        // border: #000 1px solid;
+        .msg{
+            display: flex;
+            align-items: center;
+            .menuIco{
+                margin-left: 1vw;
+                font-size: 15px;
+            }
+            .icoText{
+                margin-left: 1vw;
+                font-size: 9px;
+                // font-weight: bold;
+            }
         }
-        .icoText{
-            margin-left: 1vw;
-            font-size: 9px;
-            font-weight: bold;
+        .tip{
+            right: 0;
+            width: 4px;
+            height: 70%;
+            border-radius: 2px;
+            // background: rgb(60,118,244);
         }
     }
 }

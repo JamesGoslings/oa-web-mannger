@@ -1,5 +1,6 @@
 <!-- 顶部菜单栏 -->
 <template>
+
     <div class="topAll">
         <span class="iptBox">
             <div class="ico iconfont">&#xe740;</div>
@@ -9,18 +10,22 @@
             <img class="avatar" src="/src/assets/img/avatar.jpg"/>
             <span class="name">admin</span>
             <span class="open iconfont" style="-moz-transform: rotate(-90deg);-webkit-transform: rotate(-90deg);"
-            v-if="!isChoose" @mouseenter="isChoose = !isChoose">&#xe656;</span>
-            <span class="open iconfont" v-else @mouseenter="isChoose = !isChoose">&#xe656;</span>
+            v-if="!isChoose" @click="isChoose = !isChoose">&#xe656;</span>
+            <span class="open iconfont" v-else @click="isChoose = !isChoose">&#xe656;</span>
         </span>
     </div>
+    <UserUse v-if="isChoose"></UserUse>
+
 </template>
 
 <script setup>
+import UserUse from "./UserUse.vue"
 let isChoose = ref(false)
 </script>
 
 <style lang="scss" scoped>
 @import url('/src/assets/font-icon/iconfont.css');
+
 .topAll{
     position: fixed;
 	top: 0;
