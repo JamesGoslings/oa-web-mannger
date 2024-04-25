@@ -1,3 +1,4 @@
+<!-- 顶部菜单栏 -->
 <template>
     <div class="topAll">
         <span class="iptBox">
@@ -7,13 +8,15 @@
         <span class="user">
             <img class="avatar" src="/src/assets/img/avatar.jpg"/>
             <span class="name">admin</span>
-            <span class="open iconfont">&#xe656;</span>
+            <span class="open iconfont" style="-moz-transform: rotate(-90deg);-webkit-transform: rotate(-90deg);"
+            v-if="!isChoose" @mouseenter="isChoose = !isChoose">&#xe656;</span>
+            <span class="open iconfont" v-else @mouseenter="isChoose = !isChoose">&#xe656;</span>
         </span>
     </div>
 </template>
 
 <script setup>
-
+let isChoose = ref(false)
 </script>
 
 <style lang="scss" scoped>
@@ -33,6 +36,7 @@
     justify-content: space-between;
     align-items: center;
     z-index: 10;
+    user-select: none;
     .iptBox{
         width: 40%;
         height: 50%;
@@ -58,7 +62,7 @@
             background: rgb(253,253,254);
             outline: none;
             width: 80%;
-            height: 90%;
+            height: 80%;
             font-size: 8px;
             font-weight: bold;
             color: rgb(194,202,226);

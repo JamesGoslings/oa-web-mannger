@@ -85,6 +85,7 @@ const userInit = async()=>{
     display: flex;
     justify-content: center;
     align-items: center;
+    user-select: none;
     .bigCard{
         width: 60%;
         height: 60%;

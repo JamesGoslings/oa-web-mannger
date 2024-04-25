@@ -1,5 +1,6 @@
 <template>
     <Header></Header>
+    <Right></Right>
     <div class="homeSty">
         <!-- Home页 -->
 
@@ -8,6 +9,8 @@
 
 <script setup>
 import Header from '@/components/Header.vue'
+import Right from '@/components/Right.vue'
+
 </script>
 
 <style lang="scss" scoped>
