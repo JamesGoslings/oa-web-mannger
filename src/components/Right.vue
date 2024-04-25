@@ -3,26 +3,35 @@
     <div class="rightAll">
         <div class="line"></div>
         <div v-for="(menu,index) in menus" :key="index">
-            <div class="topMenuOne" @click="isChoose[index] = true" v-if="!isChoose[index]">
-                <div class="msg">
-                    <span class="iconfont menuIco" v-html="menu.icon"></span>
-                    <span class="icoText">{{menu.name}}</span>
+            <div :style="{background: backColors[index]}" @mouseenter="backColors[index] = actStyle.backColor"
+             @mouseleave="backColors[index] = '#FFF'">
+                <div class="topMenuOne" @click="isChoose[index] = true" v-if="!isChoose[index]">
+                    <div class="msg">
+                        <span class="iconfont menuIco" v-html="menu.icon"></span>
+                        <span class="icoText">{{menu.name}}</span>
+                    </div>
+                    <span class="tip"></span>
                 </div>
-                <span class="tip"></span>
-            </div>
-            <div class="topMenuOne" :style="{color: actStyle.fontColor,background: actStyle.backColor}"
-             @click="isChoose[index] = false" v-else>
-                <div class="msg">
-                    <span class="iconfont menuIco" v-html="menu.icon"></span>
-                    <span class="icoText">{{menu.name}}</span>
+                <div class="topMenuOne" :style="{color: actStyle.fontColor,background: actStyle.backColor}"
+                @click="isChoose[index] = false" v-else>
+                    <div class="msg">
+                        <span class="iconfont menuIco" v-html="menu.icon"></span>
+                        <span class="icoText">{{menu.name}}</span>
+                    </div>
+                    <span class="tip" :style="{background: actStyle.tipColor}"></span>
                 </div>
-                <span class="tip" :style="{background: actStyle.tipColor}"></span>
             </div>
-         </div>
+            <Tree v-if="isChoose[index] && menu.children !== null && menu.children !== undefined && menu.children.length !== 0"
+             :menuList = "menu.children" :floor="1"></Tree>
+        </div>
+
     </div>
 </template>
 
 <script setup>
+import Tree from '@/components/TreeMenu.vue'
+// 确定每个菜单栏被鼠标经过时的背景颜色
+let backColors = ref([''])
 // 接收顶级菜单
 let menus = ref([
     {
@@ -31,7 +40,27 @@ let menus = ref([
     },
     {
         icon: '&#xe696;',
-        name: '系统管理'
+        name: '系统管理',
+        children:[
+            {
+                icon: '&#xe6aa;',
+                name:'日志管理',
+                children: [
+                    {
+                        icon: '&#xe999;',
+                        name: '信息日志'
+                    },
+                    {
+                        icon: '&#xe63e;',
+                        name: '登录日志'
+                    }
+                ]
+            },
+            {
+                icon: '&#xe999;',
+                name: '测试管理'
+            }
+        ]
     },  
     {
         icon: '&#xe60c;',
