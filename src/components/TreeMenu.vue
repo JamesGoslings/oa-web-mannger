@@ -1,20 +1,22 @@
 <template>
     <div class="treeAll" v-for="(menu,i) in menuList" :key="i">
-        <div :style="{background: backColors[i]}">
-            <div class="menuOne" :style="{paddingLeft: floor + 'vw',background: clickColors[i]}" @click="changeStyle(i,menu)"
-            @mouseenter="backColors[i] = actStyle.color" @mouseleave="backColors[i] = '#FFF'">
-                <div class="msg">
-                    <span class="iconfont menuIco" v-html="menu.icon"></span>
-                    <span class="icoText">{{menu.name}}</span>
+        <div v-if="!menu.hidden">
+            <div :style="{background: backColors[i]}">
+                <div class="menuOne" :style="{paddingLeft: floor + 'vw',background: clickColors[i]}" @click="changeStyle(i,menu)"
+                @mouseenter="backColors[i] = actStyle.color" @mouseleave="backColors[i] = '#FFF'">
+                    <div class="msg">
+                        <span class="iconfont menuIco" v-html="menu.meta.icon"></span>
+                        <span class="icoText">{{menu.meta.title}}</span>
+                    </div>
+                    <span v-if="menu.children !== null && menu.children !== undefined && menu.children.length !== 0">
+                        <div class="iconfont chooseIco" :style="{marginRight: floor + 'vw'}" v-if="!isChoose[i]">&#xe600;</div>
+                        <div class="iconfont chooseIco" :style="{marginRight: floor + 'vw'}" v-else style="-moz-transform: rotate(90deg);-webkit-transform: rotate(90deg);">&#xe600;</div>
+                    </span>
                 </div>
-                <span v-if="menu.children !== null && menu.children !== undefined && menu.children.length !== 0">
-                    <div class="iconfont chooseIco" :style="{marginRight: floor + 'vw'}" v-if="!isChoose[i]">&#xe600;</div>
-                    <div class="iconfont chooseIco" :style="{marginRight: floor + 'vw'}" v-else style="-moz-transform: rotate(90deg);-webkit-transform: rotate(90deg);">&#xe600;</div>
-                </span>
             </div>
+            <Tree v-if="isChoose[i] && menu.children !== null && menu.children !== undefined && menu.children.length !== 0" 
+            :menuList = "menu.children" :floor="floor + 1"></Tree>
         </div>
-        <Tree v-if="isChoose[i] && menu.children !== null && menu.children !== undefined && menu.children.length !== 0" 
-        :menuList = "menu.children" :floor="floor + 1"></Tree>
     </div>
 </template>
 
@@ -89,7 +91,7 @@ function changeStyle(i,menu){
             }
             .icoText{
                 margin-left: 1vw;
-                font-size: 9px;
+                font-size: 8px;
             }
         }
         .chooseIco{

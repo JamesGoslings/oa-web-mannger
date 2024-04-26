@@ -7,16 +7,16 @@
              @mouseleave="backColors[index] = '#FFF'">
                 <div class="topMenuOne" @click="isChoose[index] = true" v-if="!isChoose[index]">
                     <div class="msg">
-                        <span class="iconfont menuIco" v-html="menu.icon"></span>
-                        <span class="icoText">{{menu.name}}</span>
+                        <span class="iconfont menuIco" v-html="menu.meta.icon"></span>
+                        <span class="icoText">{{menu.meta.title}}</span>
                     </div>
                     <span class="tip"></span>
                 </div>
                 <div class="topMenuOne" :style="{color: actStyle.fontColor,background: actStyle.backColor}"
                 @click="isChoose[index] = false" v-else>
                     <div class="msg">
-                        <span class="iconfont menuIco" v-html="menu.icon"></span>
-                        <span class="icoText">{{menu.name}}</span>
+                        <span class="iconfont menuIco" v-html="menu.meta.icon"></span>
+                        <span class="icoText">{{menu.meta.title}}</span>
                     </div>
                     <span class="tip" :style="{background: actStyle.tipColor}"></span>
                 </div>
@@ -30,51 +30,57 @@
 
 <script setup>
 import Tree from '@/components/TreeMenu.vue'
+import { useUserStore } from '@/store/userStore';
+
 // 确定每个菜单栏被鼠标经过时的背景颜色
 let backColors = ref([''])
 // 接收顶级菜单
-let menus = ref([
-    {
-        icon: '&#xe6fa;',
-        name: '指示板'
-    },
-    {
-        icon: '&#xe696;',
-        name: '系统管理',
-        children:[
-            {
-                icon: '&#xe6aa;',
-                name:'日志管理',
-                children: [
-                    {
-                        icon: '&#xe999;',
-                        name: '信息日志'
-                    },
-                    {
-                        icon: '&#xe63e;',
-                        name: '登录日志'
-                    }
-                ]
-            },
-            {
-                icon: '&#xe999;',
-                name: '测试管理'
-            }
-        ]
-    },  
-    {
-        icon: '&#xe60c;',
-        name: '审批管理'
-    },  
-    {
-        icon: '&#xe646;',
-        name: '审批设置'
-    },  
-    {
-        icon: '&#xe604;',
-        name: '考勤管理'
-    }
-])
+let menus = ref(useUserStore().menus)
+console.log('============MENUS===============')
+console.log(menus.value[0].meta.title)
+console.log('============MENUS===============')
+// let menus = ref([
+//     {
+//         icon: '&#xe6fa;',
+//         name: '指示板'
+//     },
+//     {
+//         icon: '&#xe696;',
+//         name: '系统管理',
+//         children:[
+//             {
+//                 icon: '&#xe6aa;',
+//                 name:'日志管理',
+//                 children: [
+//                     {
+//                         icon: '&#xe999;',
+//                         name: '信息日志'
+//                     },
+//                     {
+//                         icon: '&#xe63e;',
+//                         name: '登录日志'
+//                     }
+//                 ]
+//             },
+//             {
+//                 icon: '&#xe999;',
+//                 name: '测试管理'
+//             }
+//         ]
+//     },  
+//     {
+//         icon: '&#xe60c;',
+//         name: '审批管理'
+//     },  
+//     {
+//         icon: '&#xe646;',
+//         name: '审批设置'
+//     },  
+//     {
+//         icon: '&#xe604;',
+//         name: '考勤管理'
+//     }
+// ])
 // 判断是否选中
 let isChoose = ref([false,false])
 // 菜单被点击后的样式
@@ -95,11 +101,12 @@ const actStyle = ref({
     width: 15%;
     height: 100%;
     z-index: 10;
-    overflow: hidden;
     background: #FFF;
     border-radius: 2px;
     box-shadow: 0px 0px 3px #928c8c64;
     user-select: none;
+    overflow-y: auto;
+    overflow-x: hidden;
     .line{
         width: 100%;
         height: 0.2vh;
@@ -137,4 +144,11 @@ const actStyle = ref({
         }
     }
 }
+
+/* 自定义滚动条样式 */
+::-webkit-scrollbar {
+    width: 0px; /* 滚动条宽度 */
+}
+ 
+
 </style>

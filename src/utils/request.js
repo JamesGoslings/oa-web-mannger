@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { getToken } from './auth';
 
 axios.defaults.withCredentials = true;
 const instance = axios.create({
@@ -15,7 +16,8 @@ instance.interceptors.request.use(
         }
 
         // 其他请求在请求头设置token
-        config.headers.set('token',localStorage.getItem('token'))
+        // config.headers.set('token',localStorage.getItem('token'))
+        config.headers.set('token',getToken())
 
         return config
     },

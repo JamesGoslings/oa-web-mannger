@@ -1,23 +1,21 @@
+<!-- 主体页面 -->
 <template>
     <Header></Header>
     <Right></Right>
-    <div class="homeSty">
-        <!-- Home页 -->
-
+    <div class="layout">
+    
     </div>
 </template>
 
 <script setup>
 import Header from '@/components/Header.vue'
 import Right from '@/components/Right.vue'
-import { useUserStore } from '@/store/userStore';
-console.log('==========Msg============')
-console.log(useUserStore().buttons)
-console.log('==========Msg============')
+
+
 </script>
 
 <style lang="scss" scoped>
-.homeSty{
+.layout{
     position: fixed;
 	top: 0;
 	left: 0;

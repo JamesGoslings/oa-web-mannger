@@ -1,23 +1,26 @@
 import {createRouter,createWebHashHistory} from 'vue-router'
-import Login from '@/views/Login.vue'
-import Home from '@/views/Home.vue'
 
-const router = createRouter({
+// 直接声明出必有的路由
+let routes = [
+    {
+        path: '/login',
+        // component:Login
+        component:()=>import('@/views/Login.vue')
+    },
+    {
+        path: '/',
+        redirect: '/login'
+    },
+    {
+        path: '/home',
+        component:()=>import('@/views/Home.vue')
+    }
+] 
+
+let router = createRouter({
     history:createWebHashHistory(),
-    routes:[
-        {
-            path: '/login',
-            component:Login
-        },
-        {
-            path: '/',
-            redirect: '/login'
-        },
-        {
-            path: '/home',
-            component:Home
-        }
-    ]
+    routes:routes
 })
-
+// 限权处理
+// router.beforeEach(routerBeforeEachFun)
 export default router

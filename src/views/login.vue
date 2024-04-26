@@ -16,7 +16,6 @@
                         <input class="ipt" placeholder="密码" type="password" v-model="userMsg.password"/>
                     </span>
                     <span class="errorText">{{errorMsg}}</span>
-
                     <button class="btn" @click="useLogin()">立即登录</button>
                 </div>
             </div>
@@ -26,13 +25,13 @@
 
 <script setup>
 import {login} from '@/api/login.js'
-import {userInfo} from '@/api/user.js'
 import {useRouter} from 'vue-router'
+import {setToken} from '@/utils/auth'
 
 const router = useRouter()
 let userMsg = ref({username: '',password: ''})
 let errorMsg = ref('')
-// 发起登录请求拿到token并放入本地存储
+// 发起登录请求拿到token并放入cookie
 const useLogin = async()=>{
     console.log(userMsg.value)
     let username = userMsg.value.username
@@ -50,25 +49,10 @@ const useLogin = async()=>{
         errorMsg.value = '*' + res.message
     }).then(res=>{
         // 成功就存token
-        localStorage.setItem('token',res.data.token)
-        // 登录成功后加载用户权限信息
-        userInit()
-        .then(()=>{
-            // 跳转路由
-            router.push('/home')
-        })
+        setToken(res.data.token)
+        // 跳转路由
+        router.push('/home')
     })
-}
-
-// 加载用户的权限信息和基础信息到本地存储
-const userInit = async()=>{
-    let {data} = await userInfo()
-    // 将权限信息存入本地存储
-    localStorage.setItem('userInfo',data)
-    console.log('==========info=======')
-    console.log(data)
-    console.log('==========info=======')
-
 }
 </script>
 
@@ -166,12 +150,21 @@ const userInit = async()=>{
                     height: 12%;
                     font-size: 10px;
                     color: #FFF;
-                    &:active{
+                    transition: border-radius 2s;
+                    -webkit-transition: border-radius 1s;
+                    &:hover{
                         background: rgb(202, 131, 125);
+                        border-bottom-right-radius: 50px;
+                        border-top-left-radius: 50px;
+                        border-bottom-left-radius: 10px;
+                        border-top-right-radius: 10px;
                     }
                 }
             }
         }
     }
 }
+
+
+
 </style>
