@@ -1,5 +1,6 @@
 import {createRouter,createWebHashHistory} from 'vue-router'
 
+const not = ()=>import('@/views/404.vue')
 // 直接声明出必有的路由
 let routes = [
     {
@@ -10,17 +11,23 @@ let routes = [
     {
         path: '/',
         redirect: '/login'
-    },
+    }
+    ,
     {
         path: '/home',
-        component:()=>import('@/views/Home.vue')
+        component:()=>import('@/views/Home.vue'),
+        children:[
+            {
+                path: '/sysUser',
+                component:()=> import('@/views/system/sysUser/list.vue')
+            }
+        ]
     }
-] 
+]
 
 let router = createRouter({
     history:createWebHashHistory(),
     routes:routes
 })
-// 限权处理
-// router.beforeEach(routerBeforeEachFun)
+
 export default router

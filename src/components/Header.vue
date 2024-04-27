@@ -25,13 +25,14 @@ let isChoose = ref(false)
 
 <style lang="scss" scoped>
 @import url('/src/assets/font-icon/iconfont.css');
+@import '/src/styles/globalPage.scss';
 
 .topAll{
     position: fixed;
 	top: 0;
 	right: 0;
 	width: 80%;
-    height: 8vh;
+    height: $top-distance;
     padding-left: 2%;
 	overflow: hidden;
     background: #FFF;

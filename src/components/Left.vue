@@ -1,4 +1,4 @@
-<!-- 右侧菜单栏 -->
+<!-- 左侧菜单栏 -->
 <template>
     <div class="rightAll">
         <div class="line"></div>
@@ -94,11 +94,13 @@ const actStyle = ref({
 
 <style lang="scss" scoped>
 @import url('/src/assets/font-icon/iconfont.css');
+@import '/src/styles/globalPage.scss';
+
 .rightAll{
     position: fixed;
 	top: 0;
 	left: 0;
-    width: 15%;
+    width: $left-distance;
     height: 100%;
     z-index: 10;
     background: #FFF;
