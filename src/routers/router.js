@@ -13,7 +13,7 @@ let routes = [
         redirect: '/login'
     },
     // {
-    //     path: '/404',
+    //     path: '*',
     //     component:()=>import('@/views/404.vue')
     // },
     {

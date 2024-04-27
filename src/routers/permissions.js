@@ -14,14 +14,16 @@ import ParentView from '@/components/ParentView.vue'
 router.beforeEach(async(to,from,next) => {
     // 转登录的路由直接放行
     if(to.path === '/login'){
-        next()
+        if(useUserStore().token){
+            next('/home')
+        }else next()
     }else{
         // 未获取权限信息就发请求
         if(!hasInfo()){
             await userInit()
         }
         let {menus} = useUserStore(pinia)
-        if(menus.length < 1 || router.getRoutes().length <= 3){
+        if(menus.length < 1 || router.getRoutes().length <= 4){
             // 用于判断是否需要添加
             let pathStore = usePathStore(pinia)
             // 处理路由
