@@ -1,9 +1,9 @@
-<!-- 用户管理页面 -->
+<!-- 角色页面 -->
 <template>
-    <div class="userManngerAll">
+    <div class="roleSty">
         <div class="table">
-            用户管理页面
-            <button @click="goRole">去Role页</button>
+            角色管理页面
+            <button @click="goUser">去user页</button>
         </div>
     </div>
 </template>
@@ -13,14 +13,14 @@ import {useRouter} from 'vue-router'
 
 const router = useRouter()
 
-function goRole(){
-    router.push('/system/sysRole')
+function goUser(){
+    router.push('/system/sysUser')
 }
 </script>
 
 <style lang="scss" scoped>
 @import '/src/styles/globalPage.scss';
-.userManngerAll{
+.roleSty{
     margin-left: $left-distance;
     margin-top: $top-distance;
     display: flex;

@@ -11,17 +11,21 @@ let routes = [
     {
         path: '/',
         redirect: '/login'
-    }
-    ,
+    },
+    // {
+    //     path: '/404',
+    //     component:()=>import('@/views/404.vue')
+    // },
     {
         path: '/home',
-        component:()=>import('@/views/Home.vue'),
-        children:[
-            {
-                path: '/sysUser',
-                component:()=> import('@/views/system/sysUser/list.vue')
-            }
-        ]
+        component:()=>import('@/views/Home.vue')
+        // ,
+        // children:[
+        //     {
+        //         path: '/sysUser',
+        //         component: ()=> import('@/views/system/sysUser/list.vue')
+        //     }
+        // ]
     }
 ]
 
@@ -29,5 +33,6 @@ let router = createRouter({
     history:createWebHashHistory(),
     routes:routes
 })
+
 
 export default router

@@ -1,6 +1,6 @@
 <!-- 左侧菜单栏 -->
 <template>
-    <div class="rightAll">
+    <div class="rightAll" @path-sent="receivePath">
         <div class="line"></div>
         <div v-for="(menu,index) in menus" :key="index">
             <div :style="{background: backColors[index]}" @mouseenter="backColors[index] = actStyle.backColor"
@@ -31,13 +31,15 @@
 <script setup>
 import Tree from '@/components/TreeMenu.vue'
 import { useUserStore } from '@/store/userStore';
+import { useRouter } from 'vue-router';
 
 // 确定每个菜单栏被鼠标经过时的背景颜色
 let backColors = ref([''])
-// 接收顶级菜单
+// 接收顶级菜单(深拷贝)
 let menus = ref(useUserStore().menus)
 console.log('============MENUS===============')
-console.log(menus.value[0].meta.title)
+console.log(useRouter().getRoutes())
+console.log(menus.value[0].meta)
 console.log('============MENUS===============')
 // let menus = ref([
 //     {
@@ -90,6 +92,9 @@ const actStyle = ref({
     fontColor: 'rgb(60,118,244)'
 })
 
+function receivePath(path){
+    console.log('path===========>' + path)
+}
 </script>
 
 <style lang="scss" scoped>

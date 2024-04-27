@@ -1,7 +1,7 @@
 <template>
     <div class="treeAll" v-for="(menu,i) in menuList" :key="i">
         <div v-if="!menu.hidden">
-            <div :style="{background: backColors[i]}">
+            <div :style="{background: backColors[i]}" @click="sendPath(menu.path)">
                 <div class="menuOne" :style="{paddingLeft: floor + 'vw',background: clickColors[i]}" @click="changeStyle(i,menu)"
                 @mouseenter="backColors[i] = actStyle.color" @mouseleave="backColors[i] = '#FFF'">
                     <div class="msg">
@@ -65,6 +65,14 @@ function changeStyle(i,menu){
     }else{
         clickColors.value[i] = ''
     }
+}
+
+// 自定义事件
+const emit = defineEmits(['path-sent'])
+// 将待切换的path放入本地
+function sendPath(path){
+    console.log('startPath' + path)
+    emit('path-sent',path)
 }
 </script>
 
