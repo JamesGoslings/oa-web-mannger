@@ -15,10 +15,11 @@
                 </div>
                 <span class="tip" :style="{background: clickOtherColors[i]}"></span>
             </div>
-
+            <!-- 使用v-show保证所有存在的子路由都预先被加载,又防v-ishow被自带display覆盖，再套一层div -->
+            <div v-show="isChoose[i]">
                 <Tree v-if="menu.alwaysShow"
                 :menuList = "menu.children" :floor="floor + 1" :parentChoose="hasChoose"></Tree>
-
+            </div>
         </div>
     </div>
 </template>
