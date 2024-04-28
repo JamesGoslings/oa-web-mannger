@@ -14,6 +14,25 @@ import { useUserStore } from '@/store/userStore';
 import { useRouter } from 'vue-router';
 import router from '@/routers/router';
 
+
+
+import { getCurrentInstance } from 'vue'
+
+const cxt  = getCurrentInstance()
+const bus = cxt.appContext.config.globalProperties.$bus
+onMounted(()=>{
+    bus.on('printMessage',(message)=>{
+        alert(message)
+    })
+})
+onBeforeUnmount(()=>{
+    bus.off('printMessage')
+})
+
+
+
+
+
 let userMenus = ref(['个人信息','退出登录','设置'])
 function useFun(i){
     if(i === 1){

@@ -21,8 +21,10 @@
                     <span class="tip" :style="{background: actStyle.tipColor}"></span>
                 </div>
             </div>
-            <Tree v-if="isChoose[index] && menu.children !== null && menu.children !== undefined && menu.children.length !== 0"
-             :menuList = "menu.children" :floor="1"></Tree>
+            <div v-show="isChoose[index]">
+                <Tree v-if="menu.alwaysShow"
+                :menuList = "menu.children" :floor="1"></Tree>
+            </div>
         </div>
 
     </div>

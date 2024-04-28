@@ -8,7 +8,8 @@ export const usePathStore = defineStore(
   {
     state :()=>{
       return {
-        isChange: false
+        isChange: false,
+        isChoose: false
       }
     }
   }
