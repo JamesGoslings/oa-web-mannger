@@ -1,7 +1,7 @@
 <template>
     <div class="treeAll" v-for="(menu,i) in menuList" :key="i">
         <div v-if="!menu.hidden">
-            <div class="menuBar" :style="{background: backColors[i]}" @click="routerPash(menu.path)">
+            <div class="menuBar" :style="{background: backColors[i]}" @click="routerPash(menu)">
                 <div class="menuOne" :style="{paddingLeft: floor + 'vw',background: backColors[i],color: clickOtherColors[i]}" @click="changeStyle(i,menu,menuList)"
                 @mouseenter="backColors[i] = actStyle.backColor" @mouseleave="resetColor(i,menu)">
                     <div class="msg">
@@ -111,7 +111,6 @@ function changeStyle(i,menu,menuList){
 const cxt  = getCurrentInstance() //相当于Vue2中的this
 const bus = cxt.appContext.config.globalProperties.$bus
 const emitMitt = function(path){
-    console.log(path)
     bus.emit('chooseEvent',path)
 }
 onMounted(()=>{
@@ -134,8 +133,10 @@ onBeforeUnmount(()=>{
 
 
 // 加载指定路由
-function routerPash(path){
-    router.push(path)
+function routerPash(menu){
+    if(!menu.alwaysShow){
+        router.push(menu.path)
+    }
 }
 </script>
 
