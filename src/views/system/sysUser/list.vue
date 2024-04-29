@@ -5,7 +5,7 @@
         <div class="baseCard tableBox">
             <div class="tableFuns">
                 <actButton class="actBtn" txt='+添加' actColor="rgb(60,118,244)"></actButton>
-                <actButton class="actBtn" txt='&#xe614; 重置' actColor="rgb(234,123,54)"></actButton>
+                <actButton class="actBtn" txt='&#xe614; 重置' actColor="rgb(234,123,54)" backColor="rgb(252,245,237)"></actButton>
                 <myInputBar class="myIpt" text="搜索用户" fontColor="rgb(9,82,200)" holderColor="rgb(211,227,253)"></myInputBar>
             </div>
             <table class="table" cellspacing="0px">
@@ -15,11 +15,16 @@
                 </tr>
                 <tbody v-for="(user,i) in 10" :key="i">
                     <tr :class="{'ltr': true,'ltrBackColor': i % 2 === 0}" @load="trStyleChoose(i)">
-                        <td class="td2">√</td>
+                        <td class="td2">
+                            <input class="checkBoxStyle" type="checkbox" v-model="chooseBoxs[i]" style="width: 1vw;user-select: none;"/>
+                        </td>
                         <td v-for="(field, j) in fields" :key="j">
                             {{users[field]}}
                         </td>
-                        <td>删除 修改</td>
+                        <td>
+                            <baseButton content="&#xe71a;" mainBackColor="rgb(244,249,255)" fontColor="rgb(60,118,244)" style="margin-right: 1vw;"/>
+                            <baseButton mainBackColor="rgb(252,245,237)" fontColor="rgb(234,123,54)"/>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -35,7 +40,7 @@
 import {useRouter} from 'vue-router'
 import actButton from '@/components/ActButton.vue'
 import myInputBar from "@/components/MyInputBar.vue"
-
+import baseButton from '@/components/BaseIconButton.vue'
 
 const router = useRouter()
 let tabHeads = ref(['用户名','姓名','手机','所属角色','账号状态','创建时间','修改时间','操作'])
@@ -56,6 +61,7 @@ function saveUser(){
 }
 // 指定按钮动态边框和文字颜色
 let buttonColor = ref('#4361ee')
+let chooseBoxs = ref([false,false])
 </script>
 
 <style lang="scss" scoped>
@@ -85,7 +91,8 @@ let buttonColor = ref('#4361ee')
         padding: 1vh 2vw;
         .tableFuns{
             width: 100%;
-            margin: 1vh 0;
+            margin-top: 1vh;
+            margin-bottom: 2vh;
             display: flex;
             align-items: center;
             user-select: none;
@@ -93,6 +100,7 @@ let buttonColor = ref('#4361ee')
                 margin-right: 1vw;
             }
             .myIpt{
+                width: 40vw;
                 height: 4vh;
                 box-shadow: 0px 0px 1px #928c8c64;
             }

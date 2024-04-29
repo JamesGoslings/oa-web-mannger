@@ -1,5 +1,5 @@
 <template>
-    <button class="iconfont btn" @click="saveUser()">{{txt}}</button>
+    <button class="iconfont btn">{{txt}}</button>
 </template>
 
 <script setup>
@@ -10,6 +10,12 @@ let props = defineProps({
 			return '#4361ee'
 		}
 	},
+    backColor: {
+        type: String,
+        default(){
+            return 'rgb(244,249,255)'
+        }
+    },
     txt: {
         type: String,
         default(){
@@ -23,9 +29,10 @@ let props = defineProps({
         }
     }
 })
-// 指定按钮动态边框和文字颜色
+// 指定按钮动态边框和文字颜色 rgb(244,249,255)
 let buttonColor = ref(props.actColor)
 let txtSize = ref(props.textSize)
+let backColor = ref(props.backColor)
 </script>
 
 <style lang="scss" scoped>
@@ -39,7 +46,7 @@ button {
     box-shadow: 0px 0px 1px #928c8c64;
     border: 0;
     // background: none;
-    background: rgb(244,247,252);
+    background: v-bind(backColor);
     text-align: center;
     text-transform: uppercase;
     color: v-bind(buttonColor);

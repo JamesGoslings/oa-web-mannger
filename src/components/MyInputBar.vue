@@ -1,9 +1,12 @@
 <template>
-    <span class="iptBox">
+  <!-- 
+    :class="{'iptBox': true,'iptBorder': isChoose}" 
+   -->
+    <span class="iptBox" :style="borderChange()">
         <div class="ico iconfont">&#xe740;</div>
         <input class="ipt" type="text" :placeholder="text" 
         :value="modelValue"  
-        @input="updateValue"  
+        @input="updateValue"  @focus="isChoose = true" @blur="isChoose = false"
         @keyup.enter="handleEnter"/>
     </span>
 </template>
@@ -31,6 +34,11 @@ const props = defineProps({
   text: {
     type: String,
     default: '搜索'
+  },
+  // 获得焦点之后的边框
+  actBorder: {
+    type: String,
+    default: 'rgb(36,47,87)'
   }
 });
   
@@ -49,6 +57,13 @@ function handleEnter(event) {
 let holderColor = ref(props.holderColor)
 let fontColor = ref(props.fontColor)
 let backColor = ref(props.backColor)
+// 判断是被选中
+let isChoose = ref(false)
+function borderChange(){
+  if(isChoose.value){
+    return {border:  `${props.actBorder} 1px solid`}
+  }
+}
 </script>
 
 <style lang="scss" scoped>
