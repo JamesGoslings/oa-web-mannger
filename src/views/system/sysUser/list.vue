@@ -7,6 +7,7 @@
                 <actButton class="actBtn" txt='+添加' actColor="rgb(60,118,244)"></actButton>
                 <actButton class="actBtn" txt='&#xe614; 重置' actColor="rgb(234,123,54)" backColor="rgb(252,245,237)"></actButton>
                 <myInputBar class="myIpt" text="搜索用户" fontColor="rgb(9,82,200)" holderColor="rgb(211,227,253)"></myInputBar>
+            
             </div>
             <table class="table" cellspacing="0px">
                 <tr class="ltr">
