@@ -1,7 +1,7 @@
 <!-- 顶部菜单栏 -->
 <template>
     <div class="topAll">
-        <myInputBar></myInputBar>
+        <myInputBar v-model="iptValue" @on-enter="handleEnter"></myInputBar>
         <span class="user">
             <img class="avatar" src="/src/assets/img/avatar.jpg"/>
             <span class="name">admin</span>
@@ -17,8 +17,16 @@
 <script setup>
 import myInputBar from "./MyInputBar.vue"
 import UserUse from "./UserUse.vue"
-
 let isChoose = ref(false)
+let iptValue = ref('')
+function handleEnter() {  
+  // 按下回车键时执行的逻辑
+  console.log('===============================================')
+  console.log('你按下了回车键，输入的值是:', iptValue.value);
+  console.log('===============================================')
+  // 逻辑完成清除输入值
+  iptValue.value = ''
+}
 </script>
 
 <style lang="scss" scoped>

@@ -5,10 +5,8 @@
         <div class="baseCard tableBox">
             <div class="tableFuns">
                 <actButton class="actBtn" txt='+添加' actColor="rgb(60,118,244)"></actButton>
-                <actButton class="actBtn" txt='&#xe614; 重置' actColor="rgb(60,118,244)"></actButton>
-                <span class="iptBox">
-                    <input class=""/>
-                </span>
+                <actButton class="actBtn" txt='&#xe614; 重置' actColor="rgb(234,123,54)"></actButton>
+                <myInputBar class="myIpt" text="搜索用户" fontColor="rgb(9,82,200)" holderColor="rgb(211,227,253)"></myInputBar>
             </div>
             <table class="table" cellspacing="0px">
                 <tr class="ltr">
@@ -36,6 +34,8 @@
 <script setup>
 import {useRouter} from 'vue-router'
 import actButton from '@/components/ActButton.vue'
+import myInputBar from "@/components/MyInputBar.vue"
+
 
 const router = useRouter()
 let tabHeads = ref(['用户名','姓名','手机','所属角色','账号状态','创建时间','修改时间','操作'])
@@ -86,8 +86,15 @@ let buttonColor = ref('#4361ee')
         .tableFuns{
             width: 100%;
             margin: 1vh 0;
+            display: flex;
+            align-items: center;
+            user-select: none;
             .actBtn{
                 margin-right: 1vw;
+            }
+            .myIpt{
+                height: 4vh;
+                box-shadow: 0px 0px 1px #928c8c64;
             }
         }
         .table{
