@@ -7,20 +7,27 @@
                 <actButton class="actBtn" txt='+添加' actColor="rgb(60,118,244)"></actButton>
                 <actButton class="actBtn" txt='&#xe614; 重置' actColor="rgb(234,123,54)" backColor="rgb(252,245,237)"></actButton>
                 <myInputBar class="myIpt" text="搜索用户" fontColor="rgb(9,82,200)" holderColor="rgb(211,227,253)"></myInputBar>
-            
             </div>
             <table class="table" cellspacing="0px">
                 <tr class="ltr">
                     <th class="td2">-</th>
                     <th v-for="(tabHead,i) in tabHeads" :key="i">{{tabHead}}</th>
                 </tr>
-                <tbody v-for="(user,i) in 10" :key="i">
+                
+                            
+                <tbody v-for="(user,i) in users" :key="i">
                     <tr :class="{'ltr': true,'ltrBackColor': i % 2 === 0}" @load="trStyleChoose(i)">
                         <td class="td2">
-                            <input class="checkBoxStyle" type="checkbox" v-model="chooseBoxs[i]" style="width: 1vw;user-select: none;"/>
+                            <!-- <input class="checkBoxStyle" type="checkbox" @click="chooseUsers()"
+                            v-model="user.isChoose" style="width: 1vw;user-select: none;"/> -->
+                            <el-checkbox v-model="user.isChoose" @click="chooseUsers()" />
                         </td>
                         <td v-for="(field, j) in fields" :key="j">
-                            {{users[field]}}
+                            <span v-if="field !== 'state'">{{user[field]}}</span>
+                            <span v-else>
+                                <MySwitch right-back-color="rgb(244,249,255)" wrong-back-color="rgb(252,245,237)" 
+                                right-font-color="rgb(60,118,244)" wrong-font-color="rgb(234,123,54)" />
+                            </span>
                         </td>
                         <td>
                             <baseButton content="&#xe71a;" mainBackColor="rgb(244,249,255)" fontColor="rgb(60,118,244)" style="margin-right: 1vw;"/>
@@ -28,7 +35,22 @@
                         </td>
                     </tr>
                 </tbody>
+
             </table>
+            <div class="usePage" id="myPage">
+                <el-pagination
+                class="page"
+                v-model:current-page="currentPage"
+                v-model:page-size="pageSize"
+                :page-sizes="[2, 5, 10, 15]"
+                :small="small"
+                :disabled="disabled"
+                layout="sizes, prev, pager, next, jumper"
+                :total="pageTotal"
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                />
+            </div>
         </div>
         <div class="chooseUsers">
             <div class="baseCard boxTitle">已选中用户</div>
@@ -38,31 +60,80 @@
 </template>
 
 <script setup>
-import {useRouter} from 'vue-router'
 import actButton from '@/components/ActButton.vue'
 import myInputBar from "@/components/MyInputBar.vue"
 import baseButton from '@/components/BaseIconButton.vue'
+import MySwitch from '@/components/MySwitch.vue'
+import {useRouter} from 'vue-router'
+import {getPageUsers} from '@/api/user'
+import { onMounted } from 'vue'
+// import { pa } from 'element-plus/es/locale'
 
 const router = useRouter()
 let tabHeads = ref(['用户名','姓名','手机','所属角色','账号状态','创建时间','修改时间','操作'])
-let fields = ref(['username','name','phone','roles','state','createTime','updateTime'])
-let users = ref(
+let fields = ref(['username','name','phone','roleList','state','createTime','updateTime'])
+let users = ref([
     {
         username: 'zym666',
         name: '朱大萌',
         phone: '1008611',
-        roles: '普通管理员,运维管理员,牛马管理员',
+        roleList: '普通管理员,运维管理员,牛马管理员',
         state: '正常',
         createTime: '2024-03-21',
         updateTime: '2024-04-21'
-    }
+    }]
 )
 function saveUser(){
 
 }
 // 指定按钮动态边框和文字颜色
 let buttonColor = ref('#4361ee')
-let chooseBoxs = ref([false,false])
+// let chooseBoxs = ref([])
+let switchValues = ref([])
+// 获取选中的用户的信息
+function chooseUsers(){
+    for(var j = 0;j < users.value.length;j++){
+    console.log(users.value[j].isChoose)
+        if(!users.value[j].isChoose && users.value[j].isChoose !== undefined){
+            console.log('===================================')
+            console.log('有第' + j + '个用户msg')
+            console.log(users.value[j])
+            console.log('===================================')
+        }else{
+            console.log('-----------------------------------------')
+            console.log('没有第' + j + '个用户msg')
+            console.log(users.value[j])
+            console.log('-----------------------------------------')
+        }
+    }
+}
+// 绑定当前页数
+let currentPage = ref(1)
+// 每页显示的最多数目
+let pageSize = ref(5)
+// 总共的数目
+let pageTotal = ref(10)
+const getPages = async()=>{
+    let {data} = await getPageUsers(currentPage.value,pageSize.value,{keyword:''});
+    users.value = data.records
+    pageTotal.value = data.total
+    console.log('==============Data==================')
+    console.log(data)
+    console.log('==============Data==================')
+}
+// 页数改变时加载一次分页数据
+function handleCurrentChange(){
+    getPages(currentPage.value,pageSize.value,{keyword:''})
+}
+// 单页面最大数目改变时再加载
+function handleSizeChange(){
+    getPages(currentPage.value,pageSize.value,{keyword:''})
+}
+onMounted(()=>{
+    console.log('进入onMounted')
+    // 初始时加载一次分页的数据
+    getPages()
+})
 </script>
 
 <style lang="scss" scoped>
@@ -88,7 +159,7 @@ let chooseBoxs = ref([false,false])
     }
     .tableBox{
         width: 74%;
-        max-height: 78vh;
+        // max-height: 78vh;
         padding: 1vh 2vw;
         .tableFuns{
             width: 100%;
@@ -144,6 +215,58 @@ let chooseBoxs = ref([false,false])
             }
             .ltrBackColor{
                 background: rgb(250,250,250);
+            }
+        }
+        .usePage{
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            .page{
+                $page-font-size: 10px;
+                padding: 0 0;
+                margin: 0 0;
+                font-size: $page-font-size;
+                :deep(){
+                    .el-select--default{
+                        width: 6vw;
+                        font-size: $page-font-size;
+                    }
+                    .el-tooltip__trigger{
+                        font-size: $page-font-size;
+                        height: 4vh;
+                        min-height: 1vh;
+                    }
+                    .el-select__suffix{
+                        .el-select__icon{
+                            font-size: $page-font-size;
+                        }
+                    }
+                    .btn-prev,.btn-next{
+                        .el-icon{
+                            font-size: $page-font-size;
+                        }
+                    }
+                    .el-pager{
+                        .number{
+                            font-size: $page-font-size;
+                        }
+                        .el-icon{
+                            font-size: $page-font-size;
+                        }
+                    }
+                    .el-pagination__jump{
+                        .el-pagination__goto{
+                            font-size: 0px;
+                        }
+                        .el-input__wrapper{
+                            height: 4vh;
+                            font-size: $page-font-size;
+                            padding: 0 0;
+                        }
+                    }
+                }
+                
             }
         }
     }
