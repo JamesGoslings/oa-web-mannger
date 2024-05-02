@@ -1,8 +1,15 @@
 <template>
-    <button class="iconfont btn">{{txt}}</button>
+    <button class="iconfont btn" @click="changeBackColorTemp()" :style="{backgroundColor: tempColor}">{{txt}}</button>
 </template>
 
 <script setup>
+let tempColor = ref('')
+function changeBackColorTemp(){
+    tempColor.value = 'rgba(221,221,221)'
+    setTimeout(()=>{
+        tempColor.value = ''
+    },200)
+}
 let props = defineProps({
 	actColor: {
 		type: String,
@@ -83,6 +90,8 @@ button:hover::before, button:hover::after {
 }
 
 button:hover::before {
+    // background: rgba(221,221,221,0.3);
+
     border-top-color: v-bind(buttonColor);
     border-right-color: v-bind(buttonColor);
     transition: width 0.3s ease-out, height 0.3s ease-out 0.3s;
@@ -90,8 +99,8 @@ button:hover::before {
 
 button:hover::after {
     border-bottom-color: v-bind(buttonColor);
+    // background: rgba(221,221,221,0.3);
     border-left-color: v-bind(buttonColor);
     transition: border-color 0s ease-out 0.6s, width 0.3s ease-out 0.6s, height 0.3s ease-out 1s;
 }
-
 </style>

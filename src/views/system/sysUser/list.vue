@@ -4,9 +4,80 @@
         <div class="funTitle">用户表</div>
         <div class="baseCard tableBox">
             <div class="tableFuns">
-                <actButton class="actBtn" txt='+添加' actColor="rgb(60,118,244)"></actButton>
-                <actButton class="actBtn" txt='&#xe614; 重置' actColor="rgb(234,123,54)" backColor="rgb(252,245,237)"></actButton>
-                <myInputBar class="myIpt" text="搜索用户" fontColor="rgb(9,82,200)" holderColor="rgb(211,227,253)"></myInputBar>
+                <actButton class="actBtn" txt='+添加' actColor="rgb(60,118,244)" @click="dialogFormVisible = true"></actButton>
+                <actButton class="actBtn" txt='&#xe614; 重置' actColor="rgb(234,123,54)" backColor="rgb(252,245,237)" @click="resetPage()" />
+                <myInputBar class="myIpt" text="搜索用户，请输入用户名或姓名或电话号码" fontColor="rgb(9,82,200)" holderColor="rgb(211,227,253)"
+                v-model="iptValue" @on-enter="handleEnter" />
+                <!-- 添加/修改用户的弹窗 -->
+
+                <el-dialog v-model="dialogFormVisible" title="添加用户" width="500" class="dialog">
+                <el-form :model="form">
+                    <el-form-item label="姓名" label-width="140px">
+                    <el-input v-model="changedUser.name" autocomplete="off" />
+                    </el-form-item>
+
+                    <el-form-item label="电话号码" label-width="140px">
+                    <el-input v-model="changedUser.phone" autocomplete="off" />
+                    </el-form-item>
+
+                    <el-form-item label="用户名" label-width="140px">
+                    <el-input v-model="changedUser.username" autocomplete="off" @input="checkUsername()" />
+                    </el-form-item>
+                    <p class="errMsg">{{iptMsg.usernameErrorMsg}}</p>
+
+                    <el-form-item label="密码" label-width="140px">
+                        <el-input v-model="changedUser.password" autocomplete="off" @input="checkPwd(0)" type="password"/>
+                    </el-form-item>
+                    <p class="errMsg">{{iptMsg.errorMsg}}</p>
+
+                    <el-form-item label="再次输入密码" label-width="140px">
+                        <el-input v-model="iptMsg.rePassword" autocomplete="off" @input="checkPwd(1)" type="password" />
+                    </el-form-item>
+                    <p class="errMsg">{{iptMsg.reErrorMsg}}</p>
+                    <!-- 岗位和部门改选项式填写 -->
+                    <el-form-item label="部门" label-width="140px">
+                        <el-select
+                        v-model="chooseDept"
+                        filterable
+                        placeholder="选择部门"
+                        style="width: 240px"
+                        >
+                            <el-option
+                            v-for="dept in totalDept"
+                            :key="dept.id"
+                            :label="dept.name"
+                            :value="dept.id"
+                            />
+                        </el-select>
+                    </el-form-item>
+                    <!-- 保证只显示所选部门及其子部门的岗位 -->      
+
+                    <el-form-item label="岗位" label-width="140px">
+                        <el-select
+                        v-model="choosePost"
+                        filterable
+                        placeholder="选择岗位"
+                        style="width: 240px"
+                        >
+                            <el-option
+                            v-for="post in needPosts"
+                            :key="post.id"
+                            :label="post.name"
+                            :value="post.id"
+                            />
+                        </el-select>
+                    </el-form-item>
+
+                </el-form>
+                <template #footer>
+                    <div class="dialog-footer">
+                    <el-button @click="dialogFormVisible = false">取消</el-button>
+                    <el-button type="primary" @click="dialogFormVisible = false" :disabled="checkAll()">
+                        确定
+                    </el-button>
+                    </div>
+                </template>
+                </el-dialog>
             </div>
             <table class="table" cellspacing="0px">
                 <tr class="ltr">
@@ -23,8 +94,16 @@
                         <td v-for="(field, j) in fields" :key="j">
                             <span v-if="field !== 'state'">{{user[field]}}</span>
                             <span v-else>
-                                <MySwitch right-back-color="rgb(244,249,255)" wrong-back-color="rgb(252,245,237)" 
-                                right-font-color="rgb(60,118,244)" wrong-font-color="rgb(234,123,54)" />
+                                <!-- <MySwitch right-back-color="rgb(244,249,255)" wrong-back-color="rgb(252,245,237)" 
+                                right-font-color="rgb(60,118,244)" wrong-font-color="rgb(234,123,54)" /> -->
+                                <el-switch
+                                class="mt-2"
+                                v-model="statusValue[user.userId]"
+                                inline-prompt
+                                :active-icon="Check"
+                                :inactive-icon="Close"
+                                @click="updateStatus(statusValue[user.userId],user.status,user.userId)"
+                                />
                             </span>
                         </td>
                         <td>
@@ -76,9 +155,120 @@ import myInputBar from "@/components/MyInputBar.vue"
 import baseButton from '@/components/BaseIconButton.vue'
 import MySwitch from '@/components/MySwitch.vue'
 import {useRouter} from 'vue-router'
-import {getPageUsers,getAllUserMsg} from '@/api/user'
+import {getPageUsers,getAllUserMsg,updateUserStatus,checkUsernameIsExist} from '@/api/user'
+import {getAllDept} from '@/api/dept'
+import {getAllPostByDeptId} from '@/api/post'
 import { onMounted, watch } from 'vue'
+import { Check, Close } from '@element-plus/icons-vue'
 
+// 判断是否打开弹窗
+let dialogFormVisible = ref(false)
+// 存再次输入的密码以及错误信息
+let iptMsg = ref(
+    {rePassword: '',reErrorMsg: '',errorMsg: '',usernameErrorMsg: ''}
+)
+let isSubmit = ref(false)
+// 存储添加/修改后的用户的值
+let changedUser = ref({})
+// 输入密码或再次密码时触发的校对方法(type为0则是pwd，为1则是rePwd)
+function checkPwd(type){
+    let pwd = changedUser.value.password
+    let rePwd = iptMsg.value.rePassword
+    if(type === 0){
+        console.log('输入密码')
+        if(pwd.length < 4){
+            iptMsg.value.errorMsg = '* 密码不能少于4字符'
+            return false
+        }else{
+            iptMsg.value.errorMsg = '√'
+            return true
+        }
+    }else{
+        if(rePwd.length < 4){
+            iptMsg.value.reErrorMsg = '* 密码不能少于4字符'
+            return false
+        }else if(rePwd !== pwd){
+            iptMsg.value.reErrorMsg = '* 密码不一致'
+            return false
+        }else{
+            iptMsg.value.reErrorMsg = '√'
+            // isSubmit.value = true
+            return true
+        }
+    }
+}
+// 校对用户名是否重复
+const checkUsername = async()=>{
+    let username = changedUser.value.username
+    if(username === null || username === undefined){
+        username = ''
+    }
+    let {data} = await checkUsernameIsExist(username)
+    if(data.isExist){
+        iptMsg.value.usernameErrorMsg = '* 用户名已经存在'
+        return false
+    }else{
+        iptMsg.value.usernameErrorMsg = '√'
+        return true
+    }
+}
+// 综合所有校验，保证所有校验都通过才能提交
+const checkAll = async()=>{
+    let f1 = await checkUsername()
+    let f2 = await checkPwd(0)
+    let f3 = await checkPwd(1)
+    console.log('============FList====================')
+    console.log(f1)
+    console.log(f2)
+    console.log(f3)
+    console.log(!(f1 && f2 && f3))
+
+    console.log('============FList====================')
+    // isSubmit.value = !(f1 && f2 && f3)
+    return !(f1 && f2 && f3)
+}
+
+// 存所有用户的账号状态
+let statusValue = ref({})
+// 确定input的类型，看是不是输入密码
+
+const updateStatus = async(flag,oldStatus,userId)=>{
+    let statusNum = flag ? 1 : 0
+    // 状态值不一致，就进行修改
+    if(statusNum !== oldStatus){
+        console.log('不一致')
+        console.log(statusNum)
+        let data = await updateUserStatus(userId,statusNum);
+        console.log(data)
+    }
+}
+// 存拿到的所有部门信息
+let totalDept = ref([])
+const getAllDeptList = async()=>{
+    let {data} = await getAllDept()
+    totalDept.value = data
+}
+// 绑定用户选择的部门值
+let chooseDept = ref()
+// 存拿到的当前选中部门及其所有子部门对应的所有岗位
+let needPosts = ref([])
+const getallSelfAndChildrenByDeptId = async()=>{
+    let aDeptId = chooseDept.value
+    console.log(aDeptId)
+    let {data} = await getAllPostByDeptId(aDeptId);
+    needPosts.value = data
+}
+// 绑定用户选择的岗位值
+let choosePost = ref('')
+// 监听用户选择的部门的id，改变时重新拉请求更新可选岗位的数据
+watch(
+    chooseDept,
+    (newValue,oldValue)=>{
+        getallSelfAndChildrenByDeptId()
+    }
+)
+// 判断是否禁用当前开关
+let isSwitchDisabled = ref(false)
 const router = useRouter()
 let tabHeads = ref(['用户名','姓名','手机','所属角色','账号状态','创建时间','修改时间','操作'])
 let fields = ref(['username','name','phone','roleList','state','createTime','updateTime'])
@@ -121,14 +311,6 @@ function chooseUsers(){
         }
     }
     choseUsers.value = tempList;
-    console.log('==============VVVVVV=======================')
-    for (const key in choices.value) {
-        console.log(key)
-        console.log(choices.value[key])
-    }
-    console.log('666666666666=============>>>>')
-    console.log(choices.value[6])
-    console.log('==============VVVVVV=======================')
 }
 // 用来存选中值(userId和isChoose进行映射),保证在重新拉请求之后选中值不会重置
 let choices = ref({})
@@ -146,8 +328,21 @@ let currentPage = ref(1)
 let pageSize = ref(5)
 // 总共的数目
 let pageTotal = ref(10)
-const getPages = async()=>{
-    let {data} = await getPageUsers(currentPage.value,pageSize.value,{keyword:''});
+// 输入的条件关键字
+let iptValue = ref('')
+//  按下回车触发的方法
+function handleEnter(){
+  // 按下回车键时执行的逻辑
+  console.log('===============================================')
+  console.log('你按下了回车键，输入的值是:', iptValue.value);
+  console.log('===============================================')
+  getPages({keyword: iptValue.value})
+  // 逻辑完成清除输入值
+  iptValue.value = ''
+}
+const getPages = async(obj={keyword: ''})=>{
+    // let {data} = await getPageUsers(currentPage.value,pageSize.value,{keyword:''});
+    let {data} = await getPageUsers(currentPage.value,pageSize.value,obj);
     users.value = data.records
     pageTotal.value = data.total
     console.log('==============Data==================')
@@ -156,19 +351,27 @@ const getPages = async()=>{
 }
 // 页数改变时加载一次分页数据
 function handleCurrentChange(){
-    getPages(currentPage.value,pageSize.value,{keyword:''})
+    getPages({keyword:''})
 }
 // 单页面最大数目改变时再加载
 function handleSizeChange(){
-    getPages(currentPage.value,pageSize.value,{keyword:''})
+    getPages({keyword:''})
+}
+// 重置分页页面显示
+function resetPage(){
+    currentPage.value = 1;
+    pageSize.value = 5
+    getPages({keyword:''})
 }
 // 存拿到的所有用户信息
 let allUsers = ref([])
 const getAll = async()=>{
     let {data} = await getAllUserMsg();
     allUsers.value = data
-    // 将本次拿到的所有userId对应的chice都映射成false
+    // 将本次拿到的所有userId对应的chice都映射成false,并将status通过数字映射成boolean
     for(var i = 0;i < data.length;i++){
+        let statusNum = data[i].status
+        statusValue.value[data[i].userId] = (statusNum == 1)
         if(!choices.value[data[i].userId]){
             choices.value[data[i].userId] = false
         }
@@ -179,7 +382,10 @@ onMounted(()=>{
     // 初始时加载一次分页的数据
     getPages()
     getAll()
-
+    // 弹窗使用所需数据的加载
+    getAllDeptList()
+    // 初始化可选择的部门
+    getallSelfAndChildrenByDeptId()
 })
 </script>
 
@@ -223,6 +429,27 @@ onMounted(()=>{
                 width: 40vw;
                 height: 4vh;
                 box-shadow: 0px 0px 1px #928c8c64;
+            }
+            :deep(){
+                .dialog{
+                    .errMsg{
+                        color: rgb(249,190,23);
+                        font-size: 13px;
+                    }
+                    .el-dialog__header{
+                        text-align: center;
+                        margin-left: 48px;
+                        color: rgb(36,47,87);
+                    }
+                    .el-form{
+                        display: flex;
+                        flex-wrap: wrap;
+                    }
+                    .dialog-footer{
+                        display: flex;
+                        justify-content: center;
+                    }
+                }
             }
         }
         .table{
