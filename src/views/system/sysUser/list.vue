@@ -13,14 +13,12 @@
                     <th class="td2">-</th>
                     <th v-for="(tabHead,i) in tabHeads" :key="i">{{tabHead}}</th>
                 </tr>
-                
-                            
                 <tbody v-for="(user,i) in users" :key="i">
                     <tr :class="{'ltr': true,'ltrBackColor': i % 2 === 0}" @load="trStyleChoose(i)">
                         <td class="td2">
                             <!-- <input class="checkBoxStyle" type="checkbox" @click="chooseUsers()"
                             v-model="user.isChoose" style="width: 1vw;user-select: none;"/> -->
-                            <el-checkbox v-model="user.isChoose" @click="chooseUsers()" />
+                            <el-checkbox v-model="user.isChoose"/>
                         </td>
                         <td v-for="(field, j) in fields" :key="j">
                             <span v-if="field !== 'state'">{{user[field]}}</span>
@@ -54,7 +52,9 @@
         </div>
         <div class="chooseUsers">
             <div class="baseCard boxTitle">已选中用户</div>
-            <div class="baseCard userCard" v-for="(it,i) in 3" :key="i"></div>
+            <div class="baseCard userCard" v-for="(it,i) in 3" :key="i">
+                <img class="avatar" src="/src/assets/img/avatar.jpg" />
+            </div>
         </div>
     </div>
 </template>
@@ -66,8 +66,7 @@ import baseButton from '@/components/BaseIconButton.vue'
 import MySwitch from '@/components/MySwitch.vue'
 import {useRouter} from 'vue-router'
 import {getPageUsers} from '@/api/user'
-import { onMounted } from 'vue'
-// import { pa } from 'element-plus/es/locale'
+import { onMounted, watch } from 'vue'
 
 const router = useRouter()
 let tabHeads = ref(['用户名','姓名','手机','所属角色','账号状态','创建时间','修改时间','操作'])
@@ -90,23 +89,36 @@ function saveUser(){
 let buttonColor = ref('#4361ee')
 // let chooseBoxs = ref([])
 let switchValues = ref([])
+
+// 存储被选中的用户
+let choseUsers = ref([])
 // 获取选中的用户的信息
 function chooseUsers(){
+    let tempList = []
+    let t = 0;
     for(var j = 0;j < users.value.length;j++){
-    console.log(users.value[j].isChoose)
-        if(!users.value[j].isChoose && users.value[j].isChoose !== undefined){
+        if(users.value[j].isChoose && users.value[j].isChoose !== undefined){
+            tempList[t] = users.value[j]
+            t++;
             console.log('===================================')
             console.log('有第' + j + '个用户msg')
             console.log(users.value[j])
             console.log('===================================')
-        }else{
-            console.log('-----------------------------------------')
-            console.log('没有第' + j + '个用户msg')
-            console.log(users.value[j])
-            console.log('-----------------------------------------')
         }
     }
+    choseUsers.value = tempList;
 }
+// 创建一个计算属性来映射所有user的isChoose的变化
+const mappedUsersIsChoose = computed(() => {
+  return users.value.map(item => item.isChoose);
+}); 
+watch(
+    mappedUsersIsChoose,
+    (newValue,oldValue)=>{
+        chooseUsers()
+    },
+    {deep: true}
+)
 // 绑定当前页数
 let currentPage = ref(1)
 // 每页显示的最多数目
@@ -138,6 +150,7 @@ onMounted(()=>{
 
 <style lang="scss" scoped>
 @import '/src/styles/globalPage.scss';
+@import '/src/styles/listSize.scss';
 
 .userManngerAll{
     margin-left: $left-distance;
@@ -153,7 +166,7 @@ onMounted(()=>{
         align-items: center;
         margin-top: 2vh;
         margin-bottom: 4vh;
-        font-size: 12px;
+        font-size: $title-font-size;
         font-weight: 550;
         color: rgb(36,47,87);
     }
@@ -190,7 +203,7 @@ onMounted(()=>{
                 // color: rgb(136,136,136);
                 color: rgb(36,47,87);
                 width: 100%;
-                font-size: 9px;
+                font-size: $common-font-size;
                 text-align: center;
                 th{
                     max-height: 2vh;
@@ -223,7 +236,8 @@ onMounted(()=>{
             justify-content: center;
             align-items: center;
             .page{
-                $page-font-size: 10px;
+                $page-font-size: $common-font-size;
+;
                 padding: 0 0;
                 margin: 0 0;
                 font-size: $page-font-size;
@@ -275,13 +289,17 @@ onMounted(()=>{
         .boxTitle{
             padding: 0.5vh 0;
             text-align: center;
-            font-size: 10px;
+            font-size: $common-font-size;
             font-weight: 550;
             color: rgb(36,47,87);
         }
         .userCard{
             min-height: 22.42vh;
             margin: 3vh 0;
+            .avatar{
+                width: 30px;
+                height: 30px;
+            }
         }
     }
 }

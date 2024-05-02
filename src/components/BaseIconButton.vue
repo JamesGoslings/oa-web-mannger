@@ -13,7 +13,7 @@ let props = defineProps({
     fontSize:{
         type: String,
         default(){
-            return '12px'
+            return '20px'
         }
     },
     mainBackColor:{

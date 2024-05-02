@@ -30,6 +30,7 @@ function useFun(i){
 </script>
 
 <style lang="scss" scoped>
+@import '/src/styles/listSize.scss';
 .userMenu{
     position: fixed;
     top: 8vh;
@@ -50,7 +51,7 @@ function useFun(i){
         flex-wrap: wrap;
         padding: 1vh 0;
         .menuText{
-            font-size: 9px;
+            font-size: $common-font-size;
             font-family: '幼圆';
         }
         .line{

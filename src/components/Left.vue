@@ -102,6 +102,7 @@ function receivePath(path){
 <style lang="scss" scoped>
 @import url('/src/assets/font-icon/iconfont.css');
 @import '/src/styles/globalPage.scss';
+@import '/src/styles/listSize.scss';
 
 .rightAll{
     position: fixed;
@@ -136,11 +137,11 @@ function receivePath(path){
             align-items: center;
             .menuIco{
                 margin-left: 1vw;
-                font-size: 15px;
+                font-size: $title-font-size;
             }
             .icoText{
                 margin-left: 1vw;
-                font-size: 9px;
+                font-size: $common-font-size;
                 // font-weight: bold;
             }
         }

@@ -142,6 +142,7 @@ function routerPash(menu){
 
 <style lang="scss" scoped>
 @import url('/src/assets/font-icon/iconfont.css');
+@import '/src/styles/listSize.scss';
 .treeAll{
     width: 100%;
     font-size: 10px;
@@ -170,16 +171,16 @@ function routerPash(menu){
                 align-items: center;
                 .menuIco{
                     margin-left: 1vw;
-                    font-size: 15px;
+                    font-size: $title-font-size;
                 }
                 .icoText{
                     margin-left: 1vw;
-                    font-size: 8px;
+                    font-size: $common-font-size;
                 }
             }
             .chooseIco{
                 // margin-right: 1vw;
-                font-size: 12px;
+                font-size: $common-font-size;
             }
         }
     }

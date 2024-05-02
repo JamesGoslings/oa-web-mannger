@@ -25,7 +25,7 @@ let props = defineProps({
     textSize:{
         type: String,
         default(){
-            return '9px'
+            return '15px'
         }
     }
 })

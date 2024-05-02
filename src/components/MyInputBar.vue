@@ -68,6 +68,7 @@ function borderChange(){
 
 <style lang="scss" scoped>
 @import url('/src/assets/font-icon/iconfont.css');
+@import '/src/styles/listSize.scss';
 .iptBox{
     width: 40%;
     height: 50%;
@@ -79,12 +80,13 @@ function borderChange(){
     align-items: center;
     .ico{
         width: 10%;
-        font-size: 10px;
+        font-size: $common-font-size;
         color: rgb(169,175,191);
         text-align: center;
     }
     input::placeholder{
-        font-size: 8px;
+        font-size: $common-font-size;
+;
         font-weight: bold;
         color: v-bind(holderColor);
     }
@@ -94,7 +96,7 @@ function borderChange(){
         outline: none;
         width: 80%;
         height: 80%;
-        font-size: 8px;
+        font-size: $common-font-size;
         font-weight: bold;
         color: v-bind(fontColor);
     }

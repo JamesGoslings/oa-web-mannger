@@ -58,6 +58,7 @@ const useLogin = async()=>{
 
 <style lang="scss" scoped>
 @import url('/src/assets/font-icon/iconfont.css');
+@import '/src/styles/listSize.scss';
 .globalSty{
     position: fixed;
 	top: 0;
@@ -106,10 +107,11 @@ const useLogin = async()=>{
                     width: 100%;
                     height: 20%;
                     text-align: center;
+                    font-size: 30px;
                     color: rgb(235,229,225);
                 }
                 .errorText{
-                    font-size: 8px;
+                    font-size: $common-font-size;
                     color: rgb(249,190,23)
                 }
                 .iptBox{
@@ -123,12 +125,12 @@ const useLogin = async()=>{
                     align-items: center;
                     .ico{
                         width: 10%;
-                        font-size: 10px;
+                        font-size: $common-font-size;
                         color: rgb(235,229,225);
                         text-align: center;
                     }
                     input::placeholder{
-                        font-size: 10px;
+                        font-size: $common-font-size;
                         color: rgb(235,229,225);
                     }
                     .ipt{
@@ -137,7 +139,7 @@ const useLogin = async()=>{
                         outline: none;
                         width: 80%;
                         height: 90%;
-                        font-size: 10px;
+                        font-size: $common-font-size;
                         color: rgb(199, 192, 188);
                     }
                 }
@@ -148,7 +150,7 @@ const useLogin = async()=>{
                     background: rgb(246,98,86);
                     width: 80%;
                     height: 12%;
-                    font-size: 10px;
+                    font-size: $common-font-size;
                     color: #FFF;
                     transition: border-radius 2s;
                     -webkit-transition: border-radius 1s;
