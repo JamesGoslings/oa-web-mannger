@@ -18,7 +18,7 @@
                         <td class="td2">
                             <!-- <input class="checkBoxStyle" type="checkbox" @click="chooseUsers()"
                             v-model="user.isChoose" style="width: 1vw;user-select: none;"/> -->
-                            <el-checkbox v-model="user.isChoose"/>
+                            <el-checkbox v-model="choices[user.userId]"/>
                         </td>
                         <td v-for="(field, j) in fields" :key="j">
                             <span v-if="field !== 'state'">{{user[field]}}</span>
@@ -52,8 +52,19 @@
         </div>
         <div class="chooseUsers">
             <div class="baseCard boxTitle">已选中用户</div>
-            <div class="baseCard userCard" v-for="(it,i) in 3" :key="i">
-                <img class="avatar" src="/src/assets/img/avatar.jpg" />
+            <div class="baseCard userCard" v-for="(user,i) in choseUsers" :key="i">
+                <img class="avatar" :src="user.avatarUrl" />
+                <div class="msg">
+                    <div class="name">{{user.name}}</div>
+                    <div>{{`部门：${user.dept}`}}</div>
+                    <div>{{`岗位：${user.post}`}}</div>
+                    <div>{{`电话号码；${user.phone}`}}</div>
+                    <div>
+                        <baseButton style="margin: 5px 5px;" content="&#xe71a;" main-back-color="rgb(60,118,244)" />
+                        <baseButton style="margin: 5px 5px;" main-back-color="rgb(234,123,54)" />
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>
@@ -65,7 +76,7 @@ import myInputBar from "@/components/MyInputBar.vue"
 import baseButton from '@/components/BaseIconButton.vue'
 import MySwitch from '@/components/MySwitch.vue'
 import {useRouter} from 'vue-router'
-import {getPageUsers} from '@/api/user'
+import {getPageUsers,getAllUserMsg} from '@/api/user'
 import { onMounted, watch } from 'vue'
 
 const router = useRouter()
@@ -96,24 +107,34 @@ let choseUsers = ref([])
 function chooseUsers(){
     let tempList = []
     let t = 0;
-    for(var j = 0;j < users.value.length;j++){
-        if(users.value[j].isChoose && users.value[j].isChoose !== undefined){
-            tempList[t] = users.value[j]
-            t++;
-            console.log('===================================')
-            console.log('有第' + j + '个用户msg')
-            console.log(users.value[j])
-            console.log('===================================')
+    for(var j = 0;j < allUsers.value.length;j++){
+        // let is = users.value[j].isChoose
+        // 存选中值信息
+        let is = choices.value[allUsers.value[j].userId];
+        if(is && is !== undefined){
+            // 头像的设定
+            let avatar = allUsers.value[j].avatarUrl
+            if(avatar == null || avatar === ''){
+                allUsers.value[j].avatarUrl = '/src/assets/img/default_avatar.png'
+            }
+            tempList[t++] = allUsers.value[j]
         }
     }
     choseUsers.value = tempList;
+    console.log('==============VVVVVV=======================')
+    for (const key in choices.value) {
+        console.log(key)
+        console.log(choices.value[key])
+    }
+    console.log('666666666666=============>>>>')
+    console.log(choices.value[6])
+    console.log('==============VVVVVV=======================')
 }
-// 创建一个计算属性来映射所有user的isChoose的变化
-const mappedUsersIsChoose = computed(() => {
-  return users.value.map(item => item.isChoose);
-}); 
+// 用来存选中值(userId和isChoose进行映射),保证在重新拉请求之后选中值不会重置
+let choices = ref({})
+
 watch(
-    mappedUsersIsChoose,
+    choices.value,
     (newValue,oldValue)=>{
         chooseUsers()
     },
@@ -130,7 +151,7 @@ const getPages = async()=>{
     users.value = data.records
     pageTotal.value = data.total
     console.log('==============Data==================')
-    console.log(data)
+    console.log(users.value)
     console.log('==============Data==================')
 }
 // 页数改变时加载一次分页数据
@@ -141,10 +162,24 @@ function handleCurrentChange(){
 function handleSizeChange(){
     getPages(currentPage.value,pageSize.value,{keyword:''})
 }
+// 存拿到的所有用户信息
+let allUsers = ref([])
+const getAll = async()=>{
+    let {data} = await getAllUserMsg();
+    allUsers.value = data
+    // 将本次拿到的所有userId对应的chice都映射成false
+    for(var i = 0;i < data.length;i++){
+        if(!choices.value[data[i].userId]){
+            choices.value[data[i].userId] = false
+        }
+    }
+}
 onMounted(()=>{
     console.log('进入onMounted')
     // 初始时加载一次分页的数据
     getPages()
+    getAll()
+
 })
 </script>
 
@@ -296,9 +331,27 @@ onMounted(()=>{
         .userCard{
             min-height: 22.42vh;
             margin: 3vh 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
             .avatar{
-                width: 30px;
-                height: 30px;
+                margin-top: 20px;
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+            }
+            .msg{
+                width: 100%;
+                text-align: center;
+                user-select: none;
+                font-size: $common-font-size - 2px;
+                color: #878D98;
+                font-family: '幼圆';
+                .name{
+                    font-size: $title-font-size;
+                    font-weight: bolder;
+                    color: black;
+                }
             }
         }
     }

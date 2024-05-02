@@ -3,7 +3,7 @@
     <div class="topAll">
         <myInputBar v-model="iptValue" @on-enter="handleEnter"></myInputBar>
         <span class="user">
-            <img class="avatar" src="/src/assets/img/avatar.jpg"/>
+            <img class="avatar" src="/src/assets/img/default_avatar.png"/>
             <span class="name">admin</span>
             <span class="open iconfont" style="-moz-transform: rotate(-90deg);-webkit-transform: rotate(-90deg);"
             v-if="!isChoose" @click="isChoose = !isChoose">&#xe656;</span>

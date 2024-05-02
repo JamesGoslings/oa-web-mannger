@@ -12,6 +12,15 @@ export function userInfo (){
         }
     )
 }
+// 拿到全部用户信息
+export function getAllUserMsg (){
+    return request(
+        {
+            url: USER_URL + 'all',
+            method: 'GET'
+        }
+    )
+}
 // 分页拿用户表
 export function getPageUsers(page,limit,seachObj){
     return request(
