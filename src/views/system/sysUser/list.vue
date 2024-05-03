@@ -164,7 +164,8 @@
                     <div>{{`岗位：${user.post}`}}</div>
                     <div>{{`电话号码；${user.phone}`}}</div>
                     <div>
-                        <baseButton style="margin: 5px 5px;" content="&#xe71a;" main-back-color="rgb(60,118,244)" />
+                        <baseButton style="margin: 5px 5px;" content="&#xe71a;" main-back-color="rgb(60,118,244)"
+                        @click="saveOrUpdateDialogInit(1,user)" />
                         <baseButton style="margin: 5px 5px;" main-back-color="rgb(234,123,54)" @click="openRemoveDialog(user)" />
                     </div>
 
@@ -340,6 +341,10 @@ const updateThisUser = async()=>{
     successMsg.value = `修改用户${updatedUser.name}成功`
     openSuccess()
     getPages({keyword:''})
+    // 更新总数据，保证选中列表中数据也同步,同时保证显示数据是在重新获取数据完毕之后
+    getAll().then(()=>{
+        chooseUsers()
+    })
 }
 // 保存用户到数据库
 const saveUser = async()=>{
