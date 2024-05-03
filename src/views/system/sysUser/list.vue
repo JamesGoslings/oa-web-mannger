@@ -104,7 +104,8 @@
                             <el-checkbox v-model="choices[user.userId]"/>
                         </td>
                         <td v-for="(field, j) in fields" :key="j">
-                            <span v-if="field !== 'state'">{{user[field]}}</span>
+                            <span v-if="field !== 'state' && field !== 'roleList'">{{user[field]}}</span>
+                            <span v-else-if="field === 'roleList'" v-text="getMyRoleListNames(user.roleList)"></span>
                             <span v-else>
                                 <el-switch
                                 class="mt-2"
@@ -116,7 +117,7 @@
                                 />
                             </span>
                         </td>
-                        <td>
+                        <td style="min-width: 8vw;">
                             <!-- 修改按钮 -->
                             <baseButton content="&#xe71a;" mainBackColor="rgb(244,249,255)" fontColor="rgb(60,118,244)"
                             @click="saveOrUpdateDialogInit(1,user)" style="margin-right: 1vw;" title="修改"/>
@@ -266,6 +267,7 @@ const doThisAssign = async()=>{
     console.log(data)
     assignDialogOpen.value = false
     useTips(`为 "${assignUser.value.name}" 分配角色成功`,data)
+    getPages({keyword:''})
 }
 // 用于确定是否打开分配角色的对话框
 let assignDialogOpen = ref(false)
@@ -526,13 +528,24 @@ let users = ref([
         username: 'zym666',
         name: '朱大萌',
         phone: '1008611',
-        roleList: '普通管理员,运维管理员,牛马管理员',
+        roleList: [],
         state: '正常',
         createTime: '2024-03-21',
         updateTime: '2024-04-21'
     }]
 )
-
+// 将roleList转成名字拼成的字符串
+function getMyRoleListNames(roleList){
+    let rolesNameStr = ''
+    let i = 0
+    roleList.forEach(role=>{
+        if(i === 0){
+            rolesNameStr += role.roleName
+        }else rolesNameStr += '、' + role.roleName
+        i++
+    })
+    return rolesNameStr === '' ? '无角色' : rolesNameStr
+}
 // 指定按钮动态边框和文字颜色
 let buttonColor = ref('#4361ee')
 // let chooseBoxs = ref([])
@@ -771,6 +784,7 @@ onMounted(()=>{
             }
         }
         .usePage{
+            margin-top: 2vh;
             width: 100%;
             display: flex;
             justify-content: center;
