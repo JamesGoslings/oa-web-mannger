@@ -119,16 +119,39 @@
                         <td>
                             <!-- 修改按钮 -->
                             <baseButton content="&#xe71a;" mainBackColor="rgb(244,249,255)" fontColor="rgb(60,118,244)"
-                            @click="saveOrUpdateDialogInit(1,user)" style="margin-right: 1vw;"/>
-                            <baseButton mainBackColor="rgb(252,245,237)" fontColor="rgb(234,123,54)" @click="openRemoveDialog(user)" />
+                            @click="saveOrUpdateDialogInit(1,user)" style="margin-right: 1vw;" title="修改"/>
+                            <baseButton content="&#xe60d;" mainBackColor="rgb(250,252,254)" fontColor="rgb(143, 150, 172)"
+                            style="margin-right: 1vw;" title="分配角色" @click="initRoleDialog(user)" />
+                            <baseButton mainBackColor="rgb(252,245,237)" fontColor="rgb(234,123,54)" @click="openRemoveDialog(user)" title="删除" />
                         </td>
                     </tr>
                     
                 </tbody>
 
             </table>
+                <!-- 分配角色的提示框 -->
+                <el-dialog v-model="assignDialogOpen" :title="assignTitle" width="500" class="dialog"
+                draggable :close-on-click-modal="false">
+                    <div class="checkBoxes">
+                        <span v-for="(role,i) in allRoles" :key="i" style="margin: 0 5px" >
+                            <span>
+                                <el-checkbox v-model="role.isChoose"/>
+                                {{role.roleName}}
+                            </span>
+                        </span>
+                    </div>
+                    <template #footer>
+                        <div class="dialog-footer">
+                            <el-button @click="assignDialogOpen = false">取消</el-button>
+                            <el-button type="primary" @click="doThisAssign()">
+                                确定
+                            </el-button>
+                        </div>
+                    </template>
+                </el-dialog>
+
                 <!-- 删除单用户的提示框  -->
-                <el-dialog v-model="removeDialogOpen" :title="removeDialogTitle"  width="500" class="dialog"
+                <el-dialog v-model="removeDialogOpen" :title="removeDialogTitle"  width="400" class="dialog"
                 draggable :close-on-click-modal="false">
                     <template #footer>
                         <div class="dialog-footer">
@@ -164,9 +187,12 @@
                     <div>{{`岗位：${user.post}`}}</div>
                     <div>{{`电话号码；${user.phone}`}}</div>
                     <div>
-                        <baseButton style="margin: 5px 5px;" content="&#xe71a;" main-back-color="rgb(60,118,244)"
-                        @click="saveOrUpdateDialogInit(1,user)" />
-                        <baseButton style="margin: 5px 5px;" main-back-color="rgb(234,123,54)" @click="openRemoveDialog(user)" />
+                        <baseButton style="margin: 5px 5px;" content="&#xe71a;" mainBackColor="rgb(244,249,255)"
+                        fontColor="rgb(60,118,244)" @click="saveOrUpdateDialogInit(1,user)" title="修改" />
+                        <baseButton content="&#xe60d;" mainBackColor="rgb(250,252,254)" fontColor="rgb(143, 150, 172)"
+                        style="margin: 5px 5px;" title="分配角色" @click="initRoleDialog(user)" />
+                        <baseButton style="margin: 5px 5px;"  mainBackColor="rgb(252,245,237)"
+                        fontColor="rgb(234,123,54)" @click="openRemoveDialog(user)" title="删除" />
                     </div>
 
                 </div>
@@ -182,13 +208,70 @@ import baseButton from '@/components/BaseIconButton.vue'
 import MySwitch from '@/components/MySwitch.vue'
 import {useRouter} from 'vue-router'
 import {getPageUsers,getAllUserMsg,updateUserStatus,checkUsernameIsExist,save,removeOne,update} from '@/api/user'
+import {getAllRoles,getAssignByUserId,doAssign} from '@/api/role'
 import {getAllDept} from '@/api/dept'
 import {getAllPostByDeptId} from '@/api/post'
+import {useTips} from '@/utils/msgTip'
 import { onMounted, watch } from 'vue'
 import { Check, Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
+// 用于显示分配角色的弹窗的title
+let assignTitle = ref('')
+// 存所有角色
+let allRoles = ref([])
+let assignUser = ref({})
+function initRoleDialog(user){
+    getAllRoleList().then(()=>{
+        getAssign(user.userId).then(()=>{
+            assignUser.value = user
+            assignTitle.value = `为 "${user.name}" 分配角色`
+            assignDialogOpen.value = true
+        })
+    })
+}
+// 拿到对应用户拥有的角色
+const getAssign = async(userId)=>{
+    let {data} = await getAssignByUserId(userId);
+    let myRoles = data.assginRoleList
+    // TODO 通过set去重来进行拥有的角色的列表和总列表的比对，让id一样的isChoose为true
+    // 使用Set来存储拥有角色列表中所有role的id
+    let idsInMyRoles = new Set(myRoles.map(item => item.id));
+    // 遍历数组allRoles，如果元素的id在Set中，则设置isChoose为true
+    allRoles.value.forEach(itemA => {
+        if (idsInMyRoles.has(itemA.id)) {
+            itemA.isChoose = true;
+        }else{
+            itemA.isChoose = false
+        }
+    });
+}
+// 拿到全部的角色
+const getAllRoleList = async()=>{
+    let {data} = await getAllRoles()
+    allRoles.value = data
+}
+// 分配角色
+const doThisAssign = async()=>{
+    let assignMsg = {roleIdList: [],userId: 0}
+    let i = 0;
+    //TODO 遍历allRoles，将被选中的role都装到assignMsg.roleList中
+    allRoles.value.forEach(role => {
+        if(role.isChoose){
+            assignMsg.roleIdList[i++] = role.id
+        }
+    });
+    assignMsg.userId = assignUser.value.userId
+    let data = await doAssign(assignMsg)
+    console.log(data)
+    assignDialogOpen.value = false
+    useTips(`为 "${assignUser.value.name}" 分配角色成功`,data)
+}
+// 用于确定是否打开分配角色的对话框
+let assignDialogOpen = ref(false)
+// 用于显示表单弹窗的title
 let saveOrUpdateDialogTitle = ref('')
+// 用于确定是否要修改密码
 let tempFlag = ref(false)
 // 判断是否打开表单弹窗
 let dialogFormVisible = ref(false)
@@ -301,10 +384,6 @@ const getallSelfAndChildrenByDeptId = async()=>{
     console.log(aDeptId)
     let {data} = await getAllPostByDeptId(aDeptId);
     needPosts.value = data
-    console.log('===========Posts==========')
-    console.log(data)
-    console.log(choosePost.value)
-    console.log('===========Posts==========')
 }
 // 绑定用户选择的岗位值
 let choosePost = ref('')
@@ -343,7 +422,7 @@ const updateThisUser = async()=>{
     console.log('=============Update===============')
     let data = await update(updatedUser)
     //TODO 修改请求完成关闭弹窗，并给出消息提示并更新数据显示
-        // 保存完毕，关闭弹窗
+    // 保存完毕，关闭弹窗
     dialogFormVisible.value = false
     if(data.code !== 200){
         errorMsg.value = data.message
@@ -376,7 +455,7 @@ const saveUser = async()=>{
     getPages({keyword:''})
 }
 let successMsg = ref('新增用户成功')
-// 新建成功产生消息提示
+// 成功产生消息提示
 const openSuccess = () => {
     ElMessage({
         showClose: true,
@@ -554,6 +633,8 @@ onMounted(()=>{
     getAllDeptList()
     // 初始化可选择的部门
     getallSelfAndChildrenByDeptId()
+    // 获取全部的管理员
+    // getAllRoleList()
 })
 </script>
 
@@ -621,6 +702,34 @@ onMounted(()=>{
                 }
             }
         }
+        :deep(){
+            .dialog{
+                .errMsg{
+                    color: rgb(249,190,23);
+                    font-size: 13px;
+                }
+                .el-dialog__header{
+                    text-align: center;
+                    margin-left: 48px;
+                    color: rgb(36,47,87);
+                }
+                .el-form{
+                    display: flex;
+                    flex-wrap: wrap;
+                }
+                .dialog-footer{
+                    width: 100%;
+                    display: flex;
+                    justify-content: center;
+                }
+                .checkBoxes{
+                    width: 100%;
+                    display: flex;
+                    justify-content: space-between;
+                    flex-wrap: wrap;
+                }
+            }
+            }
         .table{
             box-shadow: 0px 0px 2px #928c8c64;
             width: 100%;

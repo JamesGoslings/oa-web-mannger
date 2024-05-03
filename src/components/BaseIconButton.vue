@@ -1,5 +1,5 @@
 <template>
-<button class="iconfont my-button canClick" v-html="content"></button>
+    <button class="iconfont my-button canClick" v-html="content" :title="title"></button>
 </template>
 
 <script setup>
@@ -33,7 +33,13 @@ let props = defineProps({
         default(){
             return '2px'
         }
-    }
+    },
+    title:{
+        type: String,
+        default(){
+            return '按钮'
+        }
+    },
 })
 let mainBackColor = ref(props.mainBackColor)
 let fontSize = ref(props.fontSize)
@@ -56,6 +62,7 @@ let radius = ref(props.radius)
 	font-family: PingFang-SC-Heavy;
 	// font-weight: 500;
 	color: v-bind(fontColor);
+	// color: rgb(143, 150, 172);
     padding-top: 0.25vw;
     padding-bottom: 0.25vw;
 	letter-spacing: 0;
