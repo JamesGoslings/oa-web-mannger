@@ -301,6 +301,10 @@ const getallSelfAndChildrenByDeptId = async()=>{
     console.log(aDeptId)
     let {data} = await getAllPostByDeptId(aDeptId);
     needPosts.value = data
+    console.log('===========Posts==========')
+    console.log(data)
+    console.log(choosePost.value)
+    console.log('===========Posts==========')
 }
 // 绑定用户选择的岗位值
 let choosePost = ref('')
@@ -308,7 +312,15 @@ let choosePost = ref('')
 watch(
     chooseDept,
     (newValue,oldValue)=>{
-        getallSelfAndChildrenByDeptId()
+        getallSelfAndChildrenByDeptId().then(()=>{
+            //TODO 将现在的postId和新的可选的postId进行比对，如果不在可选列表中，则赋为null
+            for(var i = 0;i < needPosts.value.length;i++){
+                if(choosePost.value === needPosts.value[i].id){
+                    return;
+                }
+            }
+            choosePost.value = null
+        })
     }
 )
 // 修改用户
