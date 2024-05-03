@@ -4,76 +4,89 @@
         <div class="funTitle">用户表</div>
         <div class="baseCard tableBox">
             <div class="tableFuns">
-                <actButton class="actBtn" txt='+添加' actColor="rgb(60,118,244)" @click="dialogFormVisible = true"></actButton>
+                <actButton class="actBtn" txt='+添加' actColor="rgb(60,118,244)" @click="saveOrUpdateDialogInit(0)"></actButton>
                 <actButton class="actBtn" txt='&#xe614; 重置' actColor="rgb(234,123,54)" backColor="rgb(252,245,237)" @click="resetPage()" />
                 <myInputBar class="myIpt" text="搜索用户，请输入用户名或姓名或电话号码" fontColor="rgb(9,82,200)" holderColor="rgb(211,227,253)"
                 v-model="iptValue" @on-enter="handleEnter" />
                 <!-- 添加/修改用户的弹窗 -->
 
-                <el-dialog v-model="dialogFormVisible" title="添加用户" width="500" class="dialog"
-                draggable :close-on-click-modal="false">
-                <el-form :model="form">
-                    <el-form-item label="姓名" label-width="140px">
-                    <el-input v-model="changedUser.name" autocomplete="off" />
-                    </el-form-item>
+                <el-dialog v-model="dialogFormVisible" :title="saveOrUpdateDialogTitle" width="500" class="dialog"
+                draggable :close-on-click-modal="false" v-if="dialogFormVisible">
+                    <el-form :model="form">
+                        <el-form-item label="姓名" label-width="140px">
+                        <el-input v-model="changedUser.name" autocomplete="off" />
+                        </el-form-item>
 
-                    <el-form-item label="电话号码" label-width="140px">
-                    <el-input v-model="changedUser.phone" autocomplete="off" />
-                    </el-form-item>
+                        <el-form-item label="电话号码" label-width="140px">
+                        <el-input v-model="changedUser.phone" autocomplete="off"/>
+                        </el-form-item>
 
-                    <el-form-item label="用户名" label-width="140px">
-                    <el-input v-model="changedUser.username" autocomplete="off" @input="checkUsername()" />
-                    </el-form-item>
-                    <p class="errMsg">{{iptMsg.usernameErrorMsg}}</p>
+                        <el-form-item label="用户名" label-width="140px">
+                            <el-input v-model="changedUser.username" autocomplete="off" @input="checkUsername(0)" @load="checkUsername(0)" v-if="funType === 0" />
+                            <el-input v-model="changedUser.username" autocomplete="off" @input="checkUsername(1)" @load="checkUsername(1)" v-else />
+                        </el-form-item>
+                            <p class="errMsg">{{iptMsg.usernameErrorMsg}}</p>
 
-                    <el-form-item label="密码" label-width="140px">
-                        <el-input v-model="changedUser.password" autocomplete="off" @input="checkPwd(0)" type="password"/>
-                    </el-form-item>
-                    <p class="errMsg">{{iptMsg.errorMsg}}</p>
+                        <el-form-item v-if="funType === 0 || tempFlag">
+                            <el-form-item label="密码" label-width="140px">
+                                <el-input v-model="changedUser.password" autocomplete="off" @input="checkPwd(0)" type="password"/>
+                            </el-form-item>
+                            <p class="errMsg">{{iptMsg.errorMsg}}</p>
 
-                    <el-form-item label="再次输入密码" label-width="140px">
-                        <el-input v-model="iptMsg.rePassword" autocomplete="off" @input="checkPwd(1)" type="password" />
-                    </el-form-item>
-                    <p class="errMsg">{{iptMsg.reErrorMsg}}</p>
-                    <!-- 岗位和部门改选项式填写 -->
-                    <el-form-item label="部门" label-width="140px">
-                        <el-select
-                        v-model="chooseDept"
-                        filterable
-                        placeholder="选择部门"
-                        style="width: 240px"
-                        >
-                            <el-option
-                            v-for="dept in totalDept"
-                            :key="dept.id"
-                            :label="dept.name"
-                            :value="dept.id"
-                            />
-                        </el-select>
-                    </el-form-item>
-                    <!-- 保证只显示所选部门及其子部门的岗位 -->      
+                            <el-form-item label="再次输入密码" label-width="140px">
+                                <el-input v-model="iptMsg.rePassword" autocomplete="off" @input="checkPwd(1)" type="password" />
+                            </el-form-item>
+                            <p class="errMsg">{{iptMsg.reErrorMsg}}</p>
+                        </el-form-item>
+                        <el-form-item v-else>
+                            <el-form-item label="密码" label-width="140px">
+                                <el-input autocomplete="off" type="password" disabled />
+                            </el-form-item>
+                            <p class="errMsg" style="color: rgb(7,8,252);" @click="tempFlag = true"> 修改密码</p>
+                        </el-form-item>
 
-                    <el-form-item label="岗位" label-width="140px">
-                        <el-select
-                        v-model="choosePost"
-                        filterable
-                        placeholder="选择岗位"
-                        style="width: 240px"
-                        >
-                            <el-option
-                            v-for="post in needPosts"
-                            :key="post.id"
-                            :label="post.name"
-                            :value="post.id"
-                            />
-                        </el-select>
-                    </el-form-item>
+                        <!-- 岗位和部门改选项式填写 -->
+                        <el-form-item label="部门" label-width="140px">
+                            <el-select
+                            v-model="chooseDept"
+                            filterable
+                            placeholder="选择部门"
+                            style="width: 240px"
+                            >
+                                <el-option
+                                v-for="dept in totalDept"
+                                :key="dept.id"
+                                :label="dept.name"
+                                :value="dept.id"
+                                />
+                            </el-select>
+                        </el-form-item>
+                        <!-- 保证只显示所选部门及其子部门的岗位 -->      
 
-                </el-form>
+                        <el-form-item label="岗位" label-width="140px">
+                            <el-select
+                            v-model="choosePost"
+                            filterable
+                            placeholder="选择岗位"
+                            style="width: 240px"
+                            >
+                                <el-option
+                                v-for="post in needPosts"
+                                :key="post.id"
+                                :label="post.name"
+                                :value="post.id"
+                                />
+                            </el-select>
+                        </el-form-item>
+
+                    </el-form>
                 <template #footer>
                     <div class="dialog-footer">
                     <el-button @click="dialogFormVisible = false">取消</el-button>
-                    <el-button type="primary" @click="saveUser()" :disabled="checkAll()">
+                    <el-button type="primary" @click="saveUser()" :disabled="checkAll()" v-if="funType === 0">
+                        确定
+                    </el-button>
+                    <el-button type="primary" @click="updateThisUser()" :disabled="checkAll()" v-else>
                         确定
                     </el-button>
                     </div>
@@ -93,8 +106,6 @@
                         <td v-for="(field, j) in fields" :key="j">
                             <span v-if="field !== 'state'">{{user[field]}}</span>
                             <span v-else>
-                                <!-- <MySwitch right-back-color="rgb(244,249,255)" wrong-back-color="rgb(252,245,237)" 
-                                right-font-color="rgb(60,118,244)" wrong-font-color="rgb(234,123,54)" /> -->
                                 <el-switch
                                 class="mt-2"
                                 v-model="statusValue[user.userId]"
@@ -107,7 +118,8 @@
                         </td>
                         <td>
                             <!-- 修改按钮 -->
-                            <baseButton content="&#xe71a;" mainBackColor="rgb(244,249,255)" fontColor="rgb(60,118,244)" style="margin-right: 1vw;"/>
+                            <baseButton content="&#xe71a;" mainBackColor="rgb(244,249,255)" fontColor="rgb(60,118,244)"
+                            @click="saveOrUpdateDialogInit(1,user)" style="margin-right: 1vw;"/>
                             <baseButton mainBackColor="rgb(252,245,237)" fontColor="rgb(234,123,54)" @click="openRemoveDialog(user)" />
                         </td>
                     </tr>
@@ -115,14 +127,15 @@
                 </tbody>
 
             </table>
+                <!-- 删除单用户的提示框  -->
                 <el-dialog v-model="removeDialogOpen" :title="removeDialogTitle"  width="500" class="dialog"
                 draggable :close-on-click-modal="false">
                     <template #footer>
                         <div class="dialog-footer">
-                        <el-button @click="removeDialogOpen = false">取消</el-button>
-                        <el-button type="primary" @click="removeThisUser(tempUser)">
-                            确定
-                        </el-button>
+                            <el-button @click="removeDialogOpen = false">取消</el-button>
+                            <el-button type="primary" @click="removeThisUser(tempUser)">
+                                确定
+                            </el-button>
                         </div>
                     </template>
                 </el-dialog>
@@ -152,7 +165,7 @@
                     <div>{{`电话号码；${user.phone}`}}</div>
                     <div>
                         <baseButton style="margin: 5px 5px;" content="&#xe71a;" main-back-color="rgb(60,118,244)" />
-                        <baseButton style="margin: 5px 5px;" main-back-color="rgb(234,123,54)" />
+                        <baseButton style="margin: 5px 5px;" main-back-color="rgb(234,123,54)" @click="openRemoveDialog(user)" />
                     </div>
 
                 </div>
@@ -167,20 +180,48 @@ import myInputBar from "@/components/MyInputBar.vue"
 import baseButton from '@/components/BaseIconButton.vue'
 import MySwitch from '@/components/MySwitch.vue'
 import {useRouter} from 'vue-router'
-import {getPageUsers,getAllUserMsg,updateUserStatus,checkUsernameIsExist,save,removeOne} from '@/api/user'
+import {getPageUsers,getAllUserMsg,updateUserStatus,checkUsernameIsExist,save,removeOne,update} from '@/api/user'
 import {getAllDept} from '@/api/dept'
 import {getAllPostByDeptId} from '@/api/post'
 import { onMounted, watch } from 'vue'
 import { Check, Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
-// 判断是否打开弹窗
+let saveOrUpdateDialogTitle = ref('')
+let tempFlag = ref(false)
+// 判断是否打开表单弹窗
 let dialogFormVisible = ref(false)
+function saveOrUpdateDialogInit(type,oldUser = {}){
+    funType.value = type
+    aOldUser.value = oldUser
+    tempFlag.value = false
+    if(type === 0){
+        saveOrUpdateDialogTitle.value = '添加新用户'
+        changedUser.value = {username: '',password: ''}
+        chooseDept.value = null
+        choosePost.value = null
+        iptMsg.value.rePassword = ''
+    }else{
+        saveOrUpdateDialogTitle.value = `修改用户 “${oldUser.name}” `
+        // 初始化原有信息
+        console.log(oldUser)
+        changedUser.value = {username: oldUser.username,password: '',name: oldUser.name,phone: oldUser.phone}
+        chooseDept.value = oldUser.deptId
+        choosePost.value = oldUser.postId
+        console.log(changedUser.value)
+    }
+    checkUsername(type)
+    // 初始化完毕，最终打开弹窗
+    dialogFormVisible.value = true
+}
+// 用于让其他方法知道当前是修改还是新建
+let funType = ref(0)
+// 存修改前的用户信息
+let aOldUser = ref({})
 // 存再次输入的密码以及错误信息
 let iptMsg = ref(
     {rePassword: '',reErrorMsg: '',errorMsg: '',usernameErrorMsg: ''}
 )
-let isSubmit = ref(false)
 // 存储添加/修改后的用户的值
 let changedUser = ref({username: '',password: ''})
 // 输入密码或再次密码时触发的校对方法(type为0则是pwd，为1则是rePwd)
@@ -189,7 +230,7 @@ function checkPwd(type){
     let rePwd = iptMsg.value.rePassword
     if(type === 0){
         console.log('输入密码')
-        if(pwd.length < 4){
+        if( pwd === undefined || pwd.length < 4){
             iptMsg.value.errorMsg = '* 密码不能少于4字符'
             return false
         }else{
@@ -197,7 +238,7 @@ function checkPwd(type){
             return true
         }
     }else{
-        if(rePwd.length < 4){
+        if(rePwd === undefined || rePwd.length < 4){
             iptMsg.value.reErrorMsg = '* 密码不能少于4字符'
             return false
         }else if(rePwd !== pwd){
@@ -211,8 +252,17 @@ function checkPwd(type){
     }
 }
 // 校对用户名是否重复
-const checkUsername = async()=>{
+const checkUsername = async(type = 0)=>{
     let username = changedUser.value.username
+    // 修改时,如果和旧值一样，依然成立
+    if(type !== 0){
+        console.log('进入了修改时代')
+        if(username == null || username === '' || username === aOldUser.value.username){
+            iptMsg.value.usernameErrorMsg = '√'
+            f1.value = true
+            return
+        }
+    }
     if(username === null || username === undefined){
         username = ''
     }
@@ -229,6 +279,9 @@ let f1 = ref(false)
 function checkAll(){
     let f2 = checkPwd(0)
     let f3 = checkPwd(1)
+    if(!tempFlag.value && funType.value !== 0){
+        return !f1.value
+    }
     return !(f1.value && f2 && f3)
 }
 
@@ -257,7 +310,38 @@ watch(
         getallSelfAndChildrenByDeptId()
     }
 )
-
+// 修改用户
+const updateThisUser = async()=>{
+    let pwd = changedUser.value.password
+    let updatedUser = {}
+    // 从旧值中拿userId
+    updatedUser.id = aOldUser.value.userId
+    // 需要改密码且密码存在的情况
+    if(tempFlag.value && pwd != null && pwd != ''){
+        updatedUser.password = pwd
+    }
+    updatedUser.name = changedUser.value.name
+    updatedUser.username = changedUser.value.username
+    updatedUser.phone = changedUser.value.phone
+    updatedUser.deptId = chooseDept.value
+    updatedUser.postId = choosePost.value
+    console.log('=============Update===============')
+    console.log(updatedUser)
+    console.log('=============Update===============')
+    let data = await update(updatedUser)
+    //TODO 修改请求完成关闭弹窗，并给出消息提示并更新数据显示
+        // 保存完毕，关闭弹窗
+    dialogFormVisible.value = false
+    if(data.code !== 200){
+        errorMsg.value = data.message
+        openFailed()
+        return
+    }
+    successMsg.value = `修改用户${updatedUser.name}成功`
+    openSuccess()
+    getPages({keyword:''})
+}
+// 保存用户到数据库
 const saveUser = async()=>{
     changedUser.value.deptId = chooseDept.value
     changedUser.value.postId = choosePost.value
@@ -513,6 +597,7 @@ onMounted(()=>{
                         flex-wrap: wrap;
                     }
                     .dialog-footer{
+                        width: 100%;
                         display: flex;
                         justify-content: center;
                     }

@@ -55,3 +55,11 @@ export function removeOne(id = 0){
         method: 'DELETE'
     })
 }
+// 修改用户
+export function update(user){
+    return request({
+        url: USER_URL + 'update',
+        method: 'PUT',
+        data: user
+    })
+}
