@@ -10,7 +10,8 @@
                 v-model="iptValue" @on-enter="handleEnter" />
                 <!-- 添加/修改用户的弹窗 -->
 
-                <el-dialog v-model="dialogFormVisible" title="添加用户" width="500" class="dialog">
+                <el-dialog v-model="dialogFormVisible" title="添加用户" width="500" class="dialog"
+                draggable :close-on-click-modal="false">
                 <el-form :model="form">
                     <el-form-item label="姓名" label-width="140px">
                     <el-input v-model="changedUser.name" autocomplete="off" />
@@ -72,7 +73,7 @@
                 <template #footer>
                     <div class="dialog-footer">
                     <el-button @click="dialogFormVisible = false">取消</el-button>
-                    <el-button type="primary" @click="dialogFormVisible = false" :disabled="checkAll()">
+                    <el-button type="primary" @click="saveUser()" :disabled="checkAll()">
                         确定
                     </el-button>
                     </div>
@@ -87,8 +88,6 @@
                 <tbody v-for="(user,i) in users" :key="i">
                     <tr :class="{'ltr': true,'ltrBackColor': i % 2 === 0}" @load="trStyleChoose(i)">
                         <td class="td2">
-                            <!-- <input class="checkBoxStyle" type="checkbox" @click="chooseUsers()"
-                            v-model="user.isChoose" style="width: 1vw;user-select: none;"/> -->
                             <el-checkbox v-model="choices[user.userId]"/>
                         </td>
                         <td v-for="(field, j) in fields" :key="j">
@@ -107,13 +106,26 @@
                             </span>
                         </td>
                         <td>
+                            <!-- 修改按钮 -->
                             <baseButton content="&#xe71a;" mainBackColor="rgb(244,249,255)" fontColor="rgb(60,118,244)" style="margin-right: 1vw;"/>
-                            <baseButton mainBackColor="rgb(252,245,237)" fontColor="rgb(234,123,54)"/>
+                            <baseButton mainBackColor="rgb(252,245,237)" fontColor="rgb(234,123,54)" @click="openRemoveDialog(user)" />
                         </td>
                     </tr>
+                    
                 </tbody>
 
             </table>
+                <el-dialog v-model="removeDialogOpen" :title="removeDialogTitle"  width="500" class="dialog"
+                draggable :close-on-click-modal="false">
+                    <template #footer>
+                        <div class="dialog-footer">
+                        <el-button @click="removeDialogOpen = false">取消</el-button>
+                        <el-button type="primary" @click="removeThisUser(tempUser)">
+                            确定
+                        </el-button>
+                        </div>
+                    </template>
+                </el-dialog>
             <div class="usePage" id="myPage">
                 <el-pagination
                 class="page"
@@ -155,11 +167,12 @@ import myInputBar from "@/components/MyInputBar.vue"
 import baseButton from '@/components/BaseIconButton.vue'
 import MySwitch from '@/components/MySwitch.vue'
 import {useRouter} from 'vue-router'
-import {getPageUsers,getAllUserMsg,updateUserStatus,checkUsernameIsExist} from '@/api/user'
+import {getPageUsers,getAllUserMsg,updateUserStatus,checkUsernameIsExist,save,removeOne} from '@/api/user'
 import {getAllDept} from '@/api/dept'
 import {getAllPostByDeptId} from '@/api/post'
 import { onMounted, watch } from 'vue'
 import { Check, Close } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 
 // 判断是否打开弹窗
 let dialogFormVisible = ref(false)
@@ -169,7 +182,7 @@ let iptMsg = ref(
 )
 let isSubmit = ref(false)
 // 存储添加/修改后的用户的值
-let changedUser = ref({})
+let changedUser = ref({username: '',password: ''})
 // 输入密码或再次密码时触发的校对方法(type为0则是pwd，为1则是rePwd)
 function checkPwd(type){
     let pwd = changedUser.value.password
@@ -206,42 +219,19 @@ const checkUsername = async()=>{
     let {data} = await checkUsernameIsExist(username)
     if(data.isExist){
         iptMsg.value.usernameErrorMsg = '* 用户名已经存在'
-        return false
     }else{
         iptMsg.value.usernameErrorMsg = '√'
-        return true
+        f1.value = true
     }
 }
+let f1 = ref(false)
 // 综合所有校验，保证所有校验都通过才能提交
-const checkAll = async()=>{
-    let f1 = await checkUsername()
-    let f2 = await checkPwd(0)
-    let f3 = await checkPwd(1)
-    console.log('============FList====================')
-    console.log(f1)
-    console.log(f2)
-    console.log(f3)
-    console.log(!(f1 && f2 && f3))
-
-    console.log('============FList====================')
-    // isSubmit.value = !(f1 && f2 && f3)
-    return !(f1 && f2 && f3)
+function checkAll(){
+    let f2 = checkPwd(0)
+    let f3 = checkPwd(1)
+    return !(f1.value && f2 && f3)
 }
 
-// 存所有用户的账号状态
-let statusValue = ref({})
-// 确定input的类型，看是不是输入密码
-
-const updateStatus = async(flag,oldStatus,userId)=>{
-    let statusNum = flag ? 1 : 0
-    // 状态值不一致，就进行修改
-    if(statusNum !== oldStatus){
-        console.log('不一致')
-        console.log(statusNum)
-        let data = await updateUserStatus(userId,statusNum);
-        console.log(data)
-    }
-}
 // 存拿到的所有部门信息
 let totalDept = ref([])
 const getAllDeptList = async()=>{
@@ -267,8 +257,87 @@ watch(
         getallSelfAndChildrenByDeptId()
     }
 )
+
+const saveUser = async()=>{
+    changedUser.value.deptId = chooseDept.value
+    changedUser.value.postId = choosePost.value
+    changedUser.value.status = 1
+    let data = await save(changedUser.value)
+    // 保存完毕，关闭弹窗
+    dialogFormVisible.value = false
+    if(data.code !== 200){
+        errorMsg.value = data.message
+        openFailed()
+        return
+    }
+    successMsg.value = '新增用户成功'
+    openSuccess()
+    getPages({keyword:''})
+}
+let successMsg = ref('新增用户成功')
+// 新建成功产生消息提示
+const openSuccess = () => {
+    ElMessage({
+        showClose: true,
+        message: successMsg.value,
+        type: 'success'
+    })
+}
+let errorMsg = ref('新增用户失败')
+// 新建失败产生消息提示
+const openFailed = () => {
+    ElMessage({
+        showClose: true,
+        message: errorMsg.value,
+        type: 'error'
+    })
+}
+
+// 控制删除提示框的打开
+let removeDialogOpen = ref(false)
+// 拿来临时存待删的用户
+let tempUser = ref({})
+let removeDialogTitle = ref('')
+function openRemoveDialog(user){
+    tempUser.value = user
+    removeDialogOpen.value = true
+    removeDialogTitle.value = `你确定要删除用户 “${tempUser.value.name}” 吗?`
+}
+// 单个删除
+const removeThisUser = async(user)=>{
+    console.log(user)
+    console.log(user.userId)
+    let res = await removeOne(user.userId)
+    // 关闭弹窗
+    removeDialogOpen.value = false
+    //产生提示
+    if(res.code !== 200){
+        errorMsg.value = '删除失败'
+        openFailed()
+        return
+    }
+    successMsg.value = '删除成功'
+    openSuccess()
+    // 更新页面
+    getPages({keyword:''})
+}
+
 // 判断是否禁用当前开关
 let isSwitchDisabled = ref(false)
+// 存所有用户的账号状态
+let statusValue = ref({})
+
+const updateStatus = async(flag,oldStatus,userId)=>{
+    let statusNum = flag ? 1 : 0
+    // 状态值不一致，就进行修改
+    if(statusNum !== oldStatus){
+        console.log('不一致')
+        console.log(statusNum)
+        let data = await updateUserStatus(userId,statusNum);
+        console.log(data)
+    }
+}
+
 const router = useRouter()
 let tabHeads = ref(['用户名','姓名','手机','所属角色','账号状态','创建时间','修改时间','操作'])
 let fields = ref(['username','name','phone','roleList','state','createTime','updateTime'])
@@ -283,9 +352,7 @@ let users = ref([
         updateTime: '2024-04-21'
     }]
 )
-function saveUser(){
 
-}
 // 指定按钮动态边框和文字颜色
 let buttonColor = ref('#4361ee')
 // let chooseBoxs = ref([])

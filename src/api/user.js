@@ -40,3 +40,18 @@ export function checkUsernameIsExist(username = ''){
         data: username
     })
 }
+// 新建用户
+export function save(user = {}){
+    return request({
+        url: USER_URL + 'save',
+        method: 'POST',
+        data: user
+    })
+}
+// 删除单个用户
+export function removeOne(id = 0){
+    return request({
+        url: USER_URL + 'remove/' + id,
+        method: 'DELETE'
+    })
+}
