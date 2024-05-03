@@ -12,6 +12,7 @@ export const useUserStore = defineStore(
         token: getToken(),
         name: '',
         avatar: '',
+        id: 0,
     
         // 权限信息
         buttons: [],

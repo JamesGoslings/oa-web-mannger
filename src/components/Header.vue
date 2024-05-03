@@ -3,8 +3,8 @@
     <div class="topAll">
         <myInputBar v-model="iptValue" @on-enter="handleEnter"></myInputBar>
         <span class="user">
-            <img class="avatar" src="/src/assets/img/default_avatar.png"/>
-            <span class="name">admin</span>
+            <img class="avatar" :src="avatarPath"/>
+            <span class="name">{{userMsg.name}}</span>
             <span class="open iconfont" style="-moz-transform: rotate(-90deg);-webkit-transform: rotate(-90deg);"
             v-if="!isChoose" @click="isChoose = !isChoose">&#xe656;</span>
             <span class="open iconfont" v-else @click="isChoose = !isChoose">&#xe656;</span>
@@ -15,8 +15,12 @@
 </template>
 
 <script setup>
+import { onMounted } from "vue"
 import myInputBar from "./MyInputBar.vue"
 import UserUse from "./UserUse.vue"
+import {useUserStore} from '@/store/userStore'
+import {getOneUser} from '@/api/user'
+
 let isChoose = ref(false)
 let iptValue = ref('')
 function handleEnter() {  
@@ -27,6 +31,20 @@ function handleEnter() {
   // 逻辑完成清除输入值
   iptValue.value = ''
 }
+// 头像地址
+let avatarPath = ref('/src/assets/img/default_avatar.png')
+let userMsg = ref({userId: 0})
+const initMsg = async()=>{
+    let {data} = await getOneUser(userMsg.value.userId)
+    userMsg.value = data
+    if(data.avatarUrl !== null && data.avatarUrl != ''){
+        avatarPath.value = data.avatarUrl
+    }
+}
+onMounted(()=>{
+    userMsg.value.userId = useUserStore().id
+    initMsg()
+})
 </script>
 
 <style lang="scss" scoped>

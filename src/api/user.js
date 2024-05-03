@@ -1,4 +1,5 @@
 import request from '@/utils/request.js'
+import { registerRuntimeCompiler } from 'vue'
 
 const INDEX_URL = '/admin/system/index/'
 const USER_URL = '/admin/system/sysUser/'
@@ -61,5 +62,12 @@ export function update(user){
         url: USER_URL + 'update',
         method: 'PUT',
         data: user
+    })
+}
+// 拿到单个用户的信息
+export function getOneUser(userId){
+    return request({
+        url: USER_URL + 'get/' + userId,
+        method: 'GET'
     })
 }

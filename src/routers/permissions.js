@@ -64,6 +64,7 @@ const userInit = async()=>{
     user.buttons = data.buttons
     user.name = data.name
     user.menus = data.routers
+    user.id = data.userId
 
     console.log('==========info=======')
     console.log(data)
