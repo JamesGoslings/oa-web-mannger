@@ -55,18 +55,63 @@
             />
         </div>
         <div class="footer baseCard">
-            6666
+            <div class="mode">
+                <div class="funTitle myTitle">角色操作模块</div>
+                <div class="funCards">
+                    <span class="funCard" v-for="(card,i) in cards" :key="i" @click="runFunMode(i)" >
+                        <div class="funIco iconfont" v-html="card.icon"></div>
+                        <div class="funText">
+                            <div class="funTitle aFunTitle">{{card.text}}</div>
+                            <div class="description">{{card.description}}</div>
+                        </div>
+                    </span>
+                </div>
+            </div>
         </div>
+        
     </div>
 </template>
 
 <script setup>
 import myInputBar from "@/components/MyInputBar.vue"
-import { getAllRoles,getRolePage,removeOneRoleById,updateRole } from "@/api/role";
+import { getAllRoles,getRolePage,removeOneRoleById,updateRole,saveRole } from "@/api/role";
 import { onMounted } from "vue";
 import { Check, Close } from '@element-plus/icons-vue'
 import{useConfirm,useTips} from '@/utils/msgTip'
 
+// 用于显示操作功能卡片
+let cards = ref([
+    {
+        icon: '&#xe619;',
+        text: '添加角色',
+        description: '点击此处添加新的角色'
+    },
+    {
+        icon: '&#xe603;',
+        text: '编辑角色',
+        description: '点击此处编辑已有的角色'
+    },
+    {
+        icon: '&#xe64d;',
+        text: '删除角色',
+        description: '点击此处删除已有的角色'
+    }
+])
+// 点击功能模块触发的方法
+function runFunMode(i){
+    // 新建角色
+    if(i === 0){
+        saveDialogInit()
+    }
+}
+// 新建角色的初始化工作
+function saveDialogInit(){
+    editOrSaveDialogTitle.value = '添加角色'
+    funType.value = 1;
+    // 清空changedRole的数据
+    changedRole.value = {}
+    openDialog.value = true
+}
 // 用于显示弹框的title
 let editOrSaveDialogTitle = ref('')
 // 判断是新建还是修改
@@ -75,7 +120,7 @@ let funType = ref(0)
 let openDialog = ref(false)
 // 用于存新建/修改过的role对象
 let changedRole = ref({})
-// 修改角色
+// 修改角色的初始化工作
 function editDialogInit (oldRole){
     // TODO 将旧值同步到changedRole中作为初始值
     changedRole.value = oldRole
@@ -89,16 +134,22 @@ const editOrSaveRole = async()=>{
     console.log('========待处理的role=====>>>>')
     console.log(changedRole.value)
     console.log('=============>>>>')
-    // 保证修改时间不被旧数据覆盖
-    changedRole.value.updateTime = null
-    let data = await updateRole(changedRole.value)
-    console.log('===========ROLEDATA===============')
-    console.log(data)
-    console.log('===========ROLEDATA===============')
+    let tipMsg = ''
+    let data = {}
+    if(funType.value === 0){
+        // 保证更新修改日期
+        changedRole.value.updateTime = null
+        data = await updateRole(changedRole.value)
+        tipMsg = `成功修改角色 “${changedRole.value.roleName}”`
+    }else{
+        data = await saveRole(changedRole.value)
+        tipMsg = '添加角色成功!'
+    }
     // 关闭弹窗
     openDialog.value = false
     // 给提示
-    useTips(`成功修改角色 “${changedRole.value.roleName}”`, data)
+    console.log(tipMsg)
+    useTips(tipMsg, data)
     // 刷新页面
     getPageData()
 }
@@ -144,6 +195,7 @@ onMounted(()=>{
 </script>
 
 <style lang="scss" scoped>
+@import url('/src/assets/font-icon/iconfont.css');
 @import '/src/styles/globalPage.scss';
 @import '/src/styles/listSize.scss';
 @import '/src/styles/commonStyles.scss';
@@ -159,6 +211,7 @@ onMounted(()=>{
     }
     .tableBox{
         margin: $page-padding;
+        margin-bottom: 5vh;
         width: 100%;
         background: #FFF;
         @include flex-box;
@@ -211,10 +264,46 @@ onMounted(()=>{
         // margin-top: 50vh;
         padding-left: $left-distance;
         width: 100%;
-        height: 10vh;
+        height: 30vh;
         background: #FFF;
         position: absolute;
         bottom: 0;
+        user-select: none;
+        .mode{
+            width: 79%;
+            background: #FFF;
+            padding: $page-padding;
+            .myTitle{
+            }
+            .funCards{
+                width: 100%;
+                @include flex-box;
+                justify-content: space-between;
+                .funCard{
+                    padding: 15px;
+                    padding-left: 10px;
+                    padding-right: 10px;
+                    width: 25%;
+                    background: rgb(243,244,246);
+                    box-shadow:  0px 0px 4px $box-shadow-color;
+                    .funIco{
+                        color: $main-show-color;
+                        font-size: $title-font-size;
+                    }
+                    .funText{
+                        .description{
+                            color: $third-show-color;
+                        }
+                    }
+                }
+                .funCard:active{
+                    background: #fefcfc;
+                    .funIco,.aFunTitle,.description{
+                        color: $holder-font-color;
+                    }
+                }
+            }
+        }
     }
 }
 </style>

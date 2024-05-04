@@ -47,3 +47,11 @@ export function updateRole(role){
         data: role
     })
 }
+// 添加角色
+export function saveRole(role){
+    return request({
+        url: ROLE_URL + 'save',
+        method: 'POST',
+        data: role
+    })
+}
