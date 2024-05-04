@@ -13,10 +13,11 @@
                 <el-table-column prop="description" label="描述" />
                 <el-table-column prop="createTime" label="创建时间"  />
                 <el-table-column prop="updateTime" label="修改时间" />
-                <el-table-column fixed="right" label="操作" >
+                <el-table-column fixed="right" label="操作" width="250">
                     <template  v-slot="scope">
                         <div class="tabFooter">
                             <el-button type="success" size="small" plain @click="removeOne(scope.row)">删除</el-button>
+                            <el-button type="info" size="small" plain @click="goToAssignAuth(scope.row)">分配权限</el-button>
                             <el-button type="primary" size="small" plain @click="editDialogInit(scope.row)">编辑</el-button>
                         </div>
                     </template>
@@ -107,7 +108,13 @@ import { getAllRoles,getRolePage,removeOneRoleById,updateRole,saveRole,removeMor
 import { onMounted } from "vue";
 import { Check, Close } from '@element-plus/icons-vue'
 import{useConfirm,useTips} from '@/utils/msgTip'
+import {useRouter} from 'vue-router'
 
+const router = useRouter()
+// 跳转权限分配路由
+function goToAssignAuth(role){
+    router.push(`/system/assignAuth?id=${role.id}&roleName=${role.roleName}`)
+}
 // 获取角色信息字符串
 function getRoleMsgStr(role){
     let description = (role.description == null || role.description === '') ? '（没写描述）': role.description

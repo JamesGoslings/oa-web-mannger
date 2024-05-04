@@ -100,6 +100,7 @@ function dealRouters(routers,parentPath,isChange){
         }else if(route.component === 'ParentView'){
             route.component = ParentView
         }else if(typeof route.component === 'string'){
+            // route.path = route.component
             route.component = loadModule(route.component)
         }
         // 有子路由就递归继续处理
