@@ -585,7 +585,7 @@ watch(
 // 绑定当前页数
 let currentPage = ref(1)
 // 每页显示的最多数目
-let pageSize = ref(5)
+let pageSize = ref(10)
 // 总共的数目
 let pageTotal = ref(10)
 // 输入的条件关键字
@@ -620,7 +620,7 @@ function handleSizeChange(){
 // 重置分页页面显示
 function resetPage(){
     currentPage.value = 1;
-    pageSize.value = 5
+    pageSize.value = 10
     getPages({keyword:''})
 }
 // 存拿到的所有用户信息

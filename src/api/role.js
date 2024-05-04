@@ -39,6 +39,14 @@ export function removeOneRoleById(id){
         method: 'DELETE'
     })
 }
+// 批量删除角色
+export function removeMoreOneRoleByIdList(idList){
+    return request({
+        url: ROLE_URL + 'batchRemove',
+        method: 'DELETE',
+        data: idList
+    })
+}
 // 修改角色
 export function updateRole(role){
     return request({

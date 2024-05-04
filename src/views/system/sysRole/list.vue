@@ -22,9 +22,36 @@
                     </template>
                 </el-table-column>
             </el-table>
+            <!-- 显示可 编辑/删除 角色的对话框 -->
+            <el-dialog v-model="openChoiseDialog" :title="editOrSaveDialogTitle" width="400"
+            draggable :close-on-click-modal="false">
+                <!-- 处理编辑选项的单选框列表 -->
+                <el-radio-group v-model="chooseRoleIndex" v-if="funType === 2">
+                    <div v-for="(role,i) in allRoles" :key="role.id" class="choiceRow">
+                        <el-radio :value="i">{{role.roleName}}</el-radio>
+                    </div>
+                </el-radio-group>
+                <el-checkbox-group v-model="chooseRoles" v-else>
+                    <div class="choiceRow" v-for="role in allRoles" :key="role.id">
+                        <el-checkbox :value="role.id">
+                            {{role.roleName}}
+                        </el-checkbox>
+                    </div>
+                </el-checkbox-group>
+                <!-- 处理删除选项的复选框列表 -->
+                <template #footer>
+                    <div class="dialog-footer">
+                        <el-button @click="openChoiseDialog = false">取消</el-button>
+                        <el-button type="primary" @click="goToEditInitOrRemoveChooseRole()" 
+                        :disabled="(chooseRoleIndex < 0 && funType === 2)">确定</el-button>
+                    </div>
+                </template>
+            </el-dialog>
+
             <!-- 编辑角色的对话框 -->
 
-            <el-dialog v-model="openDialog" :title="editOrSaveDialogTitle" width="400">
+            <el-dialog v-model="openDialog" :title="editOrSaveDialogTitle" width="400"
+            draggable :close-on-click-modal="false">
                 <el-form :model="form">
                     <el-form-item label="角色名称">
                         <el-input v-model="changedRole.roleName" autocomplete="off" />
@@ -74,7 +101,7 @@
 
 <script setup>
 import myInputBar from "@/components/MyInputBar.vue"
-import { getAllRoles,getRolePage,removeOneRoleById,updateRole,saveRole } from "@/api/role";
+import { getAllRoles,getRolePage,removeOneRoleById,updateRole,saveRole,removeMoreOneRoleByIdList } from "@/api/role";
 import { onMounted } from "vue";
 import { Check, Close } from '@element-plus/icons-vue'
 import{useConfirm,useTips} from '@/utils/msgTip'
@@ -102,7 +129,56 @@ function runFunMode(i){
     // 新建角色
     if(i === 0){
         saveDialogInit()
+    }else if(i === 1){
+        editOrSaveDialogTitle.value = '请选择要编辑的角色'
+        funType.value = 2
+        openChoiseDialog.value = true
+    }else{
+        editOrSaveDialogTitle.value = '请选择要删除的角色（可多选）'
+        funType.value = 3
+        openChoiseDialog.value = true
     }
+}
+let chooseRoleIndex = ref(-1)
+// 用于控制选项对话框的开关
+let openChoiseDialog = ref(false)
+// 用于存选中的多个role
+let chooseRoles = ref([])
+function goToEditInitOrRemoveChooseRole(){
+    // 编辑框的逻辑
+    if(funType.value === 2){
+        // TODO 关闭选项弹窗后转到具体修改的对话框
+        openChoiseDialog.value = false
+        editDialogInit(allRoles.value[chooseRoleIndex.value])
+        chooseRoleIndex.value = -1
+    }else if(funType.value === 3){
+        removeChooseRoles(chooseRoles.value)
+    }
+}
+// 批量删除具体逻辑
+const removeChooseRoles = async(idList)=>{
+    useConfirm(`你确定要删除以上勾选的角色吗？`, '温馨提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+    }).then(async()=>{
+        console.log(idList)
+        let data = await removeMoreOneRoleByIdList(idList);
+        console.log('=======resData==========>>>>')
+        console.log(data)
+        console.log('=======resData==========>>>>')
+        // 清空选中的role
+        chooseRoles.value = []
+        // 关闭 选项的对话框
+        openChoiseDialog.value = false
+        // 给出提示
+        useTips('成功删除选中的角色~', data)
+        // 刷新页面以及总角色记录
+        getAllRoleList()
+        getPageData()
+    }).catch(()=>{
+        console.log('点击了取消')
+    })
 }
 // 新建角色的初始化工作
 function saveDialogInit(){
@@ -114,7 +190,7 @@ function saveDialogInit(){
 }
 // 用于显示弹框的title
 let editOrSaveDialogTitle = ref('')
-// 判断是新建还是修改
+// 判断具体是哪个功能 0: 编辑 1: 新建 2: 编辑选项框 3: 删除选项框
 let funType = ref(0)
 // 用于控制弹框的开关
 let openDialog = ref(false)
@@ -141,14 +217,13 @@ const editOrSaveRole = async()=>{
         changedRole.value.updateTime = null
         data = await updateRole(changedRole.value)
         tipMsg = `成功修改角色 “${changedRole.value.roleName}”`
-    }else{
+    }else if(funType.value === 1){
         data = await saveRole(changedRole.value)
         tipMsg = '添加角色成功!'
     }
     // 关闭弹窗
     openDialog.value = false
     // 给提示
-    console.log(tipMsg)
     useTips(tipMsg, data)
     // 刷新页面
     getPageData()
@@ -168,7 +243,7 @@ const getPageData = async()=>{
 }
 // 接收全部的角色
 let allRoles = ref([])
-const getAllRoloList = async()=>{
+const getAllRoleList = async()=>{
     let {data} = await getAllRoles()
     allRoles.value = data
 }
@@ -180,7 +255,8 @@ const removeOne = async(role)=>{
         type: 'warning'
     }).then(()=>{
         removeOneRoleById(role.id).then(res=>{
-            // 删除完成刷新页面并给出提示
+            // 删除完成刷新页面以及更新总角色数据并给出提示
+            getAllRoleList()
             getPageData()
             useTips(`你已成功删除角色 “${role.roleName}”`,res)
         })
@@ -189,7 +265,7 @@ const removeOne = async(role)=>{
     })
 }
 onMounted(()=>{
-    getAllRoloList()
+    getAllRoleList()
     getPageData()
 })
 </script>
@@ -259,6 +335,10 @@ onMounted(()=>{
                     @include flex-box
                 }
         }
+    }
+    .choiceRow{
+        width: 100%;
+        @include flex-box
     }
     .footer{
         // margin-top: 50vh;
