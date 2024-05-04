@@ -733,7 +733,7 @@ onMounted(()=>{
                     flex-wrap: wrap;
                 }
             }
-            }
+        }
         .table{
             box-shadow: 0px 0px 2px $box-shadow-color;
             width: 100%;

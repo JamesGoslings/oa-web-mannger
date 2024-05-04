@@ -39,3 +39,11 @@ export function removeOneRoleById(id){
         method: 'DELETE'
     })
 }
+// 修改角色
+export function updateRole(role){
+    return request({
+        url: ROLE_URL + 'update',
+        method: 'PUT',
+        data: role
+    })
+}

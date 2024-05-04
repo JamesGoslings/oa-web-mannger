@@ -17,11 +17,34 @@
                     <template  v-slot="scope">
                         <div class="tabFooter">
                             <el-button type="success" size="small" plain @click="removeOne(scope.row)">删除</el-button>
-                            <el-button type="primary" size="small" plain>编辑</el-button>
+                            <el-button type="primary" size="small" plain @click="editDialogInit(scope.row)">编辑</el-button>
                         </div>
                     </template>
                 </el-table-column>
             </el-table>
+            <!-- 编辑角色的对话框 -->
+
+            <el-dialog v-model="openDialog" :title="editOrSaveDialogTitle" width="400">
+                <el-form :model="form">
+                    <el-form-item label="角色名称">
+                        <el-input v-model="changedRole.roleName" autocomplete="off" />
+                    </el-form-item>
+                    <el-form-item label="角色描述">
+                        <el-input v-model="changedRole.description" autocomplete="off" />
+                    </el-form-item>
+                    <el-form-item label="角色编码">
+                        <el-input v-model="changedRole.roleCode" autocomplete="off" />
+                    </el-form-item>
+                </el-form>
+                <template #footer>
+                    <div class="dialog-footer">
+                        <el-button @click="openDialog = false">取消</el-button>
+                        <el-button type="primary" @click="editOrSaveRole()">保存</el-button>
+                    </div>
+                </template>
+            </el-dialog>
+
+            <!-- 分页 -->
             <el-pagination
             v-model:current-page="page"
             :total="total"
@@ -39,11 +62,44 @@
 
 <script setup>
 import myInputBar from "@/components/MyInputBar.vue"
-import { getAllRoles,getRolePage,removeOneRoleById } from "@/api/role";
+import { getAllRoles,getRolePage,removeOneRoleById,updateRole } from "@/api/role";
 import { onMounted } from "vue";
 import { Check, Close } from '@element-plus/icons-vue'
 import{useConfirm,useTips} from '@/utils/msgTip'
 
+// 用于显示弹框的title
+let editOrSaveDialogTitle = ref('')
+// 判断是新建还是修改
+let funType = ref(0)
+// 用于控制弹框的开关
+let openDialog = ref(false)
+// 用于存新建/修改过的role对象
+let changedRole = ref({})
+// 修改角色
+function editDialogInit (oldRole){
+    // TODO 将旧值同步到changedRole中作为初始值
+    changedRole.value = oldRole
+    editOrSaveDialogTitle.value = `编辑角色 “${oldRole.roleName}” 中~`
+    funType.value = 0
+    // 开启弹框
+    openDialog.value = true
+}
+// 修改或新建角色的请求
+const editOrSaveRole = async()=>{
+    console.log('========待处理的role=====>>>>')
+    console.log(changedRole.value)
+    console.log('=============>>>>')
+    let data = await updateRole(changedRole.value)
+    console.log('===========ROLEDATA===============')
+    console.log(data)
+    console.log('===========ROLEDATA===============')
+    // 关闭弹窗
+    openDialog.value = false
+    // 给提示
+    useTips(`成功修改角色 “${changedRole.value.roleName}”`, data)
+    // 刷新页面
+    getPageData()
+}
 
 // 分页数据
 let page = ref(1)
@@ -129,6 +185,24 @@ onMounted(()=>{
             .tabFooter{
                 @include flex-box;
             }
+        }
+        :deep(){
+                .el-dialog__header{
+                    text-align: center;
+                    margin-left: 48px;
+                    color: $title-font-color;
+                }
+                .el-form{
+                    @include flex-box;
+                    .el-form-item{
+                        width: auto;
+                        min-width: 0;
+                        @include flex-box;
+                    }
+                }
+                .dialog-footer{
+                    @include flex-box
+                }
         }
     }
     .footer{
