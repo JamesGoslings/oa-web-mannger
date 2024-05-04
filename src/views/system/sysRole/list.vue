@@ -27,12 +27,14 @@
             draggable :close-on-click-modal="false">
                 <!-- 处理编辑选项的单选框列表 -->
                 <el-radio-group v-model="chooseRoleIndex" v-if="funType === 2">
-                    <div v-for="(role,i) in allRoles" :key="role.id" class="choiceRow">
+                    <div v-for="(role,i) in allRoles" :key="role.id" class="choiceRow"
+                    :title="getRoleMsgStr(role)">
                         <el-radio :value="i">{{role.roleName}}</el-radio>
                     </div>
                 </el-radio-group>
                 <el-checkbox-group v-model="chooseRoles" v-else>
-                    <div class="choiceRow" v-for="role in allRoles" :key="role.id">
+                    <div class="choiceRow" v-for="role in allRoles" :key="role.id" 
+                    :title="getRoleMsgStr(role)">
                         <el-checkbox :value="role.id">
                             {{role.roleName}}
                         </el-checkbox>
@@ -106,6 +108,12 @@ import { onMounted } from "vue";
 import { Check, Close } from '@element-plus/icons-vue'
 import{useConfirm,useTips} from '@/utils/msgTip'
 
+// 获取角色信息字符串
+function getRoleMsgStr(role){
+    let description = (role.description == null || role.description === '') ? '（没写描述）': role.description
+    let roleCode = (role.roleCode == null || role.roleCode === '') ? '（没写编码）' : role.roleCode
+    return `描述: “${description}”，编码: “${roleCode}”`
+}
 // 用于显示操作功能卡片
 let cards = ref([
     {
