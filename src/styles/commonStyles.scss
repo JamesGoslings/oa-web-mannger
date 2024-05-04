@@ -1,0 +1,28 @@
+@import '/src/styles/globalPage.scss';
+@import '/src/styles/listSize.scss';
+
+// 页面最上方的页面名的样式
+.funTitle{
+    // padding: 0 3vw;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin-top: 2vh;
+    margin-bottom: 4vh;
+    font-size: $title-font-size;
+    font-weight: 550;
+    color: rgb(36,47,87);
+}
+// 带阴影卡片的样式
+.baseCard{
+    background: #FFF;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px #928c8c64;
+}
+// 一般flex盒子的样式
+@mixin flex-box{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}

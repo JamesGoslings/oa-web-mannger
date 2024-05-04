@@ -654,6 +654,7 @@ onMounted(()=>{
 <style lang="scss" scoped>
 @import '/src/styles/globalPage.scss';
 @import '/src/styles/listSize.scss';
+@import '/src/styles/commonStyles.scss';
 
 .userManngerAll{
     margin-left: $left-distance;
@@ -661,18 +662,8 @@ onMounted(()=>{
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
-    background: rgb(244,247,252);
-    padding: 0 3vw;
-    .funTitle{
-        width: 100%;
-        display: flex;
-        align-items: center;
-        margin-top: 2vh;
-        margin-bottom: 4vh;
-        font-size: $title-font-size;
-        font-weight: 550;
-        color: rgb(36,47,87);
-    }
+    background: $page-back-color;
+    padding: $page-padding;
     .tableBox{
         width: 74%;
         // max-height: 78vh;
@@ -690,18 +681,18 @@ onMounted(()=>{
             .myIpt{
                 width: 40vw;
                 height: 4vh;
-                box-shadow: 0px 0px 1px #928c8c64;
+                box-shadow: $small-box-shadow;
             }
             :deep(){
                 .dialog{
                     .errMsg{
-                        color: rgb(249,190,23);
+                        color: $tip-font-color;
                         font-size: 13px;
                     }
                     .el-dialog__header{
                         text-align: center;
                         margin-left: 48px;
-                        color: rgb(36,47,87);
+                        color: $title-font-color;
                     }
                     .el-form{
                         display: flex;
@@ -718,13 +709,13 @@ onMounted(()=>{
         :deep(){
             .dialog{
                 .errMsg{
-                    color: rgb(249,190,23);
+                    color: $tip-font-color;
                     font-size: 13px;
                 }
                 .el-dialog__header{
                     text-align: center;
                     margin-left: 48px;
-                    color: rgb(36,47,87);
+                    color: $title-font-color;
                 }
                 .el-form{
                     display: flex;
@@ -744,7 +735,7 @@ onMounted(()=>{
             }
             }
         .table{
-            box-shadow: 0px 0px 2px #928c8c64;
+            box-shadow: 0px 0px 2px $box-shadow-color;
             width: 100%;
             // height: 90%;
             // border: #000 1px solid;
@@ -754,7 +745,7 @@ onMounted(()=>{
                 // min-height: 5vh;
                 // border: #000 1px solid;
                 // color: rgb(136,136,136);
-                color: rgb(36,47,87);
+                color: $title-font-color;
                 width: 100%;
                 font-size: $common-font-size;
                 text-align: center;
@@ -845,7 +836,7 @@ onMounted(()=>{
             text-align: center;
             font-size: $common-font-size;
             font-weight: 550;
-            color: rgb(36,47,87);
+            color: $title-font-color;
         }
         .userCard{
             min-height: 22.42vh;
@@ -875,9 +866,5 @@ onMounted(()=>{
         }
     }
 }
-.baseCard{
-    background: #FFF;
-    border-radius: 5px;
-    box-shadow: 0px 0px 10px #928c8c64;
-}
+
 </style>

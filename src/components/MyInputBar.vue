@@ -39,6 +39,10 @@ const props = defineProps({
   actBorder: {
     type: String,
     default: 'rgb(36,47,87)'
+  },
+  radius: {
+    type: String,
+    default: '7px'
   }
 });
   
@@ -57,6 +61,7 @@ function handleEnter(event) {
 let holderColor = ref(props.holderColor)
 let fontColor = ref(props.fontColor)
 let backColor = ref(props.backColor)
+let radius = ref(props.radius)
 // 判断是被选中
 let isChoose = ref(false)
 function borderChange(){
@@ -73,8 +78,8 @@ function borderChange(){
     width: 40%;
     height: 50%;
     border: rgb(228,229,237) 1px solid;
-    border-radius: 7px;
-    background: rgb(250,252,254);
+    border-radius: v-bind(radius);
+    background: v-bind(backColor);
     display: flex;
     // justify-content: center;
     align-items: center;

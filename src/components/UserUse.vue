@@ -11,6 +11,7 @@
 <script setup>
 import { removeToken } from '@/utils/auth';
 import { useUserStore } from '@/store/userStore';
+import { usePathStore } from '@/store/pathStore'
 import { useRouter } from 'vue-router';
 import router from '@/routers/router';
 
@@ -19,10 +20,14 @@ function useFun(i){
     if(i === 1){
         // 退出登录，将token移除
         removeToken()
-        // 将用户仓库的信息全部清除
+        // 将用户仓库和路径仓库的信息全部清除
         let user = useUserStore()
+        let pathStore = usePathStore()
         for (var key in user) {
             user[key] = null
+        }
+        for (var key in pathStore) {
+            pathStore[key] = null
         }
         router.push('/login')
     }

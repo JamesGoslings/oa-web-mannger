@@ -1,4 +1,4 @@
-import { ElMessage } from 'element-plus'
+import { ElMessage,ElMessageBox } from 'element-plus'
 /**
  * 处理请求返回结果后的消息提示
  * 
@@ -35,8 +35,11 @@ export function openFailedTip(msg){
 export function useTips(successMsg="",data={}){
     if(data.code === 200){
         openSuccessTip(successMsg)
-        console.log('成功！！！！！！！！！！')
     }else{
         openFailedTip(data.message)
     }
+}
+// 操作提示框
+export function useConfirm(message, title, options) {
+    return ElMessageBox.confirm(message, title, options)
 }
