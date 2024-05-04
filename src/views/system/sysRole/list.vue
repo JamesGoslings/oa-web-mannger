@@ -89,6 +89,8 @@ const editOrSaveRole = async()=>{
     console.log('========待处理的role=====>>>>')
     console.log(changedRole.value)
     console.log('=============>>>>')
+    // 保证修改时间不被旧数据覆盖
+    changedRole.value.updateTime = null
     let data = await updateRole(changedRole.value)
     console.log('===========ROLEDATA===============')
     console.log(data)
