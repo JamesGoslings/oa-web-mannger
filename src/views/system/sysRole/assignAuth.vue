@@ -19,7 +19,7 @@
 
 <script setup>
 import { useRoute } from 'vue-router'
-import {getMenuListByRoleId,getAllTreeMenus} from '@/api/menu'
+import {getMenuListByRoleId,getAllTreeMenus,getMenuIdListWithoutChilrenByRoleId} from '@/api/menu'
 
 // 存选中的id列表
 let chooseIdList = ref([])
@@ -43,17 +43,28 @@ function getChooseMenusIdlist(data, checked, indeterminate) {
 // 存原来的菜单id列表
 let oldMenuIdList = ref([])
 // 拿到原本就有的菜单列表
-const getOldMenuList = async()=>{
-    // let {data} = await getMenuListByRoleId(role.value.id)
-    let data = [{id: 3, name: '无'}]
-    oldMenuIdList.value = computed(() => {
-        return data.map(item => item.id);
-    });
-    console.log('=========================>>>')
+// const getOldMenuList = async()=>{
+//     let {data} = await getMenuListByRoleId(role.value.id)
+//     menuTreeList.value = data
+//     oldMenuIdList.value = computed(() => {
+//         return data.map(item => item.id);
+//     });
+//     // console.log('=========================>>>')
+//     // console.log(data)
+//     // console.log(oldMenuIdList.value)
+//     // console.log('=========================>>>')
+// }
+
+// 拿到原本就有的菜单id列表(无子节点)
+
+const getMenyIdListWithoutChilren = async()=>{
+    let {data} = await getMenuIdListWithoutChilrenByRoleId(role.value.id)
+    console.log('============================>>>>>>>>')
     console.log(data)
-    console.log(oldMenuIdList.value)
-    console.log('=========================>>>')
+    console.log('============================>>>>>>>>')
+    oldMenuIdList.value = data
 }
+
 // 获取到所有的树型菜单列表
 const getTreeMenusList = async()=>{
     let {data} = await getAllTreeMenus()
@@ -72,7 +83,9 @@ onMounted(() => {
     // 初始化菜单数据
     getTreeMenusList()
     // 拿原来的数据
-    getOldMenuList()
+    // getOldMenuList()
+
+    getMenyIdListWithoutChilren()
 })
 </script>
 
