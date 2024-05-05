@@ -39,7 +39,16 @@ export function useTips(successMsg="",data={}){
         openFailedTip(data.message)
     }
 }
-// 操作提示框
+// 全自定义的操作提示框
 export function useConfirm(message, title, options) {
     return ElMessageBox.confirm(message, title, options)
+}
+// 一般时候的操作提示框
+export function useSimpleConfirm(message){
+    return useConfirm(message, '温馨提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        showClose: true
+    })
 }

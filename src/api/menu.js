@@ -23,3 +23,11 @@ export function getAllTreeMenus(){
         method: 'GET'
     })
 }
+// 为对应角色分配权限
+export function doAssignForRole(assignObj = {}){
+    return request({
+        url: MENU_URL + 'doAssign',
+        method: 'POST',
+        data: assignObj
+    })
+}
