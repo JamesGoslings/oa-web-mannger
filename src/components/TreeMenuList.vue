@@ -62,10 +62,10 @@
                 <el-input v-model="checkedMenu.perms" autocomplete="off" />
             </el-form-item>
             <el-form-item label="创建时间">
-                <!-- <div>{{checkedMenu.createTime}}</div> -->
+                <div>{{checkedMenu.createTime}}</div>
             </el-form-item>
             <el-form-item label="修改时间">
-                <!-- <div>{{checkedMenu.updateTime}}</div> -->
+                <div>{{checkedMenu.updateTime}}</div>
             </el-form-item>
         </el-form>
         <template #footer>
@@ -117,7 +117,6 @@ let openDialog = ref(false)
 let checkedMenu = ref({})
 function checkDetailDialog(menu){
     checkedMenu.value = menu
-    checkedMenu.value.typeName = typeList[menu.type]
     let needMyName = props.floor === 1 ?  `${menu.name}` : ` >> ${menu.name}`
     checkedMenu.value.totalName = `${props.parentName}${needMyName}`
     detailTitle.value = `修改“  ${props.parentName}${needMyName}  ”`
@@ -134,6 +133,7 @@ function getChildrenAllParentName (menu){
 
 const updateChangeMenu = async()=>{
     useSimpleConfirm(`你确定要保存对菜单 “${checkedMenu.value.totalName}” 的修改吗???`).then(async ()=>{
+        checkedMenu.value.updateTime = null
         let data = await updateMenu(checkedMenu.value)
         openDialog.value = false
         useTips(`成功对菜单 “${checkedMenu.value.totalName}” 进行修改`,data)
@@ -144,20 +144,6 @@ const updateChangeMenu = async()=>{
     console.log('============>>>>>>>>>>>>>>>>>')
 }
 
-
-function getMyParentName (){
-    let menus = props.menuDataList
-    console.log('')
-    console.log(`=================第${props.floor}层的菜单的父菜单名称=======↓========>>>>>>>>>`)
-    console.log(props.parentName)
-    // for(var i = 0;i < menus.length;i++){
-    //     console.log(menus[i].name)
-    //     // menus[i].parentName
-    // }
-    console.log(`=================第${props.floor}层的菜单的父菜单名称=======↑========>>>>>>>>>`)
-    console.log('')
-}
-// getMyParentName()
 </script>
 
 <style lang="scss" scoped>
