@@ -31,3 +31,11 @@ export function doAssignForRole(assignObj = {}){
         data: assignObj
     })
 }
+// 修改菜单信息
+export function updateMenu(menu = {}){
+    return request({
+        url: MENU_URL + 'update',
+        method: 'PUT',
+        data: menu
+    })
+}

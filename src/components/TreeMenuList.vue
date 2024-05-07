@@ -14,14 +14,43 @@
         </div>
     </div>
     <!-- 查看菜单的对话框 -->
-    <el-dialog v-model="openDialog" :title="detailTitle" width="600"
+    <el-dialog v-model="openDialog" :title="detailTitle" width="500"
     draggable :close-on-click-modal="false">
         <el-form :model="form">
             <el-form-item label="菜单名称">
                 <el-input v-model="checkedMenu.name" autocomplete="off" />
             </el-form-item>
             <el-form-item label="菜单类型">
-                <el-input v-model="checkedMenu.name" autocomplete="off" />
+                <el-select
+                v-model="checkedMenu.type"
+                filterable
+                placeholder="选择菜单类型"
+                style="width: 240px"
+                >
+                    <el-option
+                    v-for="(type,i) in typeList"
+                    :key="i"
+                    :label="type"
+                    :value="i"
+                    />
+                </el-select>
+
+            </el-form-item>
+            <el-form-item label="菜单图标">
+                <div class="iconfont ico" v-html="checkedMenu.icon"></div>
+                <el-select
+                v-model="checkedMenu.icon"
+                filterable
+                placeholder="选择图标"
+                style="width: 240px"
+                >
+                    <el-option
+                    v-for="(icon,i) in iconList"
+                    :key="i"
+                    :label="`${i} 号图标`"
+                    :value="icon"
+                    />
+                </el-select>
             </el-form-item>
             <el-form-item label="菜单路径">
                 <el-input v-model="checkedMenu.path" autocomplete="off" />
@@ -29,20 +58,20 @@
             <el-form-item label="组件路径">
                 <el-input v-model="checkedMenu.component" autocomplete="off" />
             </el-form-item>
-            <el-form-item label="菜单图标">
-                <div class="iconfont ico" v-html="checkedMenu.icon"></div>
+            <el-form-item label="权限标识">
+                <el-input v-model="checkedMenu.perms" autocomplete="off" />
             </el-form-item>
             <el-form-item label="创建时间">
-                <div>{{checkedMenu.createTime}}</div>
+                <!-- <div>{{checkedMenu.createTime}}</div> -->
             </el-form-item>
             <el-form-item label="修改时间">
-                <div>{{checkedMenu.updateTime}}</div>
+                <!-- <div>{{checkedMenu.updateTime}}</div> -->
             </el-form-item>
         </el-form>
         <template #footer>
             <div class="dialog-footer">
                 <el-button @click="openDialog = false">取消</el-button>
-                <el-button type="primary" @click="openDialog = false">保存</el-button>
+                <el-button type="primary" @click="updateChangeMenu()">保存</el-button>
             </div>
         </template>
     </el-dialog>
@@ -50,7 +79,10 @@
 
 <script setup>
 import treeList from '@/components/TreeMenuList.vue'
-import { onMounted } from 'vue'
+import { iconList } from '@/utils/staticData'
+import { updateMenu } from '@/api/menu'
+import{useSimpleConfirm,useTips} from '@/utils/msgTip'
+
 
 let props = defineProps({
 	menuDataList: {
@@ -85,11 +117,13 @@ let openDialog = ref(false)
 let checkedMenu = ref({})
 function checkDetailDialog(menu){
     checkedMenu.value = menu
+    checkedMenu.value.typeName = typeList[menu.type]
     let needMyName = props.floor === 1 ?  `${menu.name}` : ` >> ${menu.name}`
+    checkedMenu.value.totalName = `${props.parentName}${needMyName}`
     detailTitle.value = `修改“  ${props.parentName}${needMyName}  ”`
     openDialog.value = true
 }
-
+let typeList = ['目录','菜单','按钮']
 function getChildrenAllParentName (menu){
     // 非顶级菜单的目录
     if(props.floor > 1){
@@ -97,6 +131,19 @@ function getChildrenAllParentName (menu){
     }
     return menu.name + ''
 }
+
+const updateChangeMenu = async()=>{
+    useSimpleConfirm(`你确定要保存对菜单 “${checkedMenu.value.totalName}” 的修改吗???`).then(async ()=>{
+        let data = await updateMenu(checkedMenu.value)
+        openDialog.value = false
+        useTips(`成功对菜单 “${checkedMenu.value.totalName}” 进行修改`,data)
+    })
+
+    console.log('============>>>>>>>>>>>>>>>>>')
+    console.log(checkedMenu.value)
+    console.log('============>>>>>>>>>>>>>>>>>')
+}
+
 
 function getMyParentName (){
     let menus = props.menuDataList
