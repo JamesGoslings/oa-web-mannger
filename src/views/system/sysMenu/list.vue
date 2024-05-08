@@ -42,7 +42,7 @@
 
             </el-form-item>
             <el-form-item label="菜单图标">
-                <div class="iconfont ico" v-html="checkedMenu.icon"></div>
+                <span class="iconfont ico" v-html="checkedMenu.icon"></span>
                 <el-select
                 v-model="checkedMenu.icon"
                 filterable
@@ -53,7 +53,9 @@
                     :key="i"
                     :label="`${i} 号图标`"
                     :value="icon"
-                    />
+                    >
+                        <div v-html="icon" class="iconfont ico"></div>
+                    </el-option>
                 </el-select>
             </el-form-item>
             <el-form-item label="上级菜单">
@@ -104,7 +106,7 @@ import myInputBar from "@/components/MyInputBar.vue"
 import treeMenuList from "@/components/TreeMenuList.vue"
 import { getAllTreeMenus,getMenuListByKeyword,updateMenu,getParentMenuAll,removeOneMenuById,saveMenu } from '@/api/menu'
 import { isSpace } from '@/utils/stringUtil'
-import{useSimpleConfirm,useTips} from '@/utils/msgTip'
+import{useSimpleConfirm,useWarningConfirm,useTips} from '@/utils/msgTip'
 import { iconList, typeList } from '@/utils/staticData'
 import { getCurrentInstance } from 'vue'
 import { onMounted } from "vue";
@@ -173,7 +175,11 @@ function saveThisMenu (){
     })
 }
 // 修改菜单的具体方法
-const updateChangeMenu = async()=>{
+function updateChangeMenu(){
+    if(checkedMenu.value.parentId === checkedMenu.value.id){
+        useWarningConfirm('上级菜单不可以是自己本身!!!')
+        return
+    }
     useSimpleConfirm(`你确定要保存对菜单 “${checkedMenu.value.totalName}” 的修改吗?`).then(async ()=>{
         // 防止修改日期不同步的问题
         checkedMenu.value.updateTime = null
@@ -272,6 +278,13 @@ onBeforeUnmount(()=>{
                     @include flex-box;
                     .el-form-item__label{
                         font-size: $common-font-size + 1;
+                    }
+                    .ico{
+                        color: $main-show-color;
+                        font-size: 35px;
+                    }
+                    .el-form-item__content{
+                        flex-wrap: nowrap;
                     }
                 }
             }

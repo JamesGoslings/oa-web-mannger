@@ -52,3 +52,12 @@ export function useSimpleConfirm(message){
         showClose: true
     })
 }
+// 警示框（只能点确定）
+export function useWarningConfirm(message){
+    return useConfirm(message, '警告提醒', {
+        confirmButtonText: '我知道了',
+        showCancelButton: false,
+        showClose: false,
+        type: 'warning',
+    })
+}
