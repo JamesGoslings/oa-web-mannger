@@ -14,11 +14,11 @@
                 </div>
             </div>
         </div>
-    </div>
     
-    <el-dialog v-model="openDialog" :title="detailTitle" width="500"
-    draggable :close-on-click-modal="false" class="dialog">
-    
+        
+        <el-dialog v-model="openDialog" :title="detailTitle" width="500"
+        draggable :close-on-click-modal="false">
+        
         <el-form :model="form">
             <el-form-item label="菜单名称">
                 <el-input v-model="checkedMenu.name" autocomplete="off" />
@@ -31,7 +31,6 @@
                 v-model="checkedMenu.type"
                 filterable
                 placeholder="选择菜单类型"
-                style="width: 240px"
                 >
                     <el-option
                     v-for="(type,i) in typeList"
@@ -48,7 +47,6 @@
                 v-model="checkedMenu.icon"
                 filterable
                 placeholder="选择图标"
-                style="width: 240px"
                 >
                     <el-option
                     v-for="(icon,i) in iconList"
@@ -63,7 +61,6 @@
                 v-model="checkedMenu.parentId"
                 filterable
                 placeholder="选择上一级菜单"
-                style="width: 240px"
                 >
                     <el-option
                     v-for="parentMenu in parentMenusMsg"
@@ -97,7 +94,7 @@
             </div>
         </template>
     </el-dialog>
-
+    </div>
 
 
 </template>
@@ -185,9 +182,9 @@ const updateChangeMenu = async()=>{
         useTips(`成功对菜单 “${checkedMenu.value.totalName}” 进行修改`,data)
     })
 }
-
+// 删除单个菜单
 function removeOneMenu(){
-    useSimpleConfirm(`你确定要删除菜单 “${checkedMenu.value.totalName}” 吗??？？？`).then(async ()=>{
+    useSimpleConfirm(`你确定要删除菜单 “${checkedMenu.value.totalName}” 吗？？？`).then(async ()=>{
         let data = await removeOneMenuById(checkedMenu.value.id)
         openDialog.value = false
         useTips(`成功删除菜单 “${checkedMenu.value.totalName}”`,data)
@@ -243,6 +240,7 @@ onBeforeUnmount(()=>{
     background: rgb(244,247,252);
     padding: $page-padding;
     .funs{
+        box-shadow: $small-box-shadow;
         background: #FFF;
         width: 100%;
         padding: 2vh 1vw;
@@ -256,10 +254,8 @@ onBeforeUnmount(()=>{
             box-shadow: 0px 0px 3px $box-shadow-color;
         }
     }
-}
-.dialog{
     :deep(){
-        // .el-dialog,.is-draggable{
+        .el-dialog,.is-draggable{
             .el-dialog__header,.show-close{
                 @include flex-box;
                 text-align: center;
@@ -271,7 +267,7 @@ onBeforeUnmount(()=>{
             .el-form{
                 @include flex-box;
                 .el-form-item{
-                    width: auto;
+                    width: 80%;
                     min-width: 0;
                     @include flex-box;
                     .el-form-item__label{
@@ -282,7 +278,7 @@ onBeforeUnmount(()=>{
             .dialog-footer{
                 @include flex-box
             }
-        // }
+        }
     }
 }
 </style>
