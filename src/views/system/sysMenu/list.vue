@@ -22,6 +22,7 @@ import myInputBar from "@/components/MyInputBar.vue"
 import treeMenuList from "@/components/TreeMenuList.vue"
 import { useUserStore } from '@/store/userStore';
 import { getAllTreeMenus,getMenuListByKeyword } from '@/api/menu'
+import { isSpace } from '@/utils/stringUtil'
 import { onMounted } from "vue";
 
 
@@ -41,8 +42,14 @@ const getMenusByKey = async()=>{
 }
 function handleEnter(){
     console.log(iptValue.value)
+    if(isSpace(iptValue.value)){
+        getAllNodes().then(()=>{
+            iptValue.value = ''
+        })
+        return
+    }
     getMenusByKey().then(()=>{
-        // iptValue.value = ''
+        iptValue.value = ''
     })
 }
 // 获取所有菜单的树型列表

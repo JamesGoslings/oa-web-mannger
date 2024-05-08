@@ -152,6 +152,7 @@ function getChildrenAllParentName (menu){
 
 const updateChangeMenu = async()=>{
     useSimpleConfirm(`你确定要保存对菜单 “${checkedMenu.value.totalName}” 的修改吗???`).then(async ()=>{
+        // 防止修改日期不同步的问题
         checkedMenu.value.updateTime = null
         let data = await updateMenu(checkedMenu.value)
         openDialog.value = false
