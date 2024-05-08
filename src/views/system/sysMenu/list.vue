@@ -4,7 +4,8 @@
         <div class="funs">
             <div class="funBar">
                 <myInputBar back-color="rgb(229,231,235)" font-color="rgb(36,47,87)"
-                radius="35px" holder-color="rgb(183,190,200)" style="height: 4vh;width: 55vw;" />
+                radius="35px" holder-color="rgb(183,190,200)" style="height: 4vh;width: 55vw;"
+                @on-enter="handleEnter" v-model="iptValue" text="搜索菜单，请输入菜单名" />
                 <el-button type="primary" style="border-radius: 50px;">＋ 新增菜单</el-button>
             </div>
             <div class="funTreeList">
@@ -20,22 +21,40 @@
 import myInputBar from "@/components/MyInputBar.vue"
 import treeMenuList from "@/components/TreeMenuList.vue"
 import { useUserStore } from '@/store/userStore';
-import { getAllTreeMenus } from '@/api/menu'
+import { getAllTreeMenus,getMenuListByKeyword } from '@/api/menu'
 import { onMounted } from "vue";
 
+
+// 接收输入关键字
+let iptValue = ref("")
+// 存拿到的树型菜单列表
 let menus = ref({})
 console.log(menus.value)
 
+// 条件查询
+const getMenusByKey = async()=>{
+    let {data} = await getMenuListByKeyword(iptValue.value);
+    menus.value = data
+    console.log('============IPT==========>>>>>')
+    console.log(data)
+    console.log('============IPT==========>>>>>')
+}
+function handleEnter(){
+    console.log(iptValue.value)
+    getMenusByKey().then(()=>{
+        // iptValue.value = ''
+    })
+}
+// 获取所有菜单的树型列表
 const getAllNodes = async()=>{
     let {data} = await getAllTreeMenus()
     menus.value = data
-    console.log('==========>>>>')
-    console.log(data)
-    console.log('==========>>>>')
 }
+
 
 onMounted(async ()=>{
     await getAllNodes()
+    // await getAllParentMenus()
 })
 </script>
 

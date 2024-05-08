@@ -20,6 +20,9 @@
             <el-form-item label="菜单名称">
                 <el-input v-model="checkedMenu.name" autocomplete="off" />
             </el-form-item>
+            <el-form-item v-if="checkedMenu.parentName != null && checkedMenu.parentName != ''">
+                <div></div>
+            </el-form-item>
             <el-form-item label="菜单类型">
                 <el-select
                 v-model="checkedMenu.type"
@@ -52,6 +55,21 @@
                     />
                 </el-select>
             </el-form-item>
+            <el-form-item label="上级菜单">
+                <el-select
+                v-model="checkedMenu.parentId"
+                filterable
+                placeholder="选择上一级菜单"
+                style="width: 240px"
+                >
+                    <el-option
+                    v-for="parentMenu in parentMenusMsg"
+                    :key="parentMenu.id"
+                    :label="parentMenu.totalName"
+                    :value="parentMenu.id"
+                    />
+                </el-select>
+            </el-form-item>
             <el-form-item label="菜单路径">
                 <el-input v-model="checkedMenu.path" autocomplete="off" />
             </el-form-item>
@@ -80,8 +98,9 @@
 <script setup>
 import treeList from '@/components/TreeMenuList.vue'
 import { iconList } from '@/utils/staticData'
-import { updateMenu } from '@/api/menu'
+import { updateMenu,getParentMenuAll } from '@/api/menu'
 import{useSimpleConfirm,useTips} from '@/utils/msgTip'
+import { onMounted } from 'vue'
 
 
 let props = defineProps({
@@ -144,6 +163,19 @@ const updateChangeMenu = async()=>{
     console.log('============>>>>>>>>>>>>>>>>>')
 }
 
+// 存所有父级菜单基础信息
+let parentMenusMsg = ref([])
+// 获取所有的非按钮菜单的列表（含父级字符串）用于搞直接父级菜单选择
+const getAllParentMenus = async()=>{
+    let {data} = await getParentMenuAll()
+    parentMenusMsg.value = data
+    console.log('=============Parent==================')
+    console.log(data)
+    console.log('=============Parent==================')
+}
+onMounted(()=>{
+    getAllParentMenus()
+})
 </script>
 
 <style lang="scss" scoped>

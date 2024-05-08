@@ -39,3 +39,17 @@ export function updateMenu(menu = {}){
         data: menu
     })
 }
+// 根据输入值获取树型的相关菜单
+export function getMenuListByKeyword(keyword = ''){
+    return request({
+        url: MENU_URL + 'keyMenu?keyword=' + keyword,
+        method: 'GET'
+    })
+}
+// 获取所有的非按钮菜单的列表（含父级字符串）
+export function getParentMenuAll(){
+    return request({
+        url: MENU_URL + 'getParentMenuAll',
+        method: 'GET'
+    })
+}

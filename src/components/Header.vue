@@ -23,7 +23,7 @@ import {getOneUser} from '@/api/user'
 
 let isChoose = ref(false)
 let iptValue = ref('')
-function handleEnter() {  
+function handleEnter() {
   // 按下回车键时执行的逻辑
   console.log('===============================================')
   console.log('你按下了回车键，输入的值是:', iptValue.value);
@@ -37,6 +37,7 @@ let userMsg = ref({userId: 0})
 const initMsg = async()=>{
     let {data} = await getOneUser(userMsg.value.userId)
     userMsg.value = data
+    console.log()
     if(data.avatarUrl !== null && data.avatarUrl != ''){
         avatarPath.value = data.avatarUrl
     }
