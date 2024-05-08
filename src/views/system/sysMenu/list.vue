@@ -15,7 +15,7 @@
             </div>
         </div>
     
-        
+        <!-- 查看/修改/新建 菜单的对话框 -->
         <el-dialog v-model="openDialog" :title="detailTitle" width="500"
         draggable :close-on-click-modal="false">
         
