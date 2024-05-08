@@ -13,9 +13,9 @@
             <treeList v-if="menu.children != null && menu.children.length != 0" :parentName="getChildrenAllParentName(menu)" :menuDataList="menu.children" :floor="floor + 1" />
         </div>
     </div>
-    <!-- 查看菜单的对话框 -->
-    <el-dialog v-model="openDialog" :title="detailTitle" width="500"
+    <!-- <el-dialog v-model="openDialog" :title="detailTitle" width="500"
     draggable :close-on-click-modal="false">
+    
         <el-form :model="form">
             <el-form-item label="菜单名称">
                 <el-input v-model="checkedMenu.name" autocomplete="off" />
@@ -93,14 +93,15 @@
                 <el-button type="primary" @click="updateChangeMenu()">保存</el-button>
             </div>
         </template>
-    </el-dialog>
+    </el-dialog> -->
 </template>
 
 <script setup>
 import treeList from '@/components/TreeMenuList.vue'
-import { iconList } from '@/utils/staticData'
-import { updateMenu,getParentMenuAll,removeOneMenuById } from '@/api/menu'
-import{useSimpleConfirm,useTips} from '@/utils/msgTip'
+// import { iconList } from '@/utils/staticData'
+// import { updateMenu,getParentMenuAll,removeOneMenuById } from '@/api/menu'
+// import{useSimpleConfirm,useTips} from '@/utils/msgTip'
+import { getCurrentInstance } from 'vue'
 import { onMounted } from 'vue'
 
 
@@ -129,18 +130,21 @@ let num = ref(['一','二','三','四','五','六','七','八','九','十'])
 function getBorder(f){
     return f ? {borderBottom: 'rgb(209,213,219) 1px solid',marginLeft: props.floor + 'vw'} : {marginLeft: props.floor + 'vw'};
 }
+
+
 // 对话框title
-let detailTitle = ref('')
+// let detailTitle = ref('')
 // 控制对话框的开关
-let openDialog = ref(false)
+// let openDialog = ref(false)
 // 存当前查看的菜单对象
 let checkedMenu = ref({})
 function checkDetailDialog(menu){
     checkedMenu.value = menu
     let needMyName = props.floor === 1 ?  `${menu.name}` : ` >> ${menu.name}`
     checkedMenu.value.totalName = `${props.parentName}${needMyName}`
-    detailTitle.value = `修改“  ${props.parentName}${needMyName}  ”`
-    openDialog.value = true
+    // detailTitle.value = `修改“  ${props.parentName}${needMyName}  ”`
+    emitMitt(checkedMenu.value)
+    // openDialog.value = true
 }
 let typeList = ['目录','菜单','按钮']
 function getChildrenAllParentName (menu){
@@ -151,36 +155,44 @@ function getChildrenAllParentName (menu){
     return menu.name + ''
 }
 
-const updateChangeMenu = async()=>{
-    useSimpleConfirm(`你确定要保存对菜单 “${checkedMenu.value.totalName}” 的修改吗?`).then(async ()=>{
-        // 防止修改日期不同步的问题
-        checkedMenu.value.updateTime = null
-        let data = await updateMenu(checkedMenu.value)
-        openDialog.value = false
-        useTips(`成功对菜单 “${checkedMenu.value.totalName}” 进行修改`,data)
-    })
+
+// 通过全局事件传输当前要查看的menu
+const cxt  = getCurrentInstance()
+const bus = cxt.appContext.config.globalProperties.$bus
+const emitMitt = function(menu = {}){
+    bus.emit('menuEvent',menu)
 }
 
-function removeOneMenu(){
-    useSimpleConfirm(`你确定要删除菜单 “${checkedMenu.value.totalName}” 吗??？？？`).then(async ()=>{
-        let data = await removeOneMenuById(checkedMenu.value.id)
-        openDialog.value = false
-        useTips(`成功删除菜单 “${checkedMenu.value.totalName}”`,data)
-    })
-}
+// const updateChangeMenu = async()=>{
+//     useSimpleConfirm(`你确定要保存对菜单 “${checkedMenu.value.totalName}” 的修改吗?`).then(async ()=>{
+//         // 防止修改日期不同步的问题
+//         checkedMenu.value.updateTime = null
+//         let data = await updateMenu(checkedMenu.value)
+//         openDialog.value = false
+//         useTips(`成功对菜单 “${checkedMenu.value.totalName}” 进行修改`,data)
+//     })
+// }
 
-// 存所有父级菜单基础信息
-let parentMenusMsg = ref([])
-// 获取所有的非按钮菜单的列表（含父级字符串）用于搞直接父级菜单选择
-const getAllParentMenus = async()=>{
-    let {data} = await getParentMenuAll()
-    parentMenusMsg.value = data
-    console.log('=============Parent==================')
-    console.log(data)
-    console.log('=============Parent==================')
-}
+// function removeOneMenu(){
+//     useSimpleConfirm(`你确定要删除菜单 “${checkedMenu.value.totalName}” 吗??？？？`).then(async ()=>{
+//         let data = await removeOneMenuById(checkedMenu.value.id)
+//         openDialog.value = false
+//         useTips(`成功删除菜单 “${checkedMenu.value.totalName}”`,data)
+//     })
+// }
+
+// // 存所有父级菜单基础信息
+// let parentMenusMsg = ref([])
+// // 获取所有的非按钮菜单的列表（含父级字符串）用于搞直接父级菜单选择
+// const getAllParentMenus = async()=>{
+//     let {data} = await getParentMenuAll()
+//     parentMenusMsg.value = data
+//     console.log('=============Parent==================')
+//     console.log(data)
+//     console.log('=============Parent==================')
+// }
 onMounted(()=>{
-    getAllParentMenus()
+    // getAllParentMenus()
 })
 </script>
 

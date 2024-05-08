@@ -10,4 +10,7 @@ export const iconList = [
     '&#xe63f;','&#xe63e;','&#xe63a;','&#xe631;',
     '&#xe62e;','&#xe60c;','&#xe605;','&#xe605;',
     '&#xe640;'
-]	
+]
+
+// 菜单类型列表
+export const typeList = ['目录','菜单','按钮']
