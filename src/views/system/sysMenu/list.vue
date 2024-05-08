@@ -36,9 +36,6 @@ console.log(menus.value)
 const getMenusByKey = async()=>{
     let {data} = await getMenuListByKeyword(iptValue.value);
     menus.value = data
-    console.log('============IPT==========>>>>>')
-    console.log(data)
-    console.log('============IPT==========>>>>>')
 }
 function handleEnter(){
     console.log(iptValue.value)

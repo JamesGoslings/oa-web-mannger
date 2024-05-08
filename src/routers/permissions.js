@@ -3,6 +3,7 @@ import { usePathStore } from '@/store/pathStore'
 import pinia from '@/utils/pinia'
 import router from '@/routers/router'
 import {userInfo} from '@/api/user.js'
+import { isSpace } from '@/utils/stringUtil'
 
 import Home from '@/views/Home.vue';
 import ParentView from '@/components/ParentView.vue'
@@ -88,8 +89,10 @@ async function loadModule(modulePath){
 function dealRouters(routers,parentPath,isChange){
     for (var route of routers) {
         // 处理路由中的path属性
-        if(route.path.substring(0,1) !== '/'){
-            route.path = `/${route.path}`
+        if(!isSpace(route.path)){
+            if(route.path.substring(0,1) !== '/'){
+                route.path = `/${route.path}`
+            }
         }
         if(!isChange){
             route.path = `${parentPath}${route.path}`
