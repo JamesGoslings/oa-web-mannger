@@ -89,6 +89,7 @@
         <template #footer>
             <div class="dialog-footer">
                 <el-button @click="openDialog = false">取消</el-button>
+                <el-button type="danger" @click="removeOneMenu()">删除</el-button>
                 <el-button type="primary" @click="updateChangeMenu()">保存</el-button>
             </div>
         </template>
@@ -98,7 +99,7 @@
 <script setup>
 import treeList from '@/components/TreeMenuList.vue'
 import { iconList } from '@/utils/staticData'
-import { updateMenu,getParentMenuAll } from '@/api/menu'
+import { updateMenu,getParentMenuAll,removeOneMenuById } from '@/api/menu'
 import{useSimpleConfirm,useTips} from '@/utils/msgTip'
 import { onMounted } from 'vue'
 
@@ -128,7 +129,7 @@ let num = ref(['一','二','三','四','五','六','七','八','九','十'])
 function getBorder(f){
     return f ? {borderBottom: 'rgb(209,213,219) 1px solid',marginLeft: props.floor + 'vw'} : {marginLeft: props.floor + 'vw'};
 }
-//
+// 对话框title
 let detailTitle = ref('')
 // 控制对话框的开关
 let openDialog = ref(false)
@@ -151,17 +152,21 @@ function getChildrenAllParentName (menu){
 }
 
 const updateChangeMenu = async()=>{
-    useSimpleConfirm(`你确定要保存对菜单 “${checkedMenu.value.totalName}” 的修改吗???`).then(async ()=>{
+    useSimpleConfirm(`你确定要保存对菜单 “${checkedMenu.value.totalName}” 的修改吗?`).then(async ()=>{
         // 防止修改日期不同步的问题
         checkedMenu.value.updateTime = null
         let data = await updateMenu(checkedMenu.value)
         openDialog.value = false
         useTips(`成功对菜单 “${checkedMenu.value.totalName}” 进行修改`,data)
     })
+}
 
-    console.log('============>>>>>>>>>>>>>>>>>')
-    console.log(checkedMenu.value)
-    console.log('============>>>>>>>>>>>>>>>>>')
+function removeOneMenu(){
+    useSimpleConfirm(`你确定要删除菜单 “${checkedMenu.value.totalName}” 吗??？？？`).then(async ()=>{
+        let data = await removeOneMenuById(checkedMenu.value.id)
+        openDialog.value = false
+        useTips(`成功删除菜单 “${checkedMenu.value.totalName}”`,data)
+    })
 }
 
 // 存所有父级菜单基础信息

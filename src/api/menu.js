@@ -53,3 +53,10 @@ export function getParentMenuAll(){
         method: 'GET'
     })
 }
+// 删除单个菜单
+export function removeOneMenuById(id){
+    return request({
+        url: MENU_URL + 'remove/' + id,
+        method: 'DELETE'
+    })
+}
