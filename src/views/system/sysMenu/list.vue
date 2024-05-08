@@ -6,7 +6,7 @@
                 <myInputBar back-color="rgb(229,231,235)" font-color="rgb(36,47,87)"
                 radius="35px" holder-color="rgb(183,190,200)" style="height: 4vh;width: 55vw;"
                 @on-enter="handleEnter" v-model="iptValue" text="搜索菜单，请输入菜单名" />
-                <el-button type="primary" style="border-radius: 50px;" @click="openSaveMenuDialog()">＋ 新增菜单</el-button>
+                <el-button type="primary" style="border-radius: 50px;" @click="saveMenuInit()">＋ 新增菜单</el-button>
             </div>
             <div class="funTreeList">
                 <div>
@@ -15,9 +15,9 @@
             </div>
         </div>
     </div>
-
+    
     <el-dialog v-model="openDialog" :title="detailTitle" width="500"
-    draggable :close-on-click-modal="false">
+    draggable :close-on-click-modal="false" class="dialog">
     
         <el-form :model="form">
             <el-form-item label="菜单名称">
@@ -82,18 +82,18 @@
             <el-form-item label="权限标识">
                 <el-input v-model="checkedMenu.perms" autocomplete="off" />
             </el-form-item>
-            <el-form-item label="创建时间">
+            <el-form-item label="创建时间" v-if="funType === 1">
                 <div>{{checkedMenu.createTime}}</div>
             </el-form-item>
-            <el-form-item label="修改时间">
+            <el-form-item label="修改时间" v-if="funType === 1">
                 <div>{{checkedMenu.updateTime}}</div>
             </el-form-item>
         </el-form>
         <template #footer>
             <div class="dialog-footer">
                 <el-button @click="openDialog = false">取消</el-button>
-                <el-button type="danger" @click="removeOneMenu()">删除</el-button>
-                <el-button type="primary" @click="updateChangeMenu()">保存</el-button>
+                <el-button v-if="funType === 1" type="danger" @click="removeOneMenu()">删除</el-button>
+                <el-button type="primary" @click="saveOrupdateChangeMenu()">保存</el-button>
             </div>
         </template>
     </el-dialog>
@@ -105,8 +105,7 @@
 <script setup>
 import myInputBar from "@/components/MyInputBar.vue"
 import treeMenuList from "@/components/TreeMenuList.vue"
-import { useUserStore } from '@/store/userStore';
-import { getAllTreeMenus,getMenuListByKeyword,updateMenu,getParentMenuAll,removeOneMenuById } from '@/api/menu'
+import { getAllTreeMenus,getMenuListByKeyword,updateMenu,getParentMenuAll,removeOneMenuById,saveMenu } from '@/api/menu'
 import { isSpace } from '@/utils/stringUtil'
 import{useSimpleConfirm,useTips} from '@/utils/msgTip'
 import { iconList, typeList } from '@/utils/staticData'
@@ -119,6 +118,8 @@ import { onMounted } from "vue";
 let detailTitle = ref('')
 // 存当前查看的菜单
 let checkedMenu = ref({})
+// 表示当前对话框的功能 0: 新建; 1: 修改
+let funType = ref(0)
 // 控制对话框的开关
 let openDialog = ref(false)
 function openSaveMenuDialog(){
@@ -129,6 +130,13 @@ let iptValue = ref("")
 // 存拿到的树型菜单列表
 let menus = ref({})
 console.log(menus.value)
+// 初始化新建菜单的弹窗
+function saveMenuInit(){
+    detailTitle.value = '添加新菜单'
+    checkedMenu.value = {}
+    funType.value = 0
+    openDialog.value = true
+}
 
 // 条件查询
 const getMenusByKey = async()=>{
@@ -148,7 +156,26 @@ function handleEnter(){
         iptValue.value = ''
     })
 }
-
+// 修改/新建 菜单的总方法
+function saveOrupdateChangeMenu(){
+    if(funType.value === 1){
+        updateChangeMenu()
+    }else{
+        saveThisMenu()
+    }
+}
+// 新建菜单的具体方法
+function saveThisMenu (){
+    useSimpleConfirm('你确定要保存新建的菜单吗').then(async ()=>{
+        console.log('=========>>>>')
+        console.log(checkedMenu.value)
+        console.log('=========>>>>')
+        let data = await saveMenu(checkedMenu.value)
+        openDialog.value = false
+        useTips('新建菜单成功',data)
+    })
+}
+// 修改菜单的具体方法
 const updateChangeMenu = async()=>{
     useSimpleConfirm(`你确定要保存对菜单 “${checkedMenu.value.totalName}” 的修改吗?`).then(async ()=>{
         // 防止修改日期不同步的问题
@@ -173,17 +200,14 @@ let parentMenusMsg = ref([])
 const getAllParentMenus = async()=>{
     let {data} = await getParentMenuAll()
     parentMenusMsg.value = data
-    console.log('=============Parent==================')
-    console.log(data)
-    console.log('=============Parent==================')
 }
-getAllParentMenus()
 // 获取所有菜单的树型列表
 const getAllNodes = async()=>{
     let {data} = await getAllTreeMenus()
     menus.value = data
 }
 
+// 接收树型子组件传来的待查看的menu
 const cxt  = getCurrentInstance()
 const bus = cxt.appContext.config.globalProperties.$bus
 bus.on('menuEvent',(menu)=>{
@@ -192,6 +216,7 @@ bus.on('menuEvent',(menu)=>{
     console.log('======================>>>>>>')
     checkedMenu.value = menu
     detailTitle.value = `修改“  ${menu.totalName}  ”`
+    funType.value = 1
     openDialog.value = true
 })
 onMounted(()=>{
@@ -230,6 +255,34 @@ onBeforeUnmount(()=>{
             // padding: 1vh 2vw;
             box-shadow: 0px 0px 3px $box-shadow-color;
         }
+    }
+}
+.dialog{
+    :deep(){
+        // .el-dialog,.is-draggable{
+            .el-dialog__header,.show-close{
+                @include flex-box;
+                text-align: center;
+                color: $title-font-color;
+                .el-dialog__title{
+                    font-size: $title-font-size;
+                }
+            }
+            .el-form{
+                @include flex-box;
+                .el-form-item{
+                    width: auto;
+                    min-width: 0;
+                    @include flex-box;
+                    .el-form-item__label{
+                        font-size: $common-font-size + 1;
+                    }
+                }
+            }
+            .dialog-footer{
+                @include flex-box
+            }
+        // }
     }
 }
 </style>

@@ -60,3 +60,11 @@ export function removeOneMenuById(id){
         method: 'DELETE'
     })
 }
+// 新建菜单
+export function saveMenu(menu = {}){
+    return request({
+        url: MENU_URL + 'save',
+        method: 'POST',
+        data: menu
+    })
+}
