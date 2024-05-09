@@ -67,7 +67,7 @@ input[type="checkbox"]:before {
         transition: left cubic-bezier(0.3, 1.5, 0.7, 1) 0.3s;
  }
  input[type="checkbox"]:after {
-        content: "√ ×";
+        // content: "√ ×";
         // text-indent: 12px;
         word-spacing: 4px;
         display: inline-block;
