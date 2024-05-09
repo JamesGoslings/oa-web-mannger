@@ -16,10 +16,32 @@
             <div class="modes">
                 <el-card class="fun" shadow="hover">
                     <div class="title">
-                        <changeSwitch />
+                        <changeSwitch  @value-sent="changeType"/>
                     </div>
-                    <div>
-                        表单内容
+                    <div class="formFun">
+                        <el-form :model="form">
+                            <el-form-item :label="item.label" v-for="(item,i) in formMsgField" :key="i">
+                                <el-input v-model="checkedPost[item.field]" autocomplete="off"
+                                 v-if="item.type !== 1" :disabled="item.type === 2"/>
+                                <el-select
+                                v-model="checkedPost.deptId"
+                                filterable
+                                placeholder="选择直接所属部门"
+                                v-else-if="item.type === 1"
+                                >
+                                    <el-option
+                                    v-for="dept in deptList"
+                                    :key="dept.id"
+                                    :label="dept.name"
+                                    :value="dept.id"
+                                    />
+                                </el-select>
+                            </el-form-item>
+                            <div class="footer">
+                                <el-button v-if="funType === 1" type="danger">删除</el-button>
+                                <el-button type="primary" >保存</el-button>
+                            </div>
+                        </el-form>
                     </div>
                 </el-card>
                 <el-card class="imgShow" shadow="hover">
@@ -35,9 +57,21 @@
 import { getAllTotalPostList } from '@/api/post';
 import enterButton from '@/components/EnterButton.vue';
 import changeSwitch from '@/components/ChangeSwitch.vue';
+import { getAllDept } from '@/api/dept'
 import { onMounted } from 'vue';
 
-// 存显示的岗位
+// type确定当前显示形式 修改时 0: 输入框; 1: 选择框; 2: 只显示
+const formMsgField = ref([
+    {label: "岗位名称",field: 'name',type: 0},
+    {label: "岗位编码",field: 'postCode',type: 0},
+    {label: "所属部门",field: 'deptName',type: 1},
+    {label: "岗位人数",field: 'count',type: 2},
+    {label: "创建时间",field: 'createTime',type: 2},
+    {label: "修改时间",field: 'updateTime',type: 2},
+])
+// 存当前 查看/新建 的岗位
+let checkedPost = ref({})
+// 存显示的岗位列表
 let showPosts = ref([])
 // 存所有的岗位
 let totalPosts = ref([])
@@ -47,10 +81,23 @@ const getAllTotalPosts = async()=>{
     for(var i = 0;i < 4;i++){
         showPosts.value[i] = totalPosts.value[i]
     }
+    checkedPost.value = data[0]
 }
-
+// 用于表明当前使用哪个表单 0: 查看/修改; 1: 新建
+let funType = ref(1)
+// 接收子组件值来确定当前表单
+function changeType(type){
+    funType.value = type
+}
+// 存所有的部门的列表
+let deptList = ref([])
+const getDeptList = async()=>{
+    let {data} = await getAllDept()
+    deptList.value = data
+}
 onMounted(()=>{
     getAllTotalPosts()
+    getDeptList()
 })
 </script>
 
@@ -115,17 +162,24 @@ onMounted(()=>{
         .modes{
             width: 100%;
             // margin-top: 7vh;
-            @include flex-box;
-            flex-wrap: nowrap;
+            // @include flex-box;
+            // flex-wrap: nowrap;
+            display: flex;
             justify-content: space-between;
             .fun{
-                width: 40%;
+                width: 30%;
                 .title{
                     width: 100%;
                 }
+                .formFun{
+                    margin-top: 2vh;
+                    .footer{
+                        @include flex-box;
+                    }
+                }
             }
             .imgShow{
-                width: 55%;
+                width: 65%;
             }
         }
     }
