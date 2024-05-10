@@ -84,6 +84,7 @@
             </div>
         </div>
 
+        <!-- 查看所有岗位时的弹窗界面 -->
         <el-dialog v-model="openDialog" title="全部岗位" width="500"
          :close-on-click-modal="false">
             <myInputBar class="myIpt" radius="10px" text="搜索岗位，请输入名称或编码"
@@ -167,9 +168,16 @@ function updateThisPost(){
         useTips(`成功修改 “${checkedPost.value.name}” `,data)
     })
 }
+
 // 动态更新code码
 const changePostCode = async()=>{
     let post = checkedPost.value
+    if( funType.value === 0 && (!post.deptId) || (post.type == null)){
+        return;
+    }
+    if(post.id === undefined || post.id === null){
+        post.id = -1;
+    }
     let {data:{newPostCode}} = await getNewCode(post.id,post.deptId,post.type)
     checkedPost.value.postCode = newPostCode
 }

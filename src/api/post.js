@@ -16,7 +16,7 @@ export function getAllTotalPostList(){
         method: 'GET'
     })
 }
-// 拿到新的编码
+// 拿到新的编码(如果id为null或小于等于0时，就按照新增来返回对应的code码)
 export function getNewCode(id,deptId,type){
     return request({
         url: POST_URL + `newCode/${id}/${deptId}/${type}`,
