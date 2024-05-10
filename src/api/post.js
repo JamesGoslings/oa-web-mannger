@@ -45,3 +45,11 @@ export function removeOnePostById(postId){
         method: 'DELETE'
     })
 }
+// 新建岗位
+export function savePost(post = {}){
+    return request({
+        url: POST_URL + 'save',
+        method: 'POST',
+        data: post
+    })
+}

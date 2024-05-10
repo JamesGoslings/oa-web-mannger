@@ -108,7 +108,7 @@
 
 <script setup>
 import myInputBar from "@/components/MyInputBar.vue"
-import { getAllTotalPostList,getNewCode,updatePost,getTotalPostsByKeyword,removeOnePostById } from '@/api/post';
+import { getAllTotalPostList,getNewCode,updatePost,getTotalPostsByKeyword,removeOnePostById,savePost } from '@/api/post';
 import enterButton from '@/components/EnterButton.vue';
 import changeSwitch from '@/components/ChangeSwitch.vue';
 import { getAllDept } from '@/api/dept'
@@ -156,14 +156,23 @@ function removeThisPost(){
 // 进入修改，新建的总方法
 function saveOrUpdateOPost(){
     if(funType.value === 0){
-        alert("新建岗位")
+        saveThisPost()
     }else{
         updateThisPost()
     }
 }
+// 新建岗位的具体方法
+function saveThisPost(){
+    useSimpleConfirm('你确定要添加该岗位吗？').then(async ()=>{
+        checkedPost.value.id = null
+        let data = await savePost(checkedPost.value);
+        useTips('成功添加岗位',data)
+    })
+}
 // 修改岗位的具体方法
 function updateThisPost(){
     useSimpleConfirm(`你确定保存对 “${checkedPost.value.name}” 的修改吗？`).then(async ()=>{
+        checkedPost.value.updateTime = null
         let data = await updatePost(checkedPost.value);
         useTips(`成功修改 “${checkedPost.value.name}” `,data)
     })
