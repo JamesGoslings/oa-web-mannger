@@ -38,3 +38,10 @@ export function getTotalPostsByKeyword(keyword = ''){
         method: 'GET'
     })
 }
+// 删除单个岗位
+export function removeOnePostById(postId){
+    return request({
+        url: POST_URL + 'remove/' + postId,
+        method: 'DELETE'
+    })
+}

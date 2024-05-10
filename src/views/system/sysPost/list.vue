@@ -68,7 +68,8 @@
                             </div>
 
                             <div class="footer">
-                                <el-button v-if="funType === 1" :disabled="!checkedPost.id" type="danger">删除</el-button>
+                                <el-button v-if="funType === 1" :disabled="!checkedPost.id"
+                                @click="removeThisPost()" type="danger">删除</el-button>
                                 <el-button type="primary" @click="saveOrUpdateOPost()"
                                  :disabled="!checkedPost.id && funType === 1">保存</el-button>
                             </div>
@@ -106,7 +107,7 @@
 
 <script setup>
 import myInputBar from "@/components/MyInputBar.vue"
-import { getAllTotalPostList,getNewCode,updatePost,getTotalPostsByKeyword } from '@/api/post';
+import { getAllTotalPostList,getNewCode,updatePost,getTotalPostsByKeyword,removeOnePostById } from '@/api/post';
 import enterButton from '@/components/EnterButton.vue';
 import changeSwitch from '@/components/ChangeSwitch.vue';
 import { getAllDept } from '@/api/dept'
@@ -138,6 +139,19 @@ function choosecard(post){
 let choosePostIndex = ref(-1)
 // 控制列表弹窗的打开
 let openDialog = ref(false)
+
+
+// 删除单个岗位
+function removeThisPost(){
+    useSimpleConfirm(`你确定要删除岗位 “${checkedPost.value.name}” 吗？？？`).then(async()=>{
+        let data = await removeOnePostById(checkedPost.value.id)
+        // 清除编辑数据
+        checkedPost.value = {}
+        // 刷新页面数据
+        await getAllTotalPosts()
+        useTips(`成功删除 “${checkedPost.value.name}” `,data)
+    })
+}
 // 进入修改，新建的总方法
 function saveOrUpdateOPost(){
     if(funType.value === 0){
