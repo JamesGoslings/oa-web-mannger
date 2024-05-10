@@ -23,4 +23,18 @@ export function getNewCode(id,deptId,type){
         method: 'GET'
     })
 }
-// 
+// 修改岗位
+export function updatePost(post){
+    return request({
+        url: POST_URL + 'update',
+        method: 'PUT',
+        data: post
+    })
+}
+// 条件查询
+export function getTotalPostsByKeyword(keyword = ''){
+    return request({
+        url: POST_URL + 'getByKey/' + keyword,
+        method: 'GET'
+    })
+}

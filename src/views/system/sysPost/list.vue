@@ -11,12 +11,12 @@
                 <span class="iconfont ico">&#xe641;</span>
             </el-card>
             <div style="width: 100%;margin: 1vh 0;">
-                <enterButton class="more" txt="查看全部"/>
+                <enterButton class="more" txt="查看全部" @click="openDialog = true"/>
             </div>
             <div class="modes">
                 <el-card class="fun" shadow="hover">
                     <div class="title">
-                        <changeSwitch left-txt="修改" @value-sent="changeType" :type="funType"/>
+                        <changeSwitch @value-sent="changeType" :type="funType"/>
                         <el-popover
                         placement="left"
                         title="提示"
@@ -68,8 +68,9 @@
                             </div>
 
                             <div class="footer">
-                                <el-button v-if="funType === 1" type="danger">删除</el-button>
-                                <el-button type="primary" @click="saveOrUpdateOPost()" >保存</el-button>
+                                <el-button v-if="funType === 1" :disabled="!checkedPost.id" type="danger">删除</el-button>
+                                <el-button type="primary" @click="saveOrUpdateOPost()"
+                                 :disabled="!checkedPost.id && funType === 1">保存</el-button>
                             </div>
                         </el-form>
                     </div>
@@ -81,17 +82,77 @@
                 </el-card>
             </div>
         </div>
+
+        <el-dialog v-model="openDialog" title="全部岗位" width="500"
+         :close-on-click-modal="false">
+            <myInputBar class="myIpt" radius="10px" text="搜索岗位，请输入名称或编码"
+            @on-enter="handleEnter" v-model="iptKeyword" />
+            <el-radio-group v-model="choosePostIndex">
+                <el-radio :value="post.id" v-for="post in totalPosts" :key="post.id" @click="choosecard(post)">
+                    <div class="myCard">
+                        <div class="msg">
+                            <div class="cardTitle">{{post.name}}</div>
+                            <div class="myCardField">{{`部门：${post.deptName}`}}</div>
+                            <div class="myCardField">{{`编码：${post.postCode}`}}</div>
+                        </div>
+                        <span class="iconfont ico">&#xe641;</span>
+                    </div> 
+                </el-radio>
+            </el-radio-group>
+        </el-dialog>
+
     </div>
 </template>
 
 <script setup>
-import { getAllTotalPostList,getNewCode } from '@/api/post';
+import myInputBar from "@/components/MyInputBar.vue"
+import { getAllTotalPostList,getNewCode,updatePost,getTotalPostsByKeyword } from '@/api/post';
 import enterButton from '@/components/EnterButton.vue';
 import changeSwitch from '@/components/ChangeSwitch.vue';
 import { getAllDept } from '@/api/dept'
 import { postTypeList } from '@/utils/staticData'
-import { onMounted } from 'vue';
+import{useSimpleConfirm,useTips} from '@/utils/msgTip'
+import { isSpace } from "@/utils/stringUtil";
 
+
+// 存输入的值
+let iptKeyword = ref('')
+function handleEnter(){
+    if(isSpace(iptKeyword.value)){
+        getAllTotalPosts()
+    }else{
+        getPostsByKey()
+    }
+}
+// 进行条件查询并显示数据
+const getPostsByKey = async()=>{
+    let {data} = await getTotalPostsByKeyword(iptKeyword.value)
+    totalPosts.value = data
+}
+// 在对话框中选中时的方法
+function choosecard(post){
+    openDialog.value = false
+    showPostMsg(post)
+}
+// 绑定单选框的index
+let choosePostIndex = ref(-1)
+// 控制列表弹窗的打开
+let openDialog = ref(false)
+// 进入修改，新建的总方法
+function saveOrUpdateOPost(){
+    if(funType.value === 0){
+        alert("新建岗位")
+    }else{
+        updateThisPost()
+    }
+}
+// 修改岗位的具体方法
+function updateThisPost(){
+    useSimpleConfirm(`你确定保存对 “${checkedPost.value.name}” 的修改吗？`).then(async ()=>{
+        let data = await updatePost(checkedPost.value);
+        useTips(`成功修改 “${checkedPost.value.name}” `,data)
+    })
+}
 // 动态更新code码
 const changePostCode = async()=>{
     let post = checkedPost.value
@@ -245,5 +306,64 @@ onMounted(()=>{
             }
         }
     }
+    :deep(){
+        .el-dialog,.is-draggable{
+            .el-dialog__header,.show-close{
+                @include flex-box;
+                text-align: center;
+                color: $title-font-color;
+                .el-dialog__title{
+                    font-size: $title-font-size;
+                }
+            }
+            .dialog-footer{
+                @include flex-box
+            }
+            .el-radio{
+                height: auto;
+                margin: 1vh 0;
+            }
+        }
+    }
+    .myIpt{
+        margin: 1vh 0;
+        width: 80%;
+        height: 3vh;
+    }
+    .myCard{
+        display: flex;
+        justify-content: space-between;
+        width: 20vw;
+        min-height: 5vh;
+        box-shadow: $small-box-shadow;
+        padding: 1vh 1vw;
+        .msg{
+            user-select: auto;
+            margin: 0 1vw;
+            .cardTitle{
+                color: $title-font-color;
+                font-size: $title-font-size;
+                font-weight: bold;
+                margin: 0.5vh 0;
+            }
+            .myCardField{
+                color: $third-show-color;
+                font-size: $common-font-size;
+                user-select: auto;
+            }
+        }
+        .ico{
+            color: $ipt-font-color;
+            font-size: $title-font-size * 2.5;
+            user-select: none;
+        }
+    }
+    .myCard:hover{
+        box-shadow: $large-box-shadow;
+    }
+    .myCard:active{
+        background: $main-back-color;
+    }
 }
+
 </style>
