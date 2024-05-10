@@ -9,11 +9,17 @@ export function getAllPostByDeptId(deptId = 0){
         method: 'GET'
     })
 }
-
 // 获取所有岗位(完整信息)
 export function getAllTotalPostList(){
     return request({
         url: POST_URL + 'all',
+        method: 'GET'
+    })
+}
+// 拿到新的编码
+export function getNewCode(id,deptId,type){
+    return request({
+        url: POST_URL + `newCode/${id}/${deptId}/${type}`,
         method: 'GET'
     })
 }

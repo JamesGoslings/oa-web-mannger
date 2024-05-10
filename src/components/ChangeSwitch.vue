@@ -1,17 +1,42 @@
 <!-- 用于切换的开关 -->
 <template>
     <div class="switchAll">
-        <span :class="{choiceOne: true,act: choose}" @click="clickFun(true,0)">查看</span>
-        <span :class="{choiceOne: true,act: !choose}" @click="clickFun(false,1)">新建</span>
+        <span :class="{choiceOne: true,act: chooseType === 1}" @click="clickFun(1)">{{leftTxt}}</span>
+        <span :class="{choiceOne: true,act: chooseType === 0}" @click="clickFun(0)">{{rightTxt}}</span>
     </div>
 </template>
 
 <script setup>
 
-let choose = ref(false)
+let props = defineProps({
+    type: {
+        type: Number,
+        default(){
+            return 0
+        }
+    },
+    leftTxt: {
+        type: String,
+        default(){
+            return '查看'
+        }
+    },
+    rightTxt: {
+        type: String,
+        default(){
+            return '新建'
+        }
+    }
+})
 
-function clickFun(flag,type){
-    choose.value = flag
+// 使用 watch 监听 type 属性  
+watch(() => props.type, (newVal) => {
+    chooseType.value = newVal
+})
+// 判断当前的选择
+let chooseType = ref(0)
+function clickFun(type){
+    chooseType.value = type
     sendValueToParent(type)
 }
 
