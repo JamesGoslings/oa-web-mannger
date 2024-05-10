@@ -78,15 +78,13 @@
                 </el-card>
                 <!-- </el-card> -->
                 <el-card class="imgShow" shadow="hover">
-                    <div>6666</div>
-                    6666
+                    <div autoresize ref="pieone" id="pieone"></div>
                 </el-card>
             </div>
         </div>
 
         <!-- 查看所有岗位时的弹窗界面 -->
-        <el-dialog v-model="openDialog" title="全部岗位" width="500"
-         :close-on-click-modal="false">
+        <el-dialog v-model="openDialog" title="全部岗位" width="900">
             <myInputBar class="myIpt" radius="10px" text="搜索岗位，请输入名称或编码"
             @on-enter="handleEnter" v-model="iptKeyword" />
             <el-radio-group v-model="choosePostIndex">
@@ -115,6 +113,60 @@ import { getAllDept } from '@/api/dept'
 import { postTypeList } from '@/utils/staticData'
 import{useSimpleConfirm,useTips} from '@/utils/msgTip'
 import { isSpace } from "@/utils/stringUtil";
+import * as echarts from 'echarts'
+
+
+// 存饼图数据
+let pieData = [{value: 0,name: ''}]
+// 设置饼图数据
+function setEchartsData(){
+    let posts = totalPosts.value
+    for(var i = 0;i < 5;i++){
+        pieData[i] = {value: 0,name: ''}
+        pieData[i].value = posts[i].count
+        pieData[i].name = posts[i].name
+    }
+    pieData.forEach(data=>{
+        console.log(data)
+    })
+    // 加载数据
+    getEcharts()
+}
+
+const pieone = ref(null)
+// 定义方法
+function getEcharts(){
+// 初始化Dom元素进行绘图
+    const PieDome = echarts.init(pieone.value)
+
+    PieDome.setOption({
+        // 图例设置
+        legend: {
+            top: 'bottom'
+        },
+        tooltip: {
+            trigger: 'item',
+            formatter: '{a} <br/>{b} : {c} ({d}%)'
+        },
+        // 系列数据设置
+        series: [{
+            name: '岗位在职人数占比', // 系列名称
+            type: 'pie', // 图表类型为饼图
+            radius: [30, 150], // 饼图的内外半径
+            center: ['50%', '50%'], // 饼图的中心位置
+            roseType: 'area', // 玫瑰图类型为区域玫瑰图
+            itemStyle: {
+                borderRadius: 8 // 数据项的样式设置
+            },
+            // 数据
+            data: pieData
+        }]
+    })
+}
+
+
+
+
 
 
 // 存输入的值
@@ -223,6 +275,8 @@ const getAllTotalPosts = async()=>{
     for(var i = 0;i < 4;i++){
         showPosts.value[i] = totalPosts.value[i]
     }
+    // 设置饼图数据
+    pieData.value = setEchartsData()
 }
 // 用于表明当前使用哪个表单 1: 查看/修改; 0: 新建
 let funType = ref(0)
@@ -334,6 +388,10 @@ onMounted(()=>{
             }
             .imgShow{
                 width: 65%;
+                #pieone{
+                    width: 50vw;
+                    height: 50vh;
+                }
             }
         }
     }
