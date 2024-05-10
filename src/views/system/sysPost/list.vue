@@ -141,6 +141,8 @@ function changeType(type){
     if(type === 0){
         checkedPost.value = {}
     }
+    // 更新恢复数据，避免未完成修改时，显示信息有误
+    getAllTotalPosts()
 }
 // 存所有的部门的列表
 let deptList = ref([])

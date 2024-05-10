@@ -23,3 +23,4 @@ export function getNewCode(id,deptId,type){
         method: 'GET'
     })
 }
+// 
