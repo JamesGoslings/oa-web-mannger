@@ -44,24 +44,32 @@
             draggable :close-on-click-modal="false">
                 <div style="color: rgb(249,190,23);">{{errMsg}}</div>
                 
-                <div>
-                    <span>选择图表根部门</span>
-                    <el-select
-                    v-model="settingMsg.rootDeptId"
-                    filterable
-                    placeholder="选择图表根部门"
-                    >
-                        <el-option
-                        v-for="dept in totalDepts"
-                        :key="dept.id"
-                        :label="dept.name"
-                        :value="dept.id"
-                        />
-                    </el-select>
+                <div class="iptAll">
+                    <div class="iptMsg">
+                        <span>选择图表根部门：</span>
+                        <el-select
+                        v-model="settingMsg.rootDeptId"
+                        filterable
+                        placeholder="选择图表根部门"
+                        >
+                            <el-option
+                            v-for="dept in totalDepts"
+                            :key="dept.id"
+                            :label="dept.name"
+                            :value="dept.id"
+                            />
+                        </el-select>
+                    </div>
+                    <div class="iptMsg">
+                        <span>选择显示部门数：</span>
+                        <el-input style="width: 50%;margin: 1vh 0;" @input="checkIptNum()" v-model="settingMsg.showNum" :placeholder="`请输入显示部门数目 0~${totalDepts.length}`" autocomplete="off" />
+                    </div>
                 </div>
+                <div class="btnAll">
+                    <el-button type="primary" @click="applySettingMsg()" :disabled="!checkIptNum()">确定</el-button>
+                    <el-button type="primary" plain @click="resetMsg()">恢复默认</el-button>                    
 
-                <el-input style="width: 80%;" @input="checkIptNum()" v-model="settingMsg.showNum" :placeholder="`请输入显示部门数目 0~${totalDepts.length}`" autocomplete="off" />
-                <el-button type="primary" @click="applySettingMsg()" :disabled="!checkIptNum()">确定</el-button>
+                </div>
             </el-dialog>
 
 
@@ -73,7 +81,11 @@ import { getUserTotalCount } from '@/api/user'
 import changeSwitch from '@/components/ChangeSwitch.vue';
 import * as echarts from 'echarts'
 
-
+// 恢复默认配置
+function resetMsg(){
+    settingMsg.value = { rootDeptId: 2,showNum: 6 }
+    // applySettingMsg()
+}
 // 配置完成，应用配置信息
 function applySettingMsg(){
     // getAllTotalDepts()
@@ -264,6 +276,7 @@ let horizontal = ref(false)
             height: 5vh;
             // border: #000 1px solid;
             // border-radius: 100px;
+
         }
     }
     .funMode{
@@ -296,5 +309,37 @@ let horizontal = ref(false)
             }
         }
     }
+
+    :deep(){
+        .el-dialog,.is-draggable{
+            .el-dialog__header,.show-close{
+                @include flex-box;
+                text-align: center;
+                color: $title-font-color;
+                .el-dialog__title{
+                    font-size: $title-font-size;
+                }
+            }
+            .dialog-footer{
+                @include flex-box
+            }
+            .el-select{
+                width: 10vw
+            }
+        }
+    }
+    .iptAll{
+        @include flex-box;
+        .iptMsg{
+            @include flex-box;
+            justify-content: left;
+            width: 100%;
+        }
+    }
+    .btnAll{
+        @include flex-box;
+
+    }
+
 }
 </style>
