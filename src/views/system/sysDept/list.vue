@@ -39,6 +39,32 @@
                 </vue3-tree-org>
             </div>
             
+            <!-- 图表设置对话框 -->
+            <el-dialog v-model="openSettingDialog" title="配置饼图显示信息" width="400"
+            draggable :close-on-click-modal="false">
+                <div style="color: rgb(249,190,23);">{{errMsg}}</div>
+                
+                <div>
+                    <span>选择图表根部门</span>
+                    <el-select
+                    v-model="settingMsg.rootDeptId"
+                    filterable
+                    placeholder="选择图表根部门"
+                    >
+                        <el-option
+                        v-for="dept in totalDepts"
+                        :key="dept.id"
+                        :label="dept.name"
+                        :value="dept.id"
+                        />
+                    </el-select>
+                </div>
+
+                <el-input style="width: 80%;" @input="checkIptNum()" v-model="settingMsg.showNum" :placeholder="`请输入显示部门数目 0~${totalDepts.length}`" autocomplete="off" />
+                <el-button type="primary" @click="applySettingMsg()" :disabled="!checkIptNum()">确定</el-button>
+            </el-dialog>
+
+
         </div>
 </template>
 <script setup>
@@ -47,25 +73,59 @@ import { getUserTotalCount } from '@/api/user'
 import changeSwitch from '@/components/ChangeSwitch.vue';
 import * as echarts from 'echarts'
 
+
+// 配置完成，应用配置信息
+function applySettingMsg(){
+    // getAllTotalDepts()
+    setEchartsData()
+    openSettingDialog.value = false
+}
+// 显示错误信息
+let errMsg = ref('')
+// 校验输入字符是否合法
+function checkIptNum(){
+    const regex = /^\d+$/;
+    let iptValue = settingMsg.value.showNum
+    if(iptValue === ''){
+        errMsg.value = ''
+        return false
+    }
+    if(!(regex.test(iptValue))){
+        errMsg.value = "别瞎输,只能输入数字"
+        return false
+    }
+    if(iptValue < 0 || iptValue > totalDepts.value.length){
+        errMsg.value = `输入数字只能是 0~${totalDepts.value.length}`
+        return false
+    }
+    return true
+}
+// 存用户配置的值
+let settingMsg = ref({
+    rootDeptId: 2,
+    showNum: 6
+})
+// 控制配置图表信息的对话框的开关
+let openSettingDialog = ref(false)
 // 饼图的dom
 const myEchart = ref(null)
 // 存部门在职人员的图表数据
 let deptTotalCountData = ref([])
 // 存部门(含子级)总人数的图表的数据
 let deptTotalCountWithChildrernData = ref([])
-let checkRootId = ref(2)
+
 // 设置图表的数据
 function setEchartsData(){
     deptTotalCountData.value = []
     deptTotalCountWithChildrernData.value = []
-    for(let i = 0;i < 5;i++){
+    for(let i = 0;i < settingMsg.value.showNum;i++){
         deptTotalCountData.value[i] = {value:0,name: ''}
         deptTotalCountData.value[i].value = totalDepts.value[i].myCount
         deptTotalCountData.value[i].name = totalDepts.value[i].name
     }
     let x = 0;
     for(let j = 0;j < totalDepts.value.length;j++){
-        if(totalDepts.value[j].parentId === checkRootId.value){
+        if(totalDepts.value[j].parentId === settingMsg.value.rootDeptId){
             deptTotalCountWithChildrernData.value[x] = {value:0,name: ''}
             deptTotalCountWithChildrernData.value[x].value = totalDepts.value[j].totalCount
             deptTotalCountWithChildrernData.value[x].name = totalDepts.value[j].name
@@ -103,7 +163,7 @@ function getEcharts(){
                     title: '配置显示信息',
                     icon: 'image://src/assets/img/setting.png',
                     onclick: function (){
-                        
+                        openSettingDialog.value = true
                     }
                 },
                 mark: { show: true },
