@@ -71,3 +71,10 @@ export function getOneUser(userId){
         method: 'GET'
     })
 }
+// 拿到用户总人数
+export function getUserTotalCount(){
+    return request({
+        url: USER_URL + 'totalCount',
+        method: 'GET'
+    })
+}

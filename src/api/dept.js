@@ -15,3 +15,10 @@ export function getTreeDeptList(){
         method: 'GET'
     })
 }
+// 拿到完整的部门信息(列表结构
+export function getAllTotalDeptList(){
+    return request({
+        url: DEPT_URL + 'allList',
+        method: 'GET'
+    })
+}
