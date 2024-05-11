@@ -71,7 +71,8 @@
                                 <el-button v-if="funType === 1" :disabled="!checkedPost.id"
                                 @click="removeThisPost()" type="danger">删除</el-button>
                                 <el-button type="primary" @click="saveOrUpdateOPost()"
-                                 :disabled="!checkedPost.id && funType === 1">保存</el-button>
+                                 :disabled="(!checkedPost.id && funType === 1)
+                                  || (funType === 0 && !(checkedPost.name && checkedPost.postCode))">保存</el-button>
                             </div>
                         </el-form>
                     </div>
@@ -103,7 +104,7 @@
         <!-- 图表设置对话框 -->
         <el-dialog v-model="openSettingDialog" title="设置饼图显示岗位数目" width="400"
         draggable :close-on-click-modal="false">
-            <div>{{errMsg}}</div>
+            <div style="color: rgb(249,190,23);">{{errMsg}}</div>
             <el-input style="width: 80%;" @input="checkIptNum()" v-model="iptKeyword" :placeholder="`请输入显示数目 0~${totalPosts.length}`" autocomplete="off" />
             <el-button type="primary" @click="setShowNum()" :disabled="!checkIptNum()">确定</el-button>
         </el-dialog>
@@ -191,7 +192,10 @@ function getEcharts(){
                     title: '设置显示数目',
                     icon: 'image://src/assets/img/setting.png',
                     onclick: function (){
-                        openSettingDialog.value = true
+                        iptKeyword.value = ''
+                        getAllTotalPosts().then(()=>{
+                            openSettingDialog.value = true
+                        })
                     }
                 },
                 mark: { show: true },
@@ -336,9 +340,9 @@ let funType = ref(0)
 function changeType(type){
     funType.value = type
     // 如果是新建岗位就清空显示信息
-    if(type === 0){
+    // if(type === 0){
         checkedPost.value = {}
-    }
+    // }
     // 更新恢复数据，避免未完成修改时，显示信息有误
     getAllTotalPosts()
 }
