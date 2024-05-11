@@ -76,7 +76,6 @@
                         </el-form>
                     </div>
                 </el-card>
-                <!-- </el-card> -->
                 <el-card class="imgShow" shadow="hover">
                     <div autoresize ref="pieone" id="pieone"></div>
                 </el-card>
@@ -101,6 +100,13 @@
             </el-radio-group>
         </el-dialog>
 
+        <!-- 图表设置对话框 -->
+        <el-dialog v-model="openSettingDialog" title="设置饼图显示岗位数目" width="400"
+        draggable :close-on-click-modal="false">
+            <div>{{errMsg}}</div>
+            <el-input style="width: 80%;" @input="checkIptNum()" v-model="iptKeyword" :placeholder="`请输入显示数目 0~${totalPosts.length}`" autocomplete="off" />
+            <el-button type="primary" @click="setShowNum()" :disabled="!checkIptNum()">确定</el-button>
+        </el-dialog>
     </div>
 </template>
 
@@ -121,18 +127,47 @@ let pieData = [{value: 0,name: ''}]
 // 设置饼图数据
 function setEchartsData(){
     let posts = totalPosts.value
-    for(var i = 0;i < 5;i++){
+    // 刷新时清空之前的数据
+    pieData = []
+    for(var i = 0;i < num.value;i++){
         pieData[i] = {value: 0,name: ''}
         pieData[i].value = posts[i].count
         pieData[i].name = posts[i].name
     }
-    pieData.forEach(data=>{
-        console.log(data)
-    })
     // 加载数据
     getEcharts()
 }
+// 表示显示数目
+let num = ref(6)
+// 设置显示数目
+function setShowNum(){
+    num.value = iptKeyword.value
+    iptKeyword.value = ''
+    setEchartsData()
+    openSettingDialog.value = false
+}
 
+// 显示错误信息
+let errMsg = ref('')
+// 校验输入字符是否合法
+function checkIptNum(){
+    const regex = /^\d+$/;
+    if(iptKeyword.value === ''){
+        errMsg.value = ''
+        return false
+    }
+    if(!(regex.test(iptKeyword.value))){
+        errMsg.value = "别瞎输,只能输入数字"
+        return false
+    }
+    if(iptKeyword.value < 0 || iptKeyword.value > totalPosts.value.length){
+        errMsg.value = `输入数字只能是 0~${totalPosts.value.length}`
+        return false
+    }
+    return true
+}
+// 控制设置对话框的开关
+let openSettingDialog = ref(false)
 const pieone = ref(null)
 // 定义方法
 function getEcharts(){
@@ -148,6 +183,23 @@ function getEcharts(){
             trigger: 'item',
             formatter: '{a} <br/>{b} : {c} ({d}%)'
         },
+        toolbox: {
+            show: true,
+            feature: {
+                myTool2: {
+                    show: true,
+                    title: '设置显示数目',
+                    icon: 'image://src/assets/img/setting.png',
+                    onclick: function (){
+                        openSettingDialog.value = true
+                    }
+                },
+                mark: { show: true },
+                dataView: { show: true, readOnly: true, title: '数据展示',lang:['数据视图', '关闭', '刷新'] },
+                restore: { show: true, title: '更新图表信息'},
+                saveAsImage: { show: true, title: '下载饼图' },
+            }
+        },
         // 系列数据设置
         series: [{
             name: '岗位在职人数占比', // 系列名称
@@ -160,7 +212,7 @@ function getEcharts(){
             },
             // 数据
             data: pieData
-        }]
+        }],
     })
 }
 
