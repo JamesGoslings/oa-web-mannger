@@ -14,21 +14,40 @@
                 <div class="msgShow" v-show="mode === 1">
                     <div class="baseCard iptBar" >
                         <el-autocomplete
+                        style="width: 80%;"
                         v-model="chooseName"
                         :fetch-suggestions="querySearch"
                         popper-class="my-autocomplete"  
                         placeholder="请输入部门名称"  
-                        @select="handleSelect"  
+                        @select="handleSelect"
                         >
                             <template #default="{ item }">  
-                                <div class="value">{{ item.name }}</div>  
-                                <!-- <div class="value">{{ item.value }}</div>   -->
-                                <!-- <span class="link">{{ item.link }}</span>   -->
+                                <div>{{ item.name }}</div>  
                             </template>  
                         </el-autocomplete>
+                        <enterButton txt="查看全部" @click="openDialog = true"/>
                     </div>
-                    <div class="msgAll baseCard">
-                        6
+                    <div class="msgAll baseCard" @click="fun()">
+                        <div class="deptMsg">
+                            <div class="titleMsg">
+                                <span class="iconfont ico">&#xe61a;</span>
+                                <span class="funTitle msgTitle">部门信息</span>
+                            </div>
+                            <div v-for="(item,i) in deptMsgFields" :key="i">
+                                <div class="msgOne" v-if="item.field !== '__none'">{{`${item.label}：${checkedDept[item.field]}`}}</div>
+                                <div class="msgOne" v-else-if="item.type === 1">{{getCountStr(item)}}</div>
+                                <div class="msgOne" v-else>{{`${item.label}：${checkedDept.leader.name}`}}</div>
+                            </div>
+                        </div>
+                        <div class="userMsg">
+                            <div class="titleMsg">
+                                <el-avatar class="userIco" :src="getAvatar()" />
+                                <span class="funTitle msgTitle">负责人信息</span>
+                            </div>
+                            <div v-for="(item,i) in userMsgFields" :key="i">
+                                <div class="msgOne">{{`${item.label}：${checkedDept.leader[item.field]}`}}</div>
+                            </div>
+                        </div>
                     </div>
                     <div class="fun baseCard">
                         7
@@ -93,42 +112,92 @@
                 </div>
             </el-dialog>
 
-
         </div>
 </template>
 <script setup>
+// {{`${item.label}：${checkedDept.totalCount}(${checkedDept.myCount} + ${checkedDept.totalCount - checkedDept.myCount})`}}
 import { getTreeDeptList,getAllTotalDeptList } from '@/api/dept';
 import { getUserTotalCount } from '@/api/user'
 import changeSwitch from '@/components/ChangeSwitch.vue';
+import enterButton from '@/components/EnterButton.vue';
 import * as echarts from 'echarts'
 
 
+function fun(){
+    console.log('===================>>>>>>>')
+    console.log(checkedDept.value)
+    console.log('===================>>>>>>>')
+}
+function getCountStr(item){
+    if(checkedDept.value.parentId === 0){
+        checkedDept.value.parentName ='无'
+    }
+    let myCount = checkedDept.value.myCount
+    let totalCount = checkedDept.value.totalCount
+    let baseStr =  `${item.label}：${totalCount}`
+    if(checkedDept.value.isAddChildrenCount === 0){
+        return baseStr
+    }
+    return `${baseStr}（${myCount} + ${totalCount - myCount}）`
+}
+// 对负责人头像的处理
+function getAvatar(){
+    let leader = checkedDept.value.leader
+    if(leader == null || leader.avatarUrl == null || leader.avatarUrl === ''){
+        return "/src/assets/img/default_avatar.png"
+    }
+    return leader.avatarUrl
+}
+// 用于显示部门信息
+let deptMsgFields = ref([
+    {label: '部门名称',field: 'name'},
+    {label: '部门编码',field: 'deptCode'},
+    {label: '上级部门',field: 'parentName'},
+    {label: '负责人',field: '__none'},
+    {label: '部门人数',field: '__none',type: 1},
+    {label: '创建时间',field: 'createTime'},
+    {label: '修改时间',field: 'updateTime'},
+])
+// 用于显示负责人信息
+let userMsgFields = ref([
+    {label: '姓名',field: 'name'},
+    {label: '用户名',field: 'username'},
+    {label: '联系电话',field: 'phone'},
+    {label: '岗位',field: 'post'},
+    {label: '创建时间',field: 'createTime'},
+    {label: '修改时间',field: 'updateTime'},
+])
+// 存当前查看/修改的部门
+let checkedDept = ref({
+    leader:{}
+})
+// 控制查看全部对话框的开关
+let openDialog = ref(false)
 // 自动补全实现
-
 const chooseName = ref('')
 // 将部门中name属性映射成value形成新数组
 const mappedArray = computed(() => {  
     return totalDepts.value.map(item => ({  
-        ...item, // 展开当前对象以保留所有属性
+        ...item,
         value: item.name, // 添加value属性
-    }));  
+    }));
 });
 // 检索实现
 function querySearch(queryString, cb) { 
     // const results = mappedArray.value
     // 使用filter进行检索
-    const results = mappedArray.value.filter(obj => {  
-        return obj.name.includes(queryString);
+    const results = mappedArray.value.filter(dept => {  
+        return dept.name.includes(queryString);
     });
     cb(results)
 }
 
 // 选中后的逻辑
 function handleSelect(item) {
-    console.log(item)
-}  
-  
-  
+    checkedDept.value = item
+    // console.log(item)
+}
+
 
 // 恢复默认配置
 function resetMsg(){
@@ -201,6 +270,8 @@ let totalDepts = ref([])
 const getAllTotalDepts = async()=>{
     let {data} = await getAllTotalDeptList()
     totalDepts.value = data
+    // 默认显示第一个数据
+    checkedDept.value = data[0]
     setEchartsData()
 }
 // 初始化dom元素及绘画
@@ -342,12 +413,52 @@ let horizontal = ref(false)
                 box-shadow: $common-box-shodow;
                 align-self: flex-start;
                 @include flex-box;
+                justify-content: space-between;
+                padding: 0 1vw;
             }
             .msgAll{
-                width: 68%;
-                height: 85%;
+                width: 63%;
+                height: 75.3%;
                 box-shadow: $common-box-shodow;
                 align-self: flex-end;
+                @include flex-box;
+                justify-content: space-between;
+                padding: 2% 2%;
+                .userMsg,.deptMsg{
+                    height: 95%;
+                    width: 35%;
+                    box-shadow: $common-box-shodow;
+                    padding: 1vh 2vw;
+                    .titleMsg{
+                        width: 100%;
+                        @include flex-box;
+                        justify-content: left;
+                        margin: 1vh 0;
+                        .userIco{
+                            // margin: 1vh 0;
+                            width: 50px;
+                            height: 50px;
+                        }
+                        .ico{
+                            color: $ipt-font-color;
+                            font-size: $title-font-size * 2;
+                        }
+                        .msgTitle{
+                            width: 8vw;
+                            margin: 0;
+                            font-size: $title-font-size - 1;
+                            margin-left: 2vw;
+                        }
+                    }
+                    .msgOne{
+                        color: $third-show-color;
+                        // font-family: "幼圆";
+                        margin: 2vh 0;
+                        // margin-left: 5vw;
+                        font-size: $common-font-size + 1px;
+                    }
+                    
+                }
             }
             .fun{
                 width: 30%;
