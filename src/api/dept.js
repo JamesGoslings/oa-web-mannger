@@ -45,3 +45,10 @@ export function getNewDeptCode(deptId,parentId){
         method: 'GET'
     })
 }
+// 删除一个部门
+export function removeOneDeptById(deptId){
+    return request({
+        url: DEPT_URL + 'remove/' + deptId,
+        method: 'DELETE'
+    })
+}

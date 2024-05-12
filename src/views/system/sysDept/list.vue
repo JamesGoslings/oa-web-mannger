@@ -113,7 +113,7 @@
 
                             <div class="footer">
                                 <el-button v-if="funType === 1" :disabled="!editDept.id"
-                                type="danger">删除</el-button>
+                                type="danger" @click="removeThisDept()">删除</el-button>
                                 <el-button type="primary" :disabled="isDisAbled()" @click="saveOrUpDateDept()">保存</el-button>
                             </div>
                         </el-form>
@@ -183,7 +183,7 @@
         </div>
 </template>
 <script setup>
-import { getTreeDeptList,getAllTotalDeptList,updateDept,saveDept,getNewDeptCode } from '@/api/dept';
+import { getTreeDeptList,getAllTotalDeptList,updateDept,saveDept,getNewDeptCode,removeOneDeptById } from '@/api/dept';
 import { getUserTotalCount,getAllUserMsg } from '@/api/user'
 import {deepCopy} from '@/utils/objUtil'
 import{useSimpleConfirm,useTips} from '@/utils/msgTip'
@@ -191,6 +191,21 @@ import changeSwitch from '@/components/ChangeSwitch.vue';
 import enterButton from '@/components/EnterButton.vue';
 import * as echarts from 'echarts'
 
+// 刷新页面方法
+function flushPage(){
+    getAllTotalDepts()
+    getAllTreeDepts()
+    editDept.value = {}
+}
+// 实现删除单个部门
+function removeThisDept(){
+    useSimpleConfirm(`你真的确定要删除部门：${editDept.value.name} 吗？`).then(async()=>{
+        let data = await removeOneDeptById(editDept.value.id);
+        useTips(`成功删除部门：${editDept.value.name} `,data)
+        // 刷新数据
+        flushPage()
+    })
+}
 // 用于确定当前"保存"按钮是否应该被使用
 function isDisAbled(){
     let myDept = editDept.value
@@ -229,7 +244,7 @@ function saveThisDept(){
         let data = await saveDept(editDept.value)
         useTips('成功添加新部门',data)
         // 刷新页面
-        getAllTotalDepts()
+        flushPage()
     })
 }
 // 修改的具体方法
@@ -239,7 +254,7 @@ function updateThisDept (){
         let data = await updateDept(editDept.value)
         useTips(`成功修改部门 ${editDept.value.name} `,data)
         // 刷新页面
-        getAllTotalDepts()
+        flushPage()
     })
 }
 // 存正在操作的部门（赋值时要深拷贝）
