@@ -22,3 +22,11 @@ export function getAllTotalDeptList(){
         method: 'GET'
     })
 }
+// 修改部门
+export function updateDept(dept = {}){
+    return request({
+        url: DEPT_URL + 'update',
+        method: 'PUT',
+        data: dept
+    })
+}

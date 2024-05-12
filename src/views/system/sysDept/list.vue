@@ -113,12 +113,10 @@
                             <div class="footer">
                                 <el-button v-if="funType === 1" :disabled="!editDept.id"
                                 type="danger">删除</el-button>
-                                <el-button type="primary"
-                                 :disabled="(!editDept.id && funType === 1)
-                                  || (funType === 0 && !(editDept.name && editDept.deptCode))">保存</el-button>
+                                <el-button type="primary" :disabled="(!editDept.id && funType === 1)
+                                || (funType === 0 && !(editDept.name && editDept.deptCode))" @click="saveOrUpDateDept()">保存</el-button>
                             </div>
                         </el-form>
-
 
                         </div>
                     </div>
@@ -185,14 +183,32 @@
         </div>
 </template>
 <script setup>
-import { getTreeDeptList,getAllTotalDeptList } from '@/api/dept';
+import { getTreeDeptList,getAllTotalDeptList,updateDept } from '@/api/dept';
 import { getUserTotalCount,getAllUserMsg } from '@/api/user'
 import {deepCopy} from '@/utils/objUtil'
+import{useSimpleConfirm,useTips} from '@/utils/msgTip'
 import changeSwitch from '@/components/ChangeSwitch.vue';
 import enterButton from '@/components/EnterButton.vue';
 import * as echarts from 'echarts'
 
-// 存操作的部门（赋值时要深拷贝）
+// 新建和修改部门的总方法
+function saveOrUpDateDept(){
+    if(funType.value === 0){
+        alert('新建')
+    }else{
+        updateThisDept()
+    }
+}
+// 修改的具体方法
+function updateThisDept (){
+    useSimpleConfirm(`你确定要修改部门：${editDept.value.name} 吗？？？`).then(async()=>{
+        let data = await updateDept(editDept.value)
+        useTips(`成功修改部门 ${editDept.value.name} `,data)
+        // 刷新页面
+        getAllTotalDepts()
+    })
+}
+// 存正在操作的部门（赋值时要深拷贝）
 let editDept = ref({})
 function fun(){
     alert(checkedDept.value.isAddChildrenCount)
@@ -384,6 +400,7 @@ const getAllTotalDepts = async()=>{
     totalDepts.value = data
     // 默认显示第一个数据
     checkedDept.value = data[0]
+    
     setEchartsData()
 }
 // 初始化dom元素及绘画
