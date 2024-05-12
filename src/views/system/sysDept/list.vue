@@ -180,6 +180,28 @@
                 </div>
             </el-dialog>
 
+            <!-- 查看全部的弹窗页面 -->
+            <el-dialog v-model="openDialog" title="全部部门" width="900">
+                <myInputBar class="myIpt" radius="10px" text="搜索部门，请输入名称或编码"
+                @on-enter="handleEnter" v-model="iptKeyword" />
+                <el-radio-group v-model="chooseDeptId">
+                    <el-radio :value="dept.id" v-for="dept in totalDepts" :key="dept.id" @click="choosecard(dept)">
+                        <div class="myCard">
+                            <div class="msg">
+                                <div class="cardTitle">{{dept.name}}</div>
+                                <div class="myCardField">{{`负责人：${dept.leader.name}`}}</div>
+                                <div class="myCardField">{{`编码：${dept.deptCode}`}}</div>
+                            </div>
+                            <span class="iconfont ico">&#xe641;</span>
+                        </div> 
+                    </el-radio>
+                </el-radio-group>
+            </el-dialog>
+
+
+
+
+
         </div>
 </template>
 <script setup>
@@ -187,10 +209,40 @@ import { getTreeDeptList,getAllTotalDeptList,updateDept,saveDept,getNewDeptCode,
 import { getUserTotalCount,getAllUserMsg } from '@/api/user'
 import {deepCopy} from '@/utils/objUtil'
 import{useSimpleConfirm,useTips} from '@/utils/msgTip'
+import { isSpace,removeWhiteSpaces } from "@/utils/stringUtil";
 import changeSwitch from '@/components/ChangeSwitch.vue';
 import enterButton from '@/components/EnterButton.vue';
 import * as echarts from 'echarts'
 
+// 处理选中后的方法
+function choosecard(dept){
+    checkedDept.value = dept
+    if(funType.value === 1){
+        editDept.value = deepCopy(dept)
+    }
+    openDialog.value = false
+}
+// 处理按下回车后搜索的方法
+function handleEnter(){
+    if(isSpace(iptKeyword.value)){
+        getAllTotalDepts()
+    }else{
+        totalDepts.value = filterSimilarObjects(totalDepts.value,iptKeyword.value)
+    }
+}
+// 检索的方法
+function filterSimilarObjects(objects, str) {
+    // 使用filter方法遍历对象数组
+    return objects.filter(obj => {
+        return obj.name && obj.name.includes(str) || obj.deptCode && obj.deptCode.includes(str);
+    });
+}
+// 用于存输入的关键字
+let iptKeyword = ref('')
+// 用于存选中的部门的id
+let chooseDeptId = ref(-1)
+// 控制查看全部对话框的开关
+let openDialog = ref(false)
 // 刷新页面方法
 function flushPage(){
     getAllTotalDepts()
@@ -344,8 +396,6 @@ let checkedDept = ref({
     isAddChildrenCount: 1,
     leader:{}
 })
-// 控制查看全部对话框的开关
-let openDialog = ref(false)
 // 自动补全实现
 const chooseName = ref('')
 // 将部门中name属性映射成value形成新数组
@@ -695,7 +745,6 @@ let horizontal = ref(false)
             }
         }
     }
-
     :deep(){
         .el-dialog,.is-draggable{
             .el-dialog__header,.show-close{
@@ -712,6 +761,10 @@ let horizontal = ref(false)
             .el-select{
                 width: 10vw
             }
+            .el-radio{
+                height: auto;
+                margin: 1vh 0;
+            }
         }
     }
     .iptAll{
@@ -727,5 +780,45 @@ let horizontal = ref(false)
 
     }
 
+
+    .myIpt{
+        margin: 1vh 0;
+        width: 80%;
+        height: 3vh;
+    }
+    .myCard{
+        display: flex;
+        justify-content: space-between;
+        width: 20vw;
+        min-height: 5vh;
+        box-shadow: $small-box-shadow;
+        padding: 1vh 1vw;
+        .msg{
+            user-select: auto;
+            margin: 0 1vw;
+            .cardTitle{
+                color: $title-font-color;
+                font-size: $title-font-size;
+                font-weight: bold;
+                margin: 0.5vh 0;
+            }
+            .myCardField{
+                color: $third-show-color;
+                font-size: $common-font-size;
+                user-select: auto;
+            }
+        }
+        .ico{
+            color: $ipt-font-color;
+            font-size: $title-font-size * 2.5;
+            user-select: none;
+        }
+    }
+    .myCard:hover{
+        box-shadow: $large-box-shadow;
+    }
+    .myCard:active{
+        background: $main-back-color;
+    }
 }
 </style>
