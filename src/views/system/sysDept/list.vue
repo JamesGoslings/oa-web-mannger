@@ -296,8 +296,8 @@ function changeType(type){
 let funType = ref(0)
 // 获取提示文本信息的方法
 function getTipContent(){
-
-    return funType.value === 1 ? '修改提示' : '新建提示'
+    return funType.value === 1 ? '1)部门编码会随着上级部门的修改而自动改变，建议使用自动生成的编码; 2)计算属性指的是在计算部门人数的时候，是否要算上其子部门人数' 
+    : '1)选择了上级部门之后，编码会自动生成，建议使用自动生成的编码; 2)计算属性指的是在计算部门人数的时候，是否要算上其子部门人数'
 }
 // 设置计算部门人数的字符串的方法
 function getCountStr(item){
