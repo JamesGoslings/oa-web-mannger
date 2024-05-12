@@ -192,7 +192,7 @@
                                 <div class="myCardField">{{`负责人：${dept.leader.name}`}}</div>
                                 <div class="myCardField">{{`编码：${dept.deptCode}`}}</div>
                             </div>
-                            <span class="iconfont ico">&#xe641;</span>
+                            <span class="iconfont ico">&#xe69d;</span>
                         </div> 
                     </el-radio>
                 </el-radio-group>
