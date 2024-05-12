@@ -30,3 +30,11 @@ export function updateDept(dept = {}){
         data: dept
     })
 }
+// 新建部门
+export function saveDept(dept = {}){
+    return request({
+        url: DEPT_URL + 'save',
+        method: 'POST',
+        data: dept
+    })
+}

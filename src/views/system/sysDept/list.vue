@@ -81,7 +81,7 @@
                                     v-else-if="item.type === 1"
                                     >
                                         <el-option
-                                        v-for="dept in totalDepts"
+                                        v-for="dept in totalDeptsWithNull"
                                         :key="dept.id"
                                         :label="dept.name"
                                         :value="dept.id"
@@ -183,7 +183,7 @@
         </div>
 </template>
 <script setup>
-import { getTreeDeptList,getAllTotalDeptList,updateDept } from '@/api/dept';
+import { getTreeDeptList,getAllTotalDeptList,updateDept,saveDept } from '@/api/dept';
 import { getUserTotalCount,getAllUserMsg } from '@/api/user'
 import {deepCopy} from '@/utils/objUtil'
 import{useSimpleConfirm,useTips} from '@/utils/msgTip'
@@ -191,13 +191,24 @@ import changeSwitch from '@/components/ChangeSwitch.vue';
 import enterButton from '@/components/EnterButton.vue';
 import * as echarts from 'echarts'
 
+// 用于存有占位对象的所有部门的列表(便于选择无父级操作)
+let totalDeptsWithNull = ref([{id:0,name:'无'}])
 // 新建和修改部门的总方法
 function saveOrUpDateDept(){
     if(funType.value === 0){
-        alert('新建')
+        saveThisDept()
     }else{
         updateThisDept()
     }
+}
+// 新建的具体方法
+function saveThisDept(){
+    useSimpleConfirm('你确定要添加该部门吗？').then(async()=>{
+        let data = await saveDept(editDept.value)
+        useTips('成功添加新部门',data)
+        // 刷新页面
+        getAllTotalDepts()
+    })
 }
 // 修改的具体方法
 function updateThisDept (){
@@ -398,9 +409,10 @@ let totalDepts = ref([])
 const getAllTotalDepts = async()=>{
     let {data} = await getAllTotalDeptList()
     totalDepts.value = data
+    // 将数据copy到一个带null元素的数组中
+    totalDeptsWithNull.value.push(...data)
     // 默认显示第一个数据
     checkedDept.value = data[0]
-    
     setEchartsData()
 }
 // 初始化dom元素及绘画
