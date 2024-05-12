@@ -119,7 +119,7 @@ import changeSwitch from '@/components/ChangeSwitch.vue';
 import { getAllDept } from '@/api/dept'
 import { postTypeList } from '@/utils/staticData'
 import{useSimpleConfirm,useTips} from '@/utils/msgTip'
-import { isSpace } from "@/utils/stringUtil";
+import { isSpace,removeWhiteSpaces } from "@/utils/stringUtil";
 import * as echarts from 'echarts'
 
 
@@ -236,7 +236,7 @@ function handleEnter(){
 }
 // 进行条件查询并显示数据
 const getPostsByKey = async()=>{
-    let {data} = await getTotalPostsByKeyword(iptKeyword.value)
+    let {data} = await getTotalPostsByKeyword(removeWhiteSpaces(iptKeyword.value))
     totalPosts.value = data
 }
 // 在对话框中选中时的方法

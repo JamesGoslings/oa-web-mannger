@@ -227,7 +227,7 @@ function handleEnter(){
     if(isSpace(iptKeyword.value)){
         getAllTotalDepts()
     }else{
-        totalDepts.value = filterSimilarObjects(totalDepts.value,iptKeyword.value)
+        totalDepts.value = filterSimilarObjects(totalDepts.value,removeWhiteSpaces(iptKeyword.value))
     }
 }
 // 检索的方法
