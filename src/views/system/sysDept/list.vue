@@ -11,6 +11,29 @@
                 <div class="imgFun" v-show="mode === 0">
                     <div autoresize ref="myEchart" id="myEchart"></div>
                 </div>
+                <div class="msgShow" v-show="mode === 1">
+                    <div class="baseCard iptBar" >
+                        <el-autocomplete
+                        v-model="chooseName"
+                        :fetch-suggestions="querySearch"
+                        popper-class="my-autocomplete"  
+                        placeholder="请输入部门名称"  
+                        @select="handleSelect"  
+                        >
+                            <template #default="{ item }">  
+                                <div class="value">{{ item.name }}</div>  
+                                <!-- <div class="value">{{ item.value }}</div>   -->
+                                <!-- <span class="link">{{ item.link }}</span>   -->
+                            </template>  
+                        </el-autocomplete>
+                    </div>
+                    <div class="msgAll baseCard">
+                        6
+                    </div>
+                    <div class="fun baseCard">
+                        7
+                    </div>
+                </div>
             </div>
             <div class="funTitle">部门组织结构图</div>
             <div class="baseCard treeImg">
@@ -42,11 +65,10 @@
             <!-- 图表设置对话框 -->
             <el-dialog v-model="openSettingDialog" title="配置饼图显示信息" width="400"
             draggable :close-on-click-modal="false">
-                <div style="color: rgb(249,190,23);">{{errMsg}}</div>
-                
+                <div style="color: rgb(249,190,23);">{{errMsg}}</div>  
                 <div class="iptAll">
                     <div class="iptMsg">
-                        <span>选择图表根部门：</span>
+                        <span>设置图表根部门：</span>
                         <el-select
                         v-model="settingMsg.rootDeptId"
                         filterable
@@ -61,14 +83,13 @@
                         </el-select>
                     </div>
                     <div class="iptMsg">
-                        <span>选择显示部门数：</span>
+                        <span>设置显示部门数：</span>
                         <el-input style="width: 50%;margin: 1vh 0;" @input="checkIptNum()" v-model="settingMsg.showNum" :placeholder="`请输入显示部门数目 0~${totalDepts.length}`" autocomplete="off" />
                     </div>
                 </div>
                 <div class="btnAll">
                     <el-button type="primary" @click="applySettingMsg()" :disabled="!checkIptNum()">确定</el-button>
                     <el-button type="primary" plain @click="resetMsg()">恢复默认</el-button>                    
-
                 </div>
             </el-dialog>
 
@@ -80,6 +101,34 @@ import { getTreeDeptList,getAllTotalDeptList } from '@/api/dept';
 import { getUserTotalCount } from '@/api/user'
 import changeSwitch from '@/components/ChangeSwitch.vue';
 import * as echarts from 'echarts'
+
+
+// 自动补全实现
+
+const chooseName = ref('')
+// 将部门中name属性映射成value形成新数组
+const mappedArray = computed(() => {  
+    return totalDepts.value.map(item => ({  
+        ...item, // 展开当前对象以保留所有属性
+        value: item.name, // 添加value属性
+    }));  
+});
+// 检索实现
+function querySearch(queryString, cb) { 
+    // const results = mappedArray.value
+    // 使用filter进行检索
+    const results = mappedArray.value.filter(obj => {  
+        return obj.name.includes(queryString);
+    });
+    cb(results)
+}
+
+// 选中后的逻辑
+function handleSelect(item) {
+    console.log(item)
+}  
+  
+  
 
 // 恢复默认配置
 function resetMsg(){
@@ -274,15 +323,42 @@ let horizontal = ref(false)
         .changeFun{
             width: 20%;
             height: 5vh;
-            // border: #000 1px solid;
-            // border-radius: 100px;
-
         }
     }
     .funMode{
         width: 100%;
         height: 64vh;
         background: #FFF;
+        @include flex-box;
+        .msgShow{
+            width: 95%;
+            height: 90%;
+            // border: #000 1px solid;
+            @include flex-box;
+            justify-content: space-between;
+            .iptBar{
+                height: 10%;
+                width: 100%;
+                box-shadow: $common-box-shodow;
+                align-self: flex-start;
+                @include flex-box;
+            }
+            .msgAll{
+                width: 68%;
+                height: 85%;
+                box-shadow: $common-box-shodow;
+                align-self: flex-end;
+            }
+            .fun{
+                width: 30%;
+                height: 85%;
+                box-shadow: $common-box-shodow;
+                align-self: flex-end;
+            }
+            .iptBar:hover,.msgAll:hover,.fun:hover{
+                box-shadow: $large-box-shadow;
+            }
+        }
         .imgFun{
             width: 100%;
             height: 100%;
