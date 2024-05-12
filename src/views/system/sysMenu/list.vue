@@ -198,11 +198,11 @@ function removeOneMenu(){
 }
 
 // 存所有父级菜单基础信息
-let parentMenusMsg = ref([])
+let parentMenusMsg = ref([{id:0,totalName:'无'}])
 // 获取所有的非按钮菜单的列表（含父级字符串）用于搞直接父级菜单选择
 const getAllParentMenus = async()=>{
     let {data} = await getParentMenuAll()
-    parentMenusMsg.value = data
+    parentMenusMsg.value.push(...data)
 }
 // 获取所有菜单的树型列表
 const getAllNodes = async()=>{
