@@ -27,7 +27,7 @@
                         </el-autocomplete>
                         <enterButton txt="查看全部" @click="openDialog = true"/>
                     </div>
-                    <div class="msgAll baseCard" @click="fun()">
+                    <div class="msgAll baseCard">
                         <div class="deptMsg">
                             <div class="titleMsg">
                                 <span class="iconfont ico">&#xe61a;</span>
@@ -50,11 +50,81 @@
                         </div>
                     </div>
                     <div class="fun baseCard">
-                        7
+                        <div class="myFunTitle">
+                            <changeSwitch left-txt="修改" @value-sent="changeType" :type="funType"/>
+                            <el-popover
+                            placement="left"
+                            title="提示"
+                            :width="200"
+                            trigger="hover"
+                            :content="getTipContent()"
+                            >
+                            <template #reference>
+                                <span class="tip iconfont" title="注意看">&#xe677;</span>
+                            </template>
+                            </el-popover>
+                        </div>
+                        <div class="formFun">
+                           
+
+                            <el-form :model="form">
+                            <div v-for="(item,i) in formMsgField" :key="i">
+                                <el-form-item :label="item.label">
+
+                                    <el-input v-model="checkedDept[item.field]" autocomplete="off"
+                                    v-if="item.type === 0"/>
+
+                                    <el-select
+                                    v-model="checkedDept.parentId"
+                                    filterable
+                                    placeholder="选择上级部门"
+                                    v-else-if="item.type === 1"
+                                    >
+                                        <el-option
+                                        v-for="dept in totalDepts"
+                                        :key="dept.id"
+                                        :label="dept.name"
+                                        :value="dept.id"
+                                        />
+                                    </el-select>
+
+                                    <el-select
+                                    v-model="checkedDept.leaderId"
+                                    filterable
+                                    placeholder="选择负责人"
+                                    v-else-if="item.type === 2"
+                                    >
+                                        <el-option
+                                        v-for="user in userList"
+                                        :key="user.id"
+                                        :label="user.name"
+                                        :value="user.userId"
+                                        />
+                                    </el-select>
+                                    
+                                    <el-radio-group v-model="checkedDept.isAddChildrenCount" v-else-if="item.type === 3">
+                                        <el-radio :value=1 size="small">是</el-radio>
+                                        <el-radio :value=0 size="small">否</el-radio>
+                                    </el-radio-group>
+                                    
+                                </el-form-item>
+                            </div>
+
+                            <div class="footer">
+                                <el-button v-if="funType === 1" :disabled="!checkedDept.id"
+                                type="danger">删除</el-button>
+                                <el-button type="primary"
+                                 :disabled="(!checkedDept.id && funType === 1)
+                                  || (funType === 0 && !(checkedDept.name && checkedDept.deptCode))">保存</el-button>
+                            </div>
+                        </el-form>
+
+
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="funTitle">部门组织结构图</div>
+            <div class="funTitle" @click="fun()">部门组织结构图</div>
             <div class="baseCard treeImg">
                 <div style="margin-right: 10px"><el-switch v-model="horizontal"></el-switch> 横向</div>
                 <vue3-tree-org
@@ -115,19 +185,47 @@
         </div>
 </template>
 <script setup>
-// {{`${item.label}：${checkedDept.totalCount}(${checkedDept.myCount} + ${checkedDept.totalCount - checkedDept.myCount})`}}
 import { getTreeDeptList,getAllTotalDeptList } from '@/api/dept';
-import { getUserTotalCount } from '@/api/user'
+import { getUserTotalCount,getAllUserMsg } from '@/api/user'
 import changeSwitch from '@/components/ChangeSwitch.vue';
 import enterButton from '@/components/EnterButton.vue';
 import * as echarts from 'echarts'
 
 
+let myRadioV = ref('1')
 function fun(){
-    console.log('===================>>>>>>>')
-    console.log(checkedDept.value)
-    console.log('===================>>>>>>>')
+    alert(checkedDept.value.isAddChildrenCount)
 }
+// 存所有用户
+let userList = ref([])
+// 获取用户信息
+const getUserAll = async()=>{
+    let {data} = await getAllUserMsg()
+    userList.value = data
+}
+
+// type确定当前显示形式 修改时 0: 输入框; 1: 选择框1; 2: 选择框2; 3: 单选
+const formMsgField = ref([
+    {label: "部门名称",field: 'name',type: 0},
+    {label: "部门编码",field: 'deptCode',type: 0},
+    {label: "上级部门",field: 'deptName',type: 1},
+    {label: "负责人",field: 'type',type: 2},
+    {label: "计算属性",field: 'count',type: 3},
+])
+
+
+// 获取切换后的类型
+function changeType(type){
+    funType.value = type
+}
+// 用于确定当前是修改还是新建
+let funType = ref(0)
+// 获取提示文本信息的方法
+function getTipContent(){
+
+    return funType.value === 1 ? '修改提示' : '新建提示'
+}
+// 设置计算部门人数的字符串的方法
 function getCountStr(item){
     if(checkedDept.value.parentId === 0){
         checkedDept.value.parentName ='无'
@@ -138,7 +236,7 @@ function getCountStr(item){
     if(checkedDept.value.isAddChildrenCount === 0){
         return baseStr
     }
-    return `${baseStr}（${myCount} + ${totalCount - myCount}）`
+    return `${baseStr} (直接人数: ${myCount})`
 }
 // 对负责人头像的处理
 function getAvatar(){
@@ -169,6 +267,7 @@ let userMsgFields = ref([
 ])
 // 存当前查看/修改的部门
 let checkedDept = ref({
+    isAddChildrenCount: 1,
     leader:{}
 })
 // 控制查看全部对话框的开关
@@ -362,6 +461,7 @@ onMounted(()=>{
     getAllTreeDepts()
     // getEcharts()
     getAllTotalDepts()
+    getUserAll()
 })
 
 
@@ -426,7 +526,7 @@ let horizontal = ref(false)
                 padding: 2% 2%;
                 .userMsg,.deptMsg{
                     height: 95%;
-                    width: 35%;
+                    width: 36%;
                     box-shadow: $common-box-shodow;
                     padding: 1vh 2vw;
                     .titleMsg{
@@ -461,10 +561,29 @@ let horizontal = ref(false)
                 }
             }
             .fun{
-                width: 30%;
-                height: 85%;
+                width: 25%;
+                height: 81.25%;
                 box-shadow: $common-box-shodow;
                 align-self: flex-end;
+                padding: 1vh 1vw;
+                .myFunTitle{
+                    width: 100%;
+                    @include flex-box;
+                    justify-content: space-between;
+                    .tip{
+                        user-select: none;
+                        font-size: $title-font-size * 2;
+                        color: $secend-show-color;
+                    }
+                }
+                .formFun{
+                    width: 100%;
+                    margin-top: 2vh;
+                    .footer{
+                        width: 100%;
+                        @include flex-box;
+                    }
+                }
             }
             .iptBar:hover,.msgAll:hover,.fun:hover{
                 box-shadow: $large-box-shadow;
