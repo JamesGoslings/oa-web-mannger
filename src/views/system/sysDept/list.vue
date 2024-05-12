@@ -71,11 +71,11 @@
                             <div v-for="(item,i) in formMsgField" :key="i">
                                 <el-form-item :label="item.label">
 
-                                    <el-input v-model="checkedDept[item.field]" autocomplete="off"
+                                    <el-input v-model="editDept[item.field]" autocomplete="off"
                                     v-if="item.type === 0"/>
 
                                     <el-select
-                                    v-model="checkedDept.parentId"
+                                    v-model="editDept.parentId"
                                     filterable
                                     placeholder="选择上级部门"
                                     v-else-if="item.type === 1"
@@ -89,7 +89,7 @@
                                     </el-select>
 
                                     <el-select
-                                    v-model="checkedDept.leaderId"
+                                    v-model="editDept.leaderId"
                                     filterable
                                     placeholder="选择负责人"
                                     v-else-if="item.type === 2"
@@ -102,7 +102,7 @@
                                         />
                                     </el-select>
                                     
-                                    <el-radio-group v-model="checkedDept.isAddChildrenCount" v-else-if="item.type === 3">
+                                    <el-radio-group v-model="editDept.isAddChildrenCount" v-else-if="item.type === 3">
                                         <el-radio :value=1 size="small">是</el-radio>
                                         <el-radio :value=0 size="small">否</el-radio>
                                     </el-radio-group>
@@ -111,11 +111,11 @@
                             </div>
 
                             <div class="footer">
-                                <el-button v-if="funType === 1" :disabled="!checkedDept.id"
+                                <el-button v-if="funType === 1" :disabled="!editDept.id"
                                 type="danger">删除</el-button>
                                 <el-button type="primary"
-                                 :disabled="(!checkedDept.id && funType === 1)
-                                  || (funType === 0 && !(checkedDept.name && checkedDept.deptCode))">保存</el-button>
+                                 :disabled="(!editDept.id && funType === 1)
+                                  || (funType === 0 && !(editDept.name && editDept.deptCode))">保存</el-button>
                             </div>
                         </el-form>
 
@@ -187,12 +187,13 @@
 <script setup>
 import { getTreeDeptList,getAllTotalDeptList } from '@/api/dept';
 import { getUserTotalCount,getAllUserMsg } from '@/api/user'
+import {deepCopy} from '@/utils/objUtil'
 import changeSwitch from '@/components/ChangeSwitch.vue';
 import enterButton from '@/components/EnterButton.vue';
 import * as echarts from 'echarts'
 
-
-let myRadioV = ref('1')
+// 存操作的部门（赋值时要深拷贝）
+let editDept = ref({})
 function fun(){
     alert(checkedDept.value.isAddChildrenCount)
 }
@@ -217,6 +218,14 @@ const formMsgField = ref([
 // 获取切换后的类型
 function changeType(type){
     funType.value = type
+    // 深拷贝对象到编辑对象中
+    if(type === 0){
+        editDept.value = {
+            leader:{}
+        }
+    }else{
+        editDept.value = deepCopy(checkedDept.value)
+    }
 }
 // 用于确定当前是修改还是新建
 let funType = ref(0)
@@ -294,6 +303,10 @@ function querySearch(queryString, cb) {
 // 选中后的逻辑
 function handleSelect(item) {
     checkedDept.value = item
+    if(funType.value === 1){
+        editDept.value = deepCopy(item)
+    }
+
     // console.log(item)
 }
 
