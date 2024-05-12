@@ -78,6 +78,7 @@
                                     v-model="editDept.parentId"
                                     filterable
                                     placeholder="选择上级部门"
+                                    @change="getThisNewDeptCode()"
                                     v-else-if="item.type === 1"
                                     >
                                         <el-option
@@ -113,8 +114,7 @@
                             <div class="footer">
                                 <el-button v-if="funType === 1" :disabled="!editDept.id"
                                 type="danger">删除</el-button>
-                                <el-button type="primary" :disabled="(!editDept.id && funType === 1)
-                                || (funType === 0 && !(editDept.name && editDept.deptCode))" @click="saveOrUpDateDept()">保存</el-button>
+                                <el-button type="primary" :disabled="isDisAbled()" @click="saveOrUpDateDept()">保存</el-button>
                             </div>
                         </el-form>
 
@@ -183,7 +183,7 @@
         </div>
 </template>
 <script setup>
-import { getTreeDeptList,getAllTotalDeptList,updateDept,saveDept } from '@/api/dept';
+import { getTreeDeptList,getAllTotalDeptList,updateDept,saveDept,getNewDeptCode } from '@/api/dept';
 import { getUserTotalCount,getAllUserMsg } from '@/api/user'
 import {deepCopy} from '@/utils/objUtil'
 import{useSimpleConfirm,useTips} from '@/utils/msgTip'
@@ -191,6 +191,27 @@ import changeSwitch from '@/components/ChangeSwitch.vue';
 import enterButton from '@/components/EnterButton.vue';
 import * as echarts from 'echarts'
 
+// 用于确定当前"保存"按钮是否应该被使用
+function isDisAbled(){
+    let myDept = editDept.value
+    return (!myDept.id && funType.value === 1) || 
+    (funType.value === 0 && !(myDept.parentId != null && myDept.name && 
+    myDept.deptCode && myDept.leaderId && myDept.isAddChildrenCount))
+}
+// 动态获取新的编码
+const getThisNewDeptCode = async()=>{
+    let parentId = editDept.value.parentId
+    let deptId = editDept.value.id
+    if(parentId == null){
+        return;
+    }
+    if(deptId === null || deptId === undefined){
+        editDept.value.id = -1
+        deptId = -1
+    }
+    let {data:{newDeptCode}} = await getNewDeptCode(deptId,parentId)
+    editDept.value.deptCode = newDeptCode
+}
 // 用于存有占位对象的所有部门的列表(便于选择无父级操作)
 let totalDeptsWithNull = ref([{id:0,name:'无'}])
 // 新建和修改部门的总方法
@@ -204,6 +225,7 @@ function saveOrUpDateDept(){
 // 新建的具体方法
 function saveThisDept(){
     useSimpleConfirm('你确定要添加该部门吗？').then(async()=>{
+        editDept.value.id = null
         let data = await saveDept(editDept.value)
         useTips('成功添加新部门',data)
         // 刷新页面
@@ -213,6 +235,7 @@ function saveThisDept(){
 // 修改的具体方法
 function updateThisDept (){
     useSimpleConfirm(`你确定要修改部门：${editDept.value.name} 吗？？？`).then(async()=>{
+        editDept.value.updateTime = null
         let data = await updateDept(editDept.value)
         useTips(`成功修改部门 ${editDept.value.name} `,data)
         // 刷新页面

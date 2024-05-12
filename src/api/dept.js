@@ -38,3 +38,10 @@ export function saveDept(dept = {}){
         data: dept
     })
 }
+// 动态拿到新的部门编码
+export function getNewDeptCode(deptId,parentId){
+    return request({
+        url: DEPT_URL + `newCode/${deptId}/${parentId}`,
+        method: 'GET'
+    })
+}
