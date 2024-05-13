@@ -4,12 +4,12 @@
         <div class="funTitle allTitle">审批类型列表</div>
         <div class="tableBox baseCard">
             <div class="iptBar">
-                <myInputBar v-model="iptObj.keyword" class="ipt" font-color="rgb(9,82,200)" holder-color="rgb(211,227,253)" text="搜索角色，请输入角色名称或编码" />
+                <myInputBar v-model="queryObj.keyword" class="ipt" font-color="rgb(9,82,200)"
+                 holder-color="rgb(211,227,253)" text="搜索审批类型，请输入类型名称或描述" />
                 <el-button type="primary" plain @click="getPageData()">搜索</el-button>
             </div>
-            <el-table class="tab" :data="pageRoles" style="width: 90%" stripe :border="true">
-                <el-table-column fixed prop="roleName" label="角色名称"/>
-                <el-table-column prop="roleCode" label="角色编码" />
+            <el-table class="tab" :data="processTypePage" style="width: 90%" stripe :border="true">
+                <el-table-column fixed prop="name" label="审批类型名称"/>
                 <el-table-column prop="description" label="描述" />
                 <el-table-column prop="createTime" label="创建时间"  />
                 <el-table-column prop="updateTime" label="修改时间" />
@@ -17,19 +17,21 @@
                     <template  v-slot="scope">
                         <div class="tabFooter">
                             <el-button type="success" size="small" plain @click="removeOne(scope.row)">删除</el-button>
-                            <el-button type="info" size="small" plain @click="goToAssignAuth(scope.row)">分配权限</el-button>
                             <el-button type="primary" size="small" plain @click="editDialogInit(scope.row)">编辑</el-button>
                         </div>
                     </template>
                 </el-table-column>
             </el-table>
+
+
+
             <!-- 显示可 编辑/删除 角色的对话框 -->
             <el-dialog v-model="openChoiseDialog" :title="editOrSaveDialogTitle" width="400"
-            draggable :close-on-click-modal="false">
-                <!-- 处理编辑选项的单选框列表 -->
-                <el-radio-group v-model="chooseRoleIndex" v-if="funType === 2">
-                    <div v-for="(role,i) in allRoles" :key="role.id" class="choiceRow"
-                    :title="getRoleMsgStr(role)">
+                    draggable :close-on-click-modal="false">
+                        <!-- 处理编辑选项的单选框列表 -->
+                        <el-radio-group v-model="chooseRoleIndex" v-if="funType === 2">
+                            <div v-for="(role,i) in allRoles" :key="role.id" class="choiceRow"
+                            :title="getRoleMsgStr(role)">
                         <el-radio :value="i">{{role.roleName}}</el-radio>
                     </div>
                 </el-radio-group>
@@ -86,9 +88,9 @@
         </div>
         <div class="footer baseCard">
             <div class="mode">
-                <div class="funTitle myTitle">角色操作模块</div>
+                <div class="funTitle myTitle">审批类型操作模块</div>
                 <div class="funCards">
-                    <span class="funCard" v-for="(card,i) in cards" :key="i" @click="runFunMode(i)" >
+                    <span class="funCard" v-for="(card,i) in cards" :key="i" >
                         <div class="funIco iconfont" v-html="card.icon"></div>
                         <div class="funText">
                             <div class="funTitle aFunTitle">{{card.text}}</div>
@@ -104,184 +106,61 @@
 
 <script setup>
 import myInputBar from "@/components/MyInputBar.vue"
-import { getAllRoles,getRolePage,removeOneRoleById,updateRole,saveRole,removeMoreOneRoleByIdList } from "@/api/role";
-import { onMounted } from "vue";
+import { getAllProcessTypes,getProcessTypePage } from '@/api/processType'
+import { isSpace,removeWhiteSpaces } from "@/utils/stringUtil";
 import { Check, Close } from '@element-plus/icons-vue'
 import{useConfirm,useTips} from '@/utils/msgTip'
-import {useRouter} from 'vue-router'
+import { onMounted } from "vue"
 
-const router = useRouter()
-// 跳转权限分配路由
-function goToAssignAuth(role){
-    router.push(`/system/assignAuth?id=${role.id}&roleName=${role.roleName}`)
-}
-// 获取角色信息字符串
-function getRoleMsgStr(role){
-    let description = (role.description == null || role.description === '') ? '（没写描述）': role.description
-    let roleCode = (role.roleCode == null || role.roleCode === '') ? '（没写编码）' : role.roleCode
-    return `描述: “${description}”，编码: “${roleCode}”`
+// 存当前正在修改/查看/新建的单个类型
+let checkedProcessType = ref({})
+// 删除单个类型
+function removeOne(typeOne){
+
 }
 // 用于显示操作功能卡片
 let cards = ref([
     {
         icon: '&#xe619;',
-        text: '添加角色',
-        description: '点击此处添加新的角色'
+        text: '添加审批类型',
+        description: '点击此处添加新的审批类型'
     },
     {
         icon: '&#xe603;',
-        text: '编辑角色',
-        description: '点击此处编辑已有的角色'
+        text: '编辑审批类型',
+        description: '点击此处编辑已有的审批类型'
     },
     {
         icon: '&#xe64d;',
-        text: '删除角色',
-        description: '点击此处删除已有的角色'
+        text: '删除审批类型',
+        description: '点击此处删除已有的审批类型'
     }
 ])
-// 点击功能模块触发的方法
-function runFunMode(i){
-    // 新建角色
-    if(i === 0){
-        saveDialogInit()
-    }else if(i === 1){
-        editOrSaveDialogTitle.value = '请选择要编辑的角色'
-        funType.value = 2
-        openChoiseDialog.value = true
-    }else{
-        editOrSaveDialogTitle.value = '请选择要删除的角色（可多选）'
-        funType.value = 3
-        openChoiseDialog.value = true
-    }
-}
-let chooseRoleIndex = ref(-1)
-// 用于控制选项对话框的开关
-let openChoiseDialog = ref(false)
-// 用于存选中的多个role
-let chooseRoles = ref([])
-function goToEditInitOrRemoveChooseRole(){
-    // 编辑框的逻辑
-    if(funType.value === 2){
-        // TODO 关闭选项弹窗后转到具体修改的对话框
-        openChoiseDialog.value = false
-        editDialogInit(allRoles.value[chooseRoleIndex.value])
-        chooseRoleIndex.value = -1
-    }else if(funType.value === 3){
-        removeChooseRoles(chooseRoles.value)
-    }
-}
-// 批量删除具体逻辑
-const removeChooseRoles = async(idList)=>{
-    useConfirm(`你确定要删除以上勾选的角色吗？`, '温馨提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-    }).then(async()=>{
-        console.log(idList)
-        let data = await removeMoreOneRoleByIdList(idList);
-        console.log('=======resData==========>>>>')
-        console.log(data)
-        console.log('=======resData==========>>>>')
-        // 清空选中的role
-        chooseRoles.value = []
-        // 关闭 选项的对话框
-        openChoiseDialog.value = false
-        // 给出提示
-        useTips('成功删除选中的角色~', data)
-        // 刷新页面以及总角色记录
-        getAllRoleList()
-        getPageData()
-    }).catch(()=>{
-        console.log('点击了取消')
-    })
-}
-// 新建角色的初始化工作
-function saveDialogInit(){
-    editOrSaveDialogTitle.value = '添加角色'
-    funType.value = 1;
-    // 清空changedRole的数据
-    changedRole.value = {}
-    openDialog.value = true
-}
-// 用于显示弹框的title
-let editOrSaveDialogTitle = ref('')
-// 判断具体是哪个功能 0: 编辑 1: 新建 2: 编辑选项框 3: 删除选项框
-let funType = ref(0)
-// 用于控制弹框的开关
-let openDialog = ref(false)
-// 用于存新建/修改过的role对象
-let changedRole = ref({})
-// 修改角色的初始化工作
-function editDialogInit (oldRole){
-    // TODO 将旧值同步到changedRole中作为初始值
-    changedRole.value = oldRole
-    editOrSaveDialogTitle.value = `编辑角色 “${oldRole.roleName}” 中~`
-    funType.value = 0
-    // 开启弹框
-    openDialog.value = true
-}
-// 修改或新建角色的请求
-const editOrSaveRole = async()=>{
-    console.log('========待处理的role=====>>>>')
-    console.log(changedRole.value)
-    console.log('=============>>>>')
-    let tipMsg = ''
-    let data = {}
-    if(funType.value === 0){
-        // 保证更新修改日期
-        changedRole.value.updateTime = null
-        data = await updateRole(changedRole.value)
-        tipMsg = `成功修改角色 “${changedRole.value.roleName}”`
-    }else if(funType.value === 1){
-        data = await saveRole(changedRole.value)
-        tipMsg = '添加角色成功!'
-    }
-    // 关闭弹窗
-    openDialog.value = false
-    // 给提示
-    useTips(tipMsg, data)
-    // 刷新页面
-    getPageData()
-}
-
-// 分页数据
+// 存分页数据
 let page = ref(1)
-let total = ref(10)
+let total = ref(5)
 let limit = ref(3)
-let iptObj = ref({keyword: ''})
-// 存当前页面拿到的roles
-let pageRoles = ref([])
+let processTypePage = ref([])
+// 存输入的关键值
+// let keyword = ref('')
+let queryObj = ref({keyword: ''})
+// 获取分页数据
 const getPageData = async()=>{
-    let {data} = await getRolePage(page.value,limit.value,iptObj.value)
-    pageRoles.value = data.records
-    total.value = data.total
+    let keyword = queryObj.value.keyword
+    queryObj.value.keyword = removeWhiteSpaces(keyword)
+    let {data} = await getProcessTypePage(page.value,limit.value,queryObj.value)
+    processTypePage.value = data.records
 }
-// 接收全部的角色
-let allRoles = ref([])
-const getAllRoleList = async()=>{
-    let {data} = await getAllRoles()
-    allRoles.value = data
-}
-// 删除角色
-const removeOne = async(role)=>{
-    useConfirm(`你确定要删除角色 “${role.roleName}” 吗？`, '友情提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-    }).then(()=>{
-        removeOneRoleById(role.id).then(res=>{
-            // 删除完成刷新页面以及更新总角色数据并给出提示
-            getAllRoleList()
-            getPageData()
-            useTips(`你已成功删除角色 “${role.roleName}”`,res)
-        })
-    }).catch(()=>{
-        console.log('点击了取消')
-    })
+// 存所有的类型
+let allProcessTypes = ref([])
+// 获取所有数据
+const getAllProcessTypeData = async()=>{
+    let {data} = await getAllProcessTypes()
+    allProcessTypes.value = data
 }
 onMounted(()=>{
-    getAllRoleList()
     getPageData()
+    getAllProcessTypeData()
 })
 </script>
 
