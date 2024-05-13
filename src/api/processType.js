@@ -23,6 +23,14 @@ export function removeOneProcessType (id){
         method: 'DELETE'
     })
 }
+// 批量删除
+export function batchRemoveProcessTypes (idList){
+    return request({
+        url: PROCESS_TYPE_URL + 'batchRemove',
+        method: 'DELETE',
+        data: idList
+    })
+}
 // 新建类型
 export function saveProcessType (processType = {}){
     return request({

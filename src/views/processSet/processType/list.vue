@@ -1,4 +1,4 @@
-<!-- 角色页面 -->
+<!-- 审批类型页面 -->
 <template>
     <div class="processTypeAll">
         <div class="funTitle allTitle">审批类型列表</div>
@@ -25,37 +25,37 @@
 
 
 
-            <!-- 显示可 编辑/删除 角色的对话框 -->
-            <el-dialog v-model="openChoiseDialog" :title="editOrSaveDialogTitle" width="400"
+            <!-- 显示可 编辑/删除 审批类型的对话框 -->
+            <el-dialog v-model="openChoiseDialog" :title="funDialogTitle" width="400"
                     draggable :close-on-click-modal="false">
                         <!-- 处理编辑选项的单选框列表 -->
-                        <el-radio-group v-model="chooseRoleIndex" v-if="funType === 2">
-                            <div v-for="(role,i) in allRoles" :key="role.id" class="choiceRow"
-                            :title="getRoleMsgStr(role)">
-                        <el-radio :value="i">{{role.roleName}}</el-radio>
+                        <el-radio-group v-model="chooseProcessTypeIndex" v-if="funType === 2">
+                            <div v-for="(processType,i) in allProcessTypes" :key="processType.id" class="choiceRow"
+                            :title="getTypeMsgStr(processType)">
+                        <el-radio :value="i">{{processType.name}}</el-radio>
                     </div>
                 </el-radio-group>
-                <el-checkbox-group v-model="chooseRoles" v-else>
-                    <div class="choiceRow" v-for="role in allRoles" :key="role.id" 
-                    :title="getRoleMsgStr(role)">
-                        <el-checkbox :value="role.id">
-                            {{role.roleName}}
+                <!-- 处理删除选项的复选框列表 -->
+                <el-checkbox-group v-model="chooseTypes" v-else>
+                    <div class="choiceRow" v-for="processType in allProcessTypes" :key="processType.id" 
+                    :title="getTypeMsgStr(processType)">
+                        <el-checkbox :value="processType.id">
+                            {{processType.name}}
                         </el-checkbox>
                     </div>
                 </el-checkbox-group>
-                <!-- 处理删除选项的复选框列表 -->
                 <template #footer>
                     <div class="dialog-footer">
                         <el-button @click="openChoiseDialog = false">取消</el-button>
-                        <el-button type="primary" @click="goToEditInitOrRemoveChooseRole()" 
-                        :disabled="(chooseRoleIndex < 0 && funType === 2)">确定</el-button>
+                        <el-button type="primary" @click="goToEditInitOrRemoveChooseType()" 
+                        :disabled="(chooseProcessTypeIndex < 0 && funType === 2)">确定</el-button>
                     </div>
                 </template>
             </el-dialog>
 
             <!-- 编辑审批类型的对话框 -->
 
-            <el-dialog v-model="openDialog" :title="editOrSaveDialogTitle" width="400"
+            <el-dialog v-model="openDialog" :title="funDialogTitle" width="400"
             draggable :close-on-click-modal="false">
                 <el-form :model="form">
                     <el-form-item label="类型名称">
@@ -103,23 +103,68 @@
 
 <script setup>
 import myInputBar from "@/components/MyInputBar.vue"
-import { getAllProcessTypes,getProcessTypePage,removeOneProcessType,saveProcessType,updateProcessType } from '@/api/processType'
+import { getAllProcessTypes,getProcessTypePage,removeOneProcessType,saveProcessType,updateProcessType,batchRemoveProcessTypes } from '@/api/processType'
 import { isSpace,removeWhiteSpaces } from "@/utils/stringUtil";
 import { Check, Close } from '@element-plus/icons-vue'
 import{useSimpleConfirm,useTips} from '@/utils/msgTip'
 import { onMounted } from "vue"
 
-
-// 处理操作模块的总方法
-function runFunMode(i){
-    if(i == 0){
-        saveDialogInit()
+// 存多选选中的类型idList
+let chooseTypes = ref([])
+// 存单选选中的索引
+let chooseProcessTypeIndex = ref(-1)
+// 跳转编辑或删除的方法
+function goToEditInitOrRemoveChooseType(){
+    if(funType.value === 2){
+        openChoiseDialog.value = false
+        editDialogInit(allProcessTypes.value[chooseProcessTypeIndex.value])
+        chooseProcessTypeIndex.value = -1
+    }else if(funType.value === 3){
+        batchRemoveTypes(chooseTypes.value)
     }
 }
+// 批量删除的具体方法
+function batchRemoveTypes(idList){
+    console.log('===================>>>>>')
+    console.log(idList)
+    console.log('===================>>>>>')
+    useSimpleConfirm('你确定要删除以上勾选的审批类型吗？').then(async ()=>{
+        let data = await batchRemoveProcessTypes(idList)
+        chooseTypes.value = []
+        // 关闭 选项的对话框
+        openChoiseDialog.value = false
+        // 给出提示
+        useTips('成功删除选中的审批类型~', data)
+        // 刷新页面以及总类型记录
+        getAllProcessTypeData()
+        getPageData()
+    })
+}
+// 获取审批类型信息字符串
+function getTypeMsgStr(processType){
+    let description = (processType.description == null || processType.description === '') ? '（没写描述）': processType.description
+    return `描述: “${description}”`
+}
+// 处理操作模块的总方法
+function runFunMode(i){
+    if(i === 0){
+        saveDialogInit()
+    }else if(i === 1){
+        funDialogTitle.value = '请选择要编辑的审批类型'
+        funType.value = 2
+        openChoiseDialog.value = true
+    }else{
+        funDialogTitle.value = '请选择要删除的审批类型（可多选）'
+        funType.value = 3
+        openChoiseDialog.value = true
+    }
+}
+// 控制选择的对话框
+let openChoiseDialog = ref(false)
 // 初始化新建对话框
 function saveDialogInit(){
     checkedProcessType.value = {}
-    editOrSaveDialogTitle.value = '新建审批类型'
+    funDialogTitle.value = '新建审批类型'
     funType.value = 0
     openDialog.value = true
 }
@@ -133,7 +178,7 @@ function editOrSaveType(){
 }
 // 新建的具体方法
 function saveThisType(){
-    useSimpleConfirm('你确定要添加该角色吗？').then(async ()=>{
+    useSimpleConfirm('你确定要添加该审批类型吗？').then(async ()=>{
         let data = await saveProcessType(checkedProcessType.value)
         openDialog.value = false
         flushPage()
@@ -142,7 +187,7 @@ function saveThisType(){
 }
 // 编辑的具体方法
 function editThisType(){
-    useSimpleConfirm(`你确定要保存对类型：“${checkedProcessType.name}”的修改吗？？？`).then(async ()=>{
+    useSimpleConfirm(`你确定要保存对类型：“${checkedProcessType.value.name}”的修改吗？？？`).then(async ()=>{
         let data = await updateProcessType(checkedProcessType.value)
         openDialog.value = false
         flushPage()
@@ -152,15 +197,15 @@ function editThisType(){
 // 初始化编辑对话框
 function editDialogInit(typeOne){
     checkedProcessType.value = typeOne
-    editOrSaveDialogTitle.value = `编辑类型：“${typeOne.name}” 中`
+    funDialogTitle.value = `编辑类型：“${typeOne.name}” 中`
     funType.value = 1
     openDialog.value = true
 }
 
 // 用于确定当前是修改还是新建
 let funType = ref(0)
-// 存新建/编辑对话框的title
-let editOrSaveDialogTitle = ref('')
+// 存新建/编辑/删除对话框的title
+let funDialogTitle = ref('')
 // 控制编辑/新建的对话框的开关
 let openDialog = ref(false)
 // 刷新页面
@@ -201,7 +246,6 @@ let total = ref(5)
 let limit = ref(3)
 let processTypePage = ref([])
 // 存输入的关键值
-// let keyword = ref('')
 let queryObj = ref({keyword: ''})
 // 获取分页数据
 const getPageData = async()=>{
@@ -209,6 +253,7 @@ const getPageData = async()=>{
     queryObj.value.keyword = removeWhiteSpaces(keyword)
     let {data} = await getProcessTypePage(page.value,limit.value,queryObj.value)
     processTypePage.value = data.records
+    total.value = data.total
 }
 // 存所有的类型
 let allProcessTypes = ref([])

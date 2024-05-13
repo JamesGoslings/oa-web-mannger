@@ -177,11 +177,11 @@ const removeChooseRoles = async(idList)=>{
         cancelButtonText: '取消',
         type: 'warning'
     }).then(async()=>{
-        console.log(idList)
+        // console.log(idList)
         let data = await removeMoreOneRoleByIdList(idList);
-        console.log('=======resData==========>>>>')
-        console.log(data)
-        console.log('=======resData==========>>>>')
+        // console.log('=======resData==========>>>>')
+        // console.log(data)
+        // console.log('=======resData==========>>>>')
         // 清空选中的role
         chooseRoles.value = []
         // 关闭 选项的对话框
