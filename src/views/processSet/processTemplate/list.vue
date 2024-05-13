@@ -1,10 +1,15 @@
 <template>
-        <button style="margin-left: 30vw;margin-top: 10vh;" @click="exportXML()">点我</button>
-    <div class="containerBox" style="position: relative;">
-        <div id="container" style="width: calc(100vw - 750px); height: calc(100vh - 150px);margin-left: 30vw;margin-top: 10vh; ">
+        <!-- <button style="margin-left: 30vw;margin-top: 10vh;" @click="exportXML()">点我</button> -->
+    <div class="processTemplateAll">
+        <div class="funTitle">审批模板列表</div>
+        <div class="baseCard bpmnAll">
+            <div class="myFrame" style="background:;">
+                <div id="container"></div>
+                <div id="js-properties-panel" class="panel"></div>
+            </div>
         </div>
-        <div id="js-properties-panel" class="panel"></div>
     </div>
+    
 </template>
 
 
@@ -64,34 +69,96 @@ onMounted(() => {
 })
 </script>
   
-<style>
-.containerBox {
-    height: calc(100vh - 160px);
-    margin-top: 30px;
+<style lang="scss" scoped>
+@import url('/src/assets/font-icon/iconfont.css');
+@import '/src/styles/globalPage.scss';
+@import '/src/styles/listSize.scss';
+@import '/src/styles/commonStyles.scss';
+
+
+.processTemplateAll{
+    margin-left: $left-distance;
+    margin-top: $top-distance;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    background: rgb(244,247,252);
+    padding: $page-padding;
+    .bpmnAll{
+        width: 100%;
+        height: 80vh;
+        .myFrame{
+            width: 100%;
+            height: 100%;
+            @include flex-box;
+            justify-content: space-between;
+            flex-wrap: nowrap;
+            background-image: url('/src/assets/img/bpmnBack.jpg');
+            #container{
+                height: 100%;
+                width: 90%;
+                z-index: 8;
+            }
+            .panel{
+                width: 15vw;
+                height: 100%;
+                overflow: auto;
+                overflow-x: hidden;
+                z-index: 8;
+            }
+            :deep(){
+                .djs-palette,.djs-palette-entries{
+                    min-width: none;
+                    width: 3vw;
+                    height: 100%;
+                    left: 0;
+                    top: 0;
+                }
+                .bjs-powered-by{
+                    svg{
+                        height: 0;
+                        width: 0;
+                    }
+                }
+            }
+        }
+
+    }
 }
+
+
+
+
+
+
+
+// .containerBox {
+//     height: calc(100vh - 160px);
+//     margin-top: 30px;
+// }
  
-.containerBox #container {
-    height: calc(100vh - 160px);
-    border: 1px solid rgb(121, 121, 121);
-}
+// .containerBox #container {
+//     height: calc(100vh - 160px);
+//     border: 1px solid rgb(121, 121, 121);
+// }
  
-.bpp-properties-panel [type=text] {
-    box-sizing: border-box;
-}
+// .bpp-properties-panel [type=text] {
+//     box-sizing: border-box;
+// }
  
-.panel {
-    width: 400px;
-    position: absolute;
-    top: 1px;
-    right: 1px;
-    height: 100%;
-    overflow: auto;
-}
+// .panel {
+//     width: 400px;
+//     position: absolute;
+//     top: 1px;
+//     right: 1px;
+//     height: 100%;
+//     overflow: auto;
+// }
  
-/* 右下角logo */
-.bjs-powered-by {
-    display: none;
-}
+// /* 右下角logo */
+// .bjs-powered-by {
+//     display: none;
+// } 
 </style>
 
 
