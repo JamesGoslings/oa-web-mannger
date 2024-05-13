@@ -53,25 +53,22 @@
                 </template>
             </el-dialog>
 
-            <!-- 编辑角色的对话框 -->
+            <!-- 编辑审批类型的对话框 -->
 
             <el-dialog v-model="openDialog" :title="editOrSaveDialogTitle" width="400"
             draggable :close-on-click-modal="false">
                 <el-form :model="form">
-                    <el-form-item label="角色名称">
-                        <el-input v-model="changedRole.roleName" autocomplete="off" />
+                    <el-form-item label="类型名称">
+                        <el-input v-model="checkedProcessType.name" autocomplete="off" />
                     </el-form-item>
-                    <el-form-item label="角色描述">
-                        <el-input v-model="changedRole.description" autocomplete="off" />
-                    </el-form-item>
-                    <el-form-item label="角色编码">
-                        <el-input v-model="changedRole.roleCode" autocomplete="off" />
+                    <el-form-item label="类型描述">
+                        <el-input v-model="checkedProcessType.description" autocomplete="off" />
                     </el-form-item>
                 </el-form>
                 <template #footer>
                     <div class="dialog-footer">
                         <el-button @click="openDialog = false">取消</el-button>
-                        <el-button type="primary" @click="editOrSaveRole()">保存</el-button>
+                        <el-button type="primary" @click="editOrSaveType()">保存</el-button>
                     </div>
                 </template>
             </el-dialog>
@@ -90,7 +87,7 @@
             <div class="mode">
                 <div class="funTitle myTitle">审批类型操作模块</div>
                 <div class="funCards">
-                    <span class="funCard" v-for="(card,i) in cards" :key="i" >
+                    <span class="funCard" v-for="(card,i) in cards" :key="i" @click="runFunMode(i)">
                         <div class="funIco iconfont" v-html="card.icon"></div>
                         <div class="funText">
                             <div class="funTitle aFunTitle">{{card.text}}</div>
@@ -106,12 +103,66 @@
 
 <script setup>
 import myInputBar from "@/components/MyInputBar.vue"
-import { getAllProcessTypes,getProcessTypePage,removeOneProcessType } from '@/api/processType'
+import { getAllProcessTypes,getProcessTypePage,removeOneProcessType,saveProcessType,updateProcessType } from '@/api/processType'
 import { isSpace,removeWhiteSpaces } from "@/utils/stringUtil";
 import { Check, Close } from '@element-plus/icons-vue'
 import{useSimpleConfirm,useTips} from '@/utils/msgTip'
 import { onMounted } from "vue"
 
+
+// 处理操作模块的总方法
+function runFunMode(i){
+    if(i == 0){
+        saveDialogInit()
+    }
+}
+// 初始化新建对话框
+function saveDialogInit(){
+    checkedProcessType.value = {}
+    editOrSaveDialogTitle.value = '新建审批类型'
+    funType.value = 0
+    openDialog.value = true
+}
+// 新建和编辑的总方法
+function editOrSaveType(){
+    if(funType.value === 1){
+        editThisType()
+    }else{
+        saveThisType()
+    }
+}
+// 新建的具体方法
+function saveThisType(){
+    useSimpleConfirm('你确定要添加该角色吗？').then(async ()=>{
+        let data = await saveProcessType(checkedProcessType.value)
+        openDialog.value = false
+        flushPage()
+        useTips(`成功新建类型：“${checkedProcessType.value.name}”`,data)
+    })
+}
+// 编辑的具体方法
+function editThisType(){
+    useSimpleConfirm(`你确定要保存对类型：“${checkedProcessType.name}”的修改吗？？？`).then(async ()=>{
+        let data = await updateProcessType(checkedProcessType.value)
+        openDialog.value = false
+        flushPage()
+        useTips(`成功修改类型：“${checkedProcessType.value.name}”`,data)
+    })
+}
+// 初始化编辑对话框
+function editDialogInit(typeOne){
+    checkedProcessType.value = typeOne
+    editOrSaveDialogTitle.value = `编辑类型：“${typeOne.name}” 中`
+    funType.value = 1
+    openDialog.value = true
+}
+
+// 用于确定当前是修改还是新建
+let funType = ref(0)
+// 存新建/编辑对话框的title
+let editOrSaveDialogTitle = ref('')
+// 控制编辑/新建的对话框的开关
+let openDialog = ref(false)
 // 刷新页面
 function flushPage (){
     getPageData()

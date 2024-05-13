@@ -23,3 +23,19 @@ export function removeOneProcessType (id){
         method: 'DELETE'
     })
 }
+// 新建类型
+export function saveProcessType (processType = {}){
+    return request({
+        url: PROCESS_TYPE_URL + 'save',
+        method: 'POST',
+        data: processType
+    })
+}
+// 修改类型
+export function updateProcessType(processType = {}){
+    return request({
+        url: PROCESS_TYPE_URL + 'update',
+        method: 'PUT',
+        data: processType
+    })
+}
