@@ -10,9 +10,14 @@
   },
   "dependencies": {
     "axios": "^1.6.8",
-    "bpmn-js": "^17.6.4",
-    "bpmn-js-properties-panel": "^5.16.0",
-    "bpmn-moddle": "^9.0.1",
+
+    
+    "bpmn-js": "^7.3.1",
+    "bpmn-js-properties-panel": "^0.37.2",
+    "bpmn-moddle": "^6.0.0",
+    "camunda-bpmn-moddle": "^4.5.0",
+    "diagram-js-minimap": "2.0.4",
+
     "echarts": "^5.5.0",
     "element-plus": "^2.7.2",
     "js-cookie": "^3.0.5",
