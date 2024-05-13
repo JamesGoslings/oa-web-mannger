@@ -34,12 +34,19 @@ let props = defineProps({
         default(){
             return '15px'
         }
+    },
+    originBorderColor: {
+        type: String,
+        default(){
+            return 'rgb(0,0,0,0)'
+        }
     }
 })
 // 指定按钮动态边框和文字颜色 rgb(244,249,255)
 let buttonColor = ref(props.actColor)
 let txtSize = ref(props.textSize)
 let backColor = ref(props.backColor)
+let originBorderColor = ref(props.originBorderColor)
 </script>
 
 <style lang="scss" scoped>
@@ -62,6 +69,8 @@ button {
     outline: none;
     padding: 1vh 1vw;
     box-sizing: border-box;
+    border: v-bind(originBorderColor) 1px solid;
+    // color: rgb(, green, blue);
 }
 
 button::before, button::after {

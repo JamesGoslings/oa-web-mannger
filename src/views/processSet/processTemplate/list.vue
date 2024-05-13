@@ -3,17 +3,22 @@
     <div class="processTemplateAll">
         <div class="funTitle">审批模板列表</div>
         <div class="baseCard bpmnAll">
-            <div class="myFrame" style="background:;">
+            <div class="bpmnFun">
+                <el-button type="primary" round plain @click="exportXML()">导出流程图xml文件</el-button>
+            </div>
+            <div class="myFrame">
                 <div id="container"></div>
                 <div id="js-properties-panel" class="panel"></div>
             </div>
+            
         </div>
     </div>
     
 </template>
 
 
-<script setup> 
+<script setup>
+import ActButton from '@/components/ActButton.vue';
 import { onMounted, markRaw } from 'vue';
  // bpmn-js相关
  import 'bpmn-js/dist/assets/diagram-js.css'; // 左边工具栏以及编辑节点的样式
@@ -75,7 +80,6 @@ onMounted(() => {
 @import '/src/styles/listSize.scss';
 @import '/src/styles/commonStyles.scss';
 
-
 .processTemplateAll{
     margin-left: $left-distance;
     margin-top: $top-distance;
@@ -87,6 +91,15 @@ onMounted(() => {
     .bpmnAll{
         width: 100%;
         height: 80vh;
+        margin-bottom: 15vh;
+        .bpmnFun{
+            width: 98%;
+            height: 5vh;
+            background: #FFF;
+            @include flex-box;
+            padding: 0 1%;
+            justify-content: left;
+        }
         .myFrame{
             width: 100%;
             height: 100%;
@@ -105,6 +118,7 @@ onMounted(() => {
                 overflow: auto;
                 overflow-x: hidden;
                 z-index: 8;
+                border-left: #000 1px solid;
             }
             :deep(){
                 .djs-palette,.djs-palette-entries{
@@ -122,43 +136,9 @@ onMounted(() => {
                 }
             }
         }
-
+        
     }
 }
-
-
-
-
-
-
-
-// .containerBox {
-//     height: calc(100vh - 160px);
-//     margin-top: 30px;
-// }
- 
-// .containerBox #container {
-//     height: calc(100vh - 160px);
-//     border: 1px solid rgb(121, 121, 121);
-// }
- 
-// .bpp-properties-panel [type=text] {
-//     box-sizing: border-box;
-// }
- 
-// .panel {
-//     width: 400px;
-//     position: absolute;
-//     top: 1px;
-//     right: 1px;
-//     height: 100%;
-//     overflow: auto;
-// }
- 
-// /* 右下角logo */
-// .bjs-powered-by {
-//     display: none;
-// } 
 </style>
 
 
