@@ -106,17 +106,25 @@
 
 <script setup>
 import myInputBar from "@/components/MyInputBar.vue"
-import { getAllProcessTypes,getProcessTypePage } from '@/api/processType'
+import { getAllProcessTypes,getProcessTypePage,removeOneProcessType } from '@/api/processType'
 import { isSpace,removeWhiteSpaces } from "@/utils/stringUtil";
 import { Check, Close } from '@element-plus/icons-vue'
-import{useConfirm,useTips} from '@/utils/msgTip'
+import{useSimpleConfirm,useTips} from '@/utils/msgTip'
 import { onMounted } from "vue"
 
+// 刷新页面
+function flushPage (){
+    getPageData()
+}
 // 存当前正在修改/查看/新建的单个类型
 let checkedProcessType = ref({})
 // 删除单个类型
 function removeOne(typeOne){
-
+    useSimpleConfirm(`你真的要删除审批类型：“${typeOne.name}” 吗？？？`).then(async()=>{
+        let data = await removeOneProcessType(typeOne.id)
+        useTips(`成功删除类型：“${typeOne.name}” `,data)
+        flushPage()
+    })
 }
 // 用于显示操作功能卡片
 let cards = ref([

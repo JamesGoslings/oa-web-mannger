@@ -16,3 +16,10 @@ export function getAllProcessTypes (){
         method: 'GET'
     })
 }
+// 删除单个类型
+export function removeOneProcessType (id){
+    return request({
+        url: PROCESS_TYPE_URL + 'remove/' + id,
+        method: 'DELETE'
+    })
+}
