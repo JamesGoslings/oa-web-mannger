@@ -1,4 +1,5 @@
 <template>
+        <button style="margin-left: 30vw;margin-top: 10vh;" @click="exportXML()">点我</button>
     <div class="containerBox" style="position: relative;">
         <div id="container" style="width: calc(100vw - 750px); height: calc(100vh - 150px);margin-left: 30vw;margin-top: 10vh; ">
         </div>
@@ -25,10 +26,24 @@ import translate from '@/utils/bpmn/translate.js'
 let customTranslateModule = {
     translate: ['value', translate]
 }
+const containerEl = ref(null)
+// 渲染图的modeler
+const bpmnModeler = ref(null)
+// 导出xml
+function exportXML() {
+  bpmnModeler.value.saveXML({ format: true }, function(err, xml) {
+    if (err) {
+      console.error('导出错误:', err);
+    } else {
+      console.log('导出的XML:', xml);
+      // 这里可以将xml发送到服务器或者进行其他操作
+    }
+  });
+}
 onMounted(() => {
-    const containerEl = document.getElementById('container');
-    const bpmnModeler = markRaw(new BpmnModeler({
-        container: containerEl,
+    containerEl.value = document.getElementById('container');
+    bpmnModeler.value = markRaw(new BpmnModeler({
+        container: containerEl.value,
         // 添加控制板
         propertiesPanel: {
             parent: '#js-properties-panel'
@@ -43,8 +58,8 @@ onMounted(() => {
             camunda: camundaModdleDescriptor
         }
     }));
-    bpmnModeler.createDiagram(() => {
-        bpmnModeler.get('canvas').zoom('fit-viewport');
+    bpmnModeler.value.createDiagram(() => {
+        bpmnModeler.value.get('canvas').zoom('fit-viewport');
     });
 })
 </script>
