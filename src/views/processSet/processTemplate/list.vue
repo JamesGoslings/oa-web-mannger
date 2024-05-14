@@ -106,7 +106,7 @@
 <script setup>
 import myInputBar from "@/components/MyInputBar.vue"
 // import { getAllProcessTypes} from '@/api/processType'
-import { getProcessTemplatePage,getProcessTemplateAll,saveProcessTemplate,updateProcessTemplate,removeProcessTemplate } from '@/api/processTemplate'
+import { getProcessTemplatePage,getProcessTemplateAll,saveProcessTemplate,updateProcessTemplate,removeProcessTemplate,batchRemoveProcessTemlates } from '@/api/processTemplate'
 import { isSpace,removeWhiteSpaces } from "@/utils/stringUtil";
 import { Check, Close } from '@element-plus/icons-vue'
 import{useSimpleConfirm,useTips} from '@/utils/msgTip'
@@ -140,7 +140,8 @@ function batchRemoveTemplates(idList){
     console.log(idList)
     console.log('===================>>>>>')
     useSimpleConfirm('你确定要删除以上勾选的审批模板吗？').then(async ()=>{
-        let data = await batchRemoveProcessTypes(idList)
+        // let data = await batchRemoveProcessTypes(idList)
+        let data = await batchRemoveProcessTemlates(idList)
         chooseTemplates.value = []
         // 关闭 选项的对话框
         openChoiseDialog.value = false

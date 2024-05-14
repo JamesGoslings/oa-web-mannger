@@ -39,3 +39,11 @@ export function removeProcessTemplate(id){
         method: 'DELETE'
     })
 }
+// 批量删除
+export function batchRemoveProcessTemlates(idList){
+    return request({
+        url: PROCESS_TEMPLETE_URL + 'batchRemove',
+        method: 'DELETE',
+        data: idList
+    })
+}
