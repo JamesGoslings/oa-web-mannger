@@ -7,7 +7,7 @@
             <ActButton txt="保存并退出" @click="saveAndQuit()" />
         </div>
         <!-- <el-button type="primary" round plain @click="getMyJson()">点我</el-button> -->
-        <fc-designer ref="designer" class="myForm" style="height: 80vh"/>
+        <fc-designer ref="designer" class="myForm" style="height: 70vh"/>
     </div>
 </template>
 
@@ -92,6 +92,8 @@ onMounted(()=>{
         padding: 1vh;
         @include flex-box;
         justify-content: left;
+        z-index: 7;
+        box-shadow: $common-box-shodow;
     }
     .myForm{
         box-shadow: $common-box-shodow;
