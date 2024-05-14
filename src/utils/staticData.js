@@ -17,3 +17,11 @@ export const typeList = ['目录','菜单','按钮']
 
 // 岗位类型列表
 export const postTypeList = ['其他','管理岗','技术岗','销售岗','研发岗']
+
+// 所有的审批图标
+export const processIconList = [
+    '',
+    '&#xe60e;','&#xebf1;','&#xe616;','&#xe6c2;',
+    '&#xe64d;','&#xe6c7;','&#xeabb;','&#xebcc;',
+    '&#xebf0;'
+]

@@ -10,6 +10,12 @@
             </div>
             <el-table class="tab" :data="processTemplatePage" style="width: 90%" stripe :border="true">
                 <el-table-column fixed prop="name" label="审批模板名称"/>
+                <el-table-column label="图标" >
+                    <template  v-slot="scope">
+                        <div class="myIconfont" v-html="scope.row.iconUrl"
+                        style="font-size: 25px"></div>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="description" label="描述" />
                 <el-table-column prop="processTypeName" label="审批类型" />
                 <el-table-column prop="createTime" label="创建时间"  width="200"/>
@@ -77,6 +83,24 @@
                     <el-form-item label="模板描述">
                         <el-input v-model="checkedProcessTemplate.description" autocomplete="off" />
                     </el-form-item>
+                    <el-form-item label="图标选择" style="display: flex">
+                        <span class="myIconfont" v-html="checkedProcessTemplate.iconUrl"
+                        style="font-size: 25px"></span>
+                        <el-select
+                            v-model="checkedProcessTemplate.iconUrl"
+                            filterable
+                            placeholder="选择图标"
+                            >
+                                <el-option
+                                v-for="(icon,i) in processIconList"
+                                :key="i"
+                                :value="icon"
+                                > 
+                                <div class="myIconfont" v-html="icon"
+                                style="font-size: 25px"></div>
+                                </el-option>
+                        </el-select>
+                    </el-form-item>
                     <el-form-item label="审批类型">
                         <el-select
                         v-model="checkedProcessTemplate.processTypeId"
@@ -133,6 +157,7 @@ import myInputBar from "@/components/MyInputBar.vue"
 import { getAllProcessTypes} from '@/api/processType'
 import { getProcessTemplatePage,getProcessTemplateAll,saveProcessTemplate,updateProcessTemplate,removeProcessTemplate,batchRemoveProcessTemlates } from '@/api/processTemplate'
 import { isSpace,removeWhiteSpaces } from "@/utils/stringUtil";
+import {processIconList} from '@/utils/staticData'
 import { Check, Close } from '@element-plus/icons-vue'
 import{useSimpleConfirm,useTips} from '@/utils/msgTip'
 import { onMounted } from "vue"
@@ -332,6 +357,7 @@ onMounted(()=>{
 
 <style lang="scss" scoped>
 @import url('/src/assets/font-icon/iconfont.css');
+@import url('/src/assets/fontTotal/iconfont.css');
 @import '/src/styles/globalPage.scss';
 @import '/src/styles/listSize.scss';
 @import '/src/styles/commonStyles.scss';
