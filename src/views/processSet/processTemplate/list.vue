@@ -25,8 +25,6 @@
                 </el-table-column>
             </el-table>
 
-
-
             <!-- 显示可 编辑/删除 审批类型的对话框 -->
             <el-dialog v-model="openChoiseDialog" :title="funDialogTitle" width="400"
                     draggable :close-on-click-modal="false">
@@ -66,11 +64,25 @@
                     <el-form-item label="模板描述">
                         <el-input v-model="checkedProcessTemplate.description" autocomplete="off" />
                     </el-form-item>
+                    <el-form-item label="审批类型">
+                        <el-select
+                        v-model="checkedProcessTemplate.processTypeId"
+                        filterable
+                        placeholder="选择审批类型"
+                        >
+                            <el-option
+                            v-for="(type,i) in totalProcessTypes"
+                            :key="i"
+                            :label="type.name"
+                            :value="type.id"
+                            />
+                        </el-select>
+                    </el-form-item>
                 </el-form>
                 <template #footer>
                     <div class="dialog-footer">
                         <el-button @click="openDialog = false">取消</el-button>
-                        <el-button type="primary" @click="editOrSaveType()">保存</el-button>
+                        <el-button type="primary" :disabled="checkIpt()" @click="editOrSaveType()">保存</el-button>
                     </div>
                 </template>
             </el-dialog>
@@ -105,7 +117,7 @@
 
 <script setup>
 import myInputBar from "@/components/MyInputBar.vue"
-// import { getAllProcessTypes} from '@/api/processType'
+import { getAllProcessTypes} from '@/api/processType'
 import { getProcessTemplatePage,getProcessTemplateAll,saveProcessTemplate,updateProcessTemplate,removeProcessTemplate,batchRemoveProcessTemlates } from '@/api/processTemplate'
 import { isSpace,removeWhiteSpaces } from "@/utils/stringUtil";
 import { Check, Close } from '@element-plus/icons-vue'
@@ -120,7 +132,12 @@ function goToOnlineSet(){
     router.push(`/processSet/onlineProcessSet`)
 }
 
-// 存多选选中的类型idList
+// 校验用户填表单的输入
+function checkIpt(){
+    let template = checkedProcessTemplate.value
+    return template.processTypeId == null || isSpace(template.name) || template.name === undefined
+}
+// 存多选选中的模板idList
 let chooseTemplates = ref([])
 // 存单选选中的索引
 let chooseProcessTemplateIndex = ref(-1)
@@ -163,11 +180,11 @@ function runFunMode(i){
     if(i === 0){
         saveDialogInit()
     }else if(i === 1){
-        funDialogTitle.value = '请选择要编辑的审批类型'
+        funDialogTitle.value = '请选择要编辑的审批模板'
         funType.value = 2
         openChoiseDialog.value = true
     }else{
-        funDialogTitle.value = '请选择要删除的审批类型（可多选）'
+        funDialogTitle.value = '请选择要删除的审批模板（可多选）'
         funType.value = 3
         openChoiseDialog.value = true
     }
@@ -268,6 +285,12 @@ const getPageData = async()=>{
     processTemplatePage.value = data.records
     total.value = data.total
 }
+// 存所有的类型
+let totalProcessTypes = ref([])
+const getAllTypes = async()=>{
+    let {data} = await getAllProcessTypes()
+    totalProcessTypes.value = data
+}
 // 存所有的模板
 let allProcessTemlate = ref([])
 // 获取所有数据
@@ -279,6 +302,7 @@ const getAllProcessTemplateData = async()=>{
 onMounted(()=>{
     getPageData()
     getAllProcessTemplateData()
+    getAllTypes()
 })
 </script>
 
@@ -342,6 +366,9 @@ onMounted(()=>{
                         min-width: 0;
                         @include flex-box;
                     }
+                }
+                .el-select__wrapper{
+                    width: 11.7vw;
                 }
                 .dialog-footer{
                     @include flex-box
