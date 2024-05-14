@@ -12,13 +12,14 @@
                 <el-table-column fixed prop="name" label="审批模板名称"/>
                 <el-table-column prop="description" label="描述" />
                 <el-table-column prop="processTypeName" label="审批类型" />
-                <el-table-column prop="createTime" label="创建时间"  />
-                <el-table-column prop="updateTime" label="修改时间" />
-                <el-table-column fixed="right" label="操作" width="250">
+                <el-table-column prop="createTime" label="创建时间"  width="200"/>
+                <el-table-column prop="updateTime" label="修改时间" width="200"/>
+                <el-table-column fixed="right" label="操作" width="400">
                     <template  v-slot="scope">
                         <div class="tabFooter">
                             <el-button type="success" size="small" plain @click="removeOne(scope.row)">删除</el-button>
-                            <el-button type="primary" size="small" plain @click="goToOnlineSet()">在线流程设计</el-button>
+                            <el-button type="primary" size="small" plain @click="goToPage(1)">在线表单设计</el-button>
+                            <el-button type="primary" size="small" plain @click="goToPage(0)">在线流程图设计</el-button>
                             <el-button type="primary" size="small" plain @click="editDialogInit(scope.row)">编辑</el-button>
                         </div>
                     </template>
@@ -127,9 +128,13 @@ import {useRouter} from 'vue-router'
 
 const router = useRouter()
 
-// 跳转到在线设计页面
-function goToOnlineSet(){
-    router.push(`/processSet/onlineProcessSet`)
+// 跳转页面
+function goToPage(i){
+    if(i === 0){
+        router.push(`/processSet/onlineProcessSet`)
+    }else if(i === 1){
+        router.push(`/processSet/templateSet`)
+    }
 }
 
 // 校验用户填表单的输入
