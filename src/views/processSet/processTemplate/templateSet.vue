@@ -4,7 +4,7 @@
         <div class="funTitle">{{`正在设置 “${thisTemplate.name}” 的表单`}}</div>
         <div class="funs">
             <ActButton txt="退出" actColor="rgb(234,123,54)" backColor="rgb(252,245,237)" @click="goBackPage()" />
-            <ActButton txt="保存并退出" @click="saveAndQuit()" />
+            <ActButton txt="保存" @click="saveAndQuit()" />
         </div>
         <!-- <el-button type="primary" round plain @click="getMyJson()">点我</el-button> -->
         <fc-designer ref="designer" class="myForm" style="height: 70vh"/>

@@ -14,11 +14,12 @@
                 <el-table-column prop="processTypeName" label="审批类型" />
                 <el-table-column prop="createTime" label="创建时间"  width="200"/>
                 <el-table-column prop="updateTime" label="修改时间" width="200"/>
-                <el-table-column fixed="right" label="操作" width="400">
+                <el-table-column fixed="right" label="操作" width="420">
                     <template  v-slot="scope">
                         <div class="tabFooter">
                             <el-button type="success" size="small" plain @click="removeOne(scope.row)">删除</el-button>
                             <el-button type="primary" size="small" plain @click="goToPage(scope.row,1)">设计表单</el-button>
+                            <el-button type="primary" size="small" plain @click="showForm(scope.row)">预览表单</el-button>
                             <el-button type="primary" size="small" plain @click="goToPage(scope.row,0)">在线流程图设计</el-button>
                             <el-button type="primary" size="small" plain @click="editDialogInit(scope.row)">编辑</el-button>
                         </div>
@@ -52,6 +53,17 @@
                         :disabled="(chooseProcessTemplateIndex < 0 && funType === 2)">确定</el-button>
                     </div>
                 </template>
+            </el-dialog>
+
+            <!-- 预览表单对话框 -->
+            <el-dialog v-model="isShow" :title="funDialogTitle" width="400"
+            draggable :close-on-click-modal="false">
+                <div>
+                    <form-create
+                    :rule="JSON.parse(checkedProcessTemplate.formProps)"
+                    :option="JSON.parse(checkedProcessTemplate.formOptions)"
+                    ></form-create>
+                </div>
             </el-dialog>
 
             <!-- 编辑审批类型的对话框 -->
@@ -126,8 +138,15 @@ import{useSimpleConfirm,useTips} from '@/utils/msgTip'
 import { onMounted } from "vue"
 import {useRouter} from 'vue-router'
 
-const router = useRouter()
 
+// 控制表单的展示与否
+let isShow = ref(false)
+function showForm(template){
+    funDialogTitle.value = `预览 “${template.name}” 的表单`
+    checkedProcessTemplate.value = template
+    isShow.value = true
+}
+const router = useRouter()
 // 跳转页面
 function goToPage(temp,i){
     if(i === 0){
