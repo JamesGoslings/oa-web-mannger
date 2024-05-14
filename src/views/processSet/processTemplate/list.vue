@@ -18,7 +18,7 @@
                     <template  v-slot="scope">
                         <div class="tabFooter">
                             <el-button type="success" size="small" plain @click="removeOne(scope.row)">删除</el-button>
-                            <el-button type="primary" size="small" plain @click="goToPage(1)">在线表单设计</el-button>
+                            <el-button type="primary" size="small" plain @click="goToPage(1)">设计表单</el-button>
                             <el-button type="primary" size="small" plain @click="goToPage(0)">在线流程图设计</el-button>
                             <el-button type="primary" size="small" plain @click="editDialogInit(scope.row)">编辑</el-button>
                         </div>

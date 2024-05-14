@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@form-create/designer": "^3.1.5",
     "axios": "^1.6.8",
     "bpmn-js": "^7.3.1",
     "bpmn-js-properties-panel": "^0.37.2",
