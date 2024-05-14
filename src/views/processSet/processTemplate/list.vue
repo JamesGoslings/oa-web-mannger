@@ -18,8 +18,8 @@
                     <template  v-slot="scope">
                         <div class="tabFooter">
                             <el-button type="success" size="small" plain @click="removeOne(scope.row)">删除</el-button>
-                            <el-button type="primary" size="small" plain @click="goToPage(1)">设计表单</el-button>
-                            <el-button type="primary" size="small" plain @click="goToPage(0)">在线流程图设计</el-button>
+                            <el-button type="primary" size="small" plain @click="goToPage(scope.row,1)">设计表单</el-button>
+                            <el-button type="primary" size="small" plain @click="goToPage(scope.row,0)">在线流程图设计</el-button>
                             <el-button type="primary" size="small" plain @click="editDialogInit(scope.row)">编辑</el-button>
                         </div>
                     </template>
@@ -129,11 +129,11 @@ import {useRouter} from 'vue-router'
 const router = useRouter()
 
 // 跳转页面
-function goToPage(i){
+function goToPage(temp,i){
     if(i === 0){
-        router.push(`/processSet/onlineProcessSet`)
+        router.push(`/processSet/onlineProcessSet?templateId=${temp.id}`)
     }else if(i === 1){
-        router.push(`/processSet/templateSet`)
+        router.push(`/processSet/templateSet?templateId=${temp.id}`)
     }
 }
 

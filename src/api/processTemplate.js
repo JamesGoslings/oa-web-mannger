@@ -47,3 +47,10 @@ export function batchRemoveProcessTemlates(idList){
         data: idList
     })
 }
+// 通过id获取模板对象
+export function getProcessTemplateById(id){
+    return request({
+        url: PROCESS_TEMPLETE_URL + 'get/' + id,
+        method: 'GET'
+    })
+}
