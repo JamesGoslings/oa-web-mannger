@@ -94,6 +94,7 @@
                                 <el-option
                                 v-for="(icon,i) in processIconList"
                                 :key="i"
+                                :label="`${i + 1} 号图标`"
                                 :value="icon"
                                 > 
                                 <div class="myIconfont" v-html="icon"
