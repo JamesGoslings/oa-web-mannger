@@ -15,27 +15,91 @@
             <el-card class="statistic" shadow="hover">
                 <div class="myBar">
                     <div>部门打卡率统计</div>
-                    <SelectDaysBar @change-days="getDeptDays" />
+                    <div>
+                        <el-button style="margin-right: 1vw;" @click="openDialog = true">选择部门</el-button>
+                        <SelectDaysBar @change-days="getDeptDays" bar-width="7vw"  :chooseDaysStr="[1,7,15,30]" />
+                    </div>
                 </div>
                 <div autoresize ref="circleImg" id="circleImg"></div>
             </el-card>
-            <el-card class="statistic" shadow="hover">
 
+            <el-card class="statistic" shadow="hover">
+                <div class="myBar">
+                    <div>部门打卡率统计</div>
+                    <div>
+                        <el-button style="margin-right: 1vw;" @click="openDialog = true">选择部门</el-button>
+                        <SelectDaysBar @change-days="getDeptDays" bar-width="7vw"  :chooseDaysStr="[1,7,15,30]" />
+                    </div>
+                </div>
             </el-card>
         </div>
+
+        <!-- 多选部门的对话框 -->
+        <el-dialog v-model="openDialog" title="选择显示打卡率的部门（多选）" width="400"
+            draggable :close-on-click-modal="false">
+                <el-checkbox-group v-model="chooseDeptIds">
+                    <div class="choiceRow" v-for="dept in allDept" :key="dept.id">
+                        <el-checkbox :value="dept.id">
+                            {{dept.name}}
+                        </el-checkbox>
+                    </div>
+                </el-checkbox-group>
+                <!-- 处理删除选项的复选框列表 -->
+                <template #footer>
+                    <div class="dialog-footer">
+                        <el-button @click="openDialog = false">取消</el-button>
+                        <el-button type="primary" @click="getDeptsRadius()" 
+                        :disabled="chooseDeptIds.length === 0">确定</el-button>
+                    </div>
+                </template>
+            </el-dialog>
+
     </div>
 </template>
 
 <script setup>
 import * as echarts from 'echarts'
-import { listRadiusByDays } from '@/api/attendance'
+import { listRadiusByDays,listDeptRadius} from '@/api/attendance'
 import { choreDateStr } from '@/utils/stringUtil'
+import { getAllTotalDeptList } from '@/api/dept'
 import SelectDaysBar from '@/components/SelectDaysBar.vue'
 
 
+
+
+// 获取选中部门的打卡率
+const getDeptsRadius = async()=>{
+    let {data} = await listDeptRadius(chooseDeptIds.value,chooseDeptDay.value - 1)
+    openDialog.value = false
+    setCircleEcharts(data)
+}
+
+// 加载环形图数据
+function setCircleEcharts(data){
+    let deptData = []
+    data.forEach(item => {
+        deptData.push({value: item.recordRadius, name: item.deptName})
+    });
+    getCircleEcharts(deptData)
+}
+
+let chooseDeptDay = ref(7)
+// 存中的部门id列表
+let chooseDeptIds = ref([2,5,10,11,12,13])
+// 控制部门选择的对话框的开启
+let openDialog = ref(false)
+
+// 存所有的部门
+let allDept = ref([])
+// 获取所有部门列表
+const getAllDept = async()=>{
+    let {data} = await getAllTotalDeptList()
+    allDept.value = data;
+}
 // 更新部门环形统计图信息
 function getDeptDays(days){
-    
+    chooseDeptDay.value = days
+    getDeptsRadius()
 }
 
 // 获取展示打开率的天数
@@ -51,7 +115,7 @@ let circleImg = ref(null)
 let lineImg = ref(null)
 
 // 同步环形图数据
-function getCircleEcharts(){
+function getCircleEcharts(deptData){
     const circleDom = echarts.init(circleImg.value)
     circleDom.setOption(
         {
@@ -59,8 +123,8 @@ function getCircleEcharts(){
                 trigger: 'item'
             },
             legend: {
-                top: '5%',
-                // bottom: '5%',
+                // top: '5%',
+                bottom: '2%',
                 left: 'center'
             },
             series: [
@@ -89,13 +153,7 @@ function getCircleEcharts(){
                     labelLine: {
                         show: false
                     },
-                    data: [
-                        { value: 1048, name: 'Search Engine' },
-                        { value: 735, name: 'Direct' },
-                        { value: 580, name: 'Email' },
-                        { value: 484, name: 'Union Ads' },
-                        { value: 300, name: 'Video Ads' }
-                    ]
+                    data: deptData,
                 }
             ]
         }
@@ -176,9 +234,10 @@ const getRadiusList = async()=>{
     setEchartsData(data)
 }
 onMounted(()=>{
+    getAllDept()
     getLineEcharts()
     getRadiusList()
-    getCircleEcharts()
+    getDeptsRadius()
 })
 </script>
 
@@ -213,7 +272,20 @@ onMounted(()=>{
             height: 50vh;
             #circleImg{
                 width: 100%;
-                height: 50vh;
+                height: 45vh;
+            }
+        }
+    }
+    :deep(){
+        .el-dialog__title,.dialog-footer{
+            @include flex-box;
+
+        }
+        .el-checkbox-group{
+            @include flex-box;
+            justify-content: space-between;
+            .choiceRow{
+                width: 45%;
             }
         }
     }
