@@ -27,3 +27,8 @@
     align-items: center;
     flex-wrap: wrap;
 }
+.myBar{
+    width: 100%;
+    @include flex-box;
+    justify-content: space-between;
+}
