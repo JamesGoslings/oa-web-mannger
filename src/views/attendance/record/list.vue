@@ -4,7 +4,7 @@
         <div class="funAll">
             <el-card class="imgShow" shadow="hover">
                 <div class="myBar">
-                   <span>{{`最近${chooseDay}天打卡率`}}</span>
+                   <span class="barTitle">{{`最近${chooseDay}天打卡率`}}</span>
                    <SelectDaysBar @change-days="getDays" />
                 </div>
                 <div autoresize ref="lineImg" id="lineImg"></div>
@@ -14,7 +14,7 @@
             <!-- 部门打卡率统计 -->
             <el-card class="statistic" shadow="hover">
                 <div class="myBar">
-                    <div>部门打卡率统计</div>
+                    <div class="barTitle">部门打卡率统计</div>
                     <div>
                         <el-button style="margin-right: 1vw;" @click="openDialog = true">选择部门</el-button>
                         <SelectDaysBar @change-days="getDeptDays" bar-width="7vw"  :chooseDaysStr="[1,7,15,30]" />
@@ -25,10 +25,40 @@
 
             <el-card class="statistic" shadow="hover">
                 <div class="myBar">
-                    <div>部门打卡率统计</div>
+                    <div class="barTitle">今日未打卡员工统计</div>
+
                     <div>
-                        <el-button style="margin-right: 1vw;" @click="openDialog = true">选择部门</el-button>
-                        <SelectDaysBar @change-days="getDeptDays" bar-width="7vw"  :chooseDaysStr="[1,7,15,30]" />
+                        <!-- 打卡类型选择框 -->
+                        <el-select
+                        v-model="chooseType"
+                        filterable
+                        placeholder="选择打卡类型"
+                        class="typeSelect"
+                        style="width: 7vw;margin-right: 1vw;"
+                        >
+                            <el-option
+                            v-for="(typeOne,i) in [{type: 0, label: '上班打卡'},{ type: 1,label: '下班打卡'}]"
+                            :key="i"
+                            :label="typeOne.label"
+                            :value="typeOne.type"
+                            />
+                        </el-select>
+
+                        <!-- 部门选择框 -->
+                        <el-select
+                        v-model="chooseDeptId"
+                        filterable
+                        placeholder="选择员工部门"
+                        class="userSelect"
+                        style="width: 10vw;"
+                        >
+                            <el-option
+                            v-for="(dept,i) in allDept"
+                            :key="i"
+                            :label="dept.name"
+                            :value="dept.id"
+                            />
+                        </el-select>
                     </div>
                 </div>
             </el-card>
@@ -65,6 +95,11 @@ import { getAllTotalDeptList } from '@/api/dept'
 import SelectDaysBar from '@/components/SelectDaysBar.vue'
 
 
+
+// 存选中的打卡类型
+let chooseType = ref(0)
+// 存选中的部门id
+let chooseDeptId = ref(11)
 
 
 // 获取选中部门的打卡率
@@ -270,6 +305,20 @@ onMounted(()=>{
             margin-bottom: 10vh;
             width: 48%;
             height: 50vh;
+            .typeSelect{
+                :deep(){
+                    .el-select,.el-select__wrapper{
+                        width: 7vw;
+                    }
+                }
+            }
+            .userSelect{
+                :deep(){
+                    .el-select,.el-select__wrapper{
+                        width: 10vw;
+                    }
+                }
+            }
             #circleImg{
                 width: 100%;
                 height: 45vh;

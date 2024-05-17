@@ -32,3 +32,8 @@
     @include flex-box;
     justify-content: space-between;
 }
+.barTitle{
+    font-weight: 550;
+    font-size: $common-font-size;
+    color: rgb(36,47,87);
+}
