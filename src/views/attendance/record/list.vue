@@ -1,6 +1,6 @@
 <template>
     <div class="recordAll">
-        <div class="funTitle">考勤记录</div>
+        <div class="funTitle">考勤打卡率统计</div>
         <div class="funAll">
             <el-card class="imgShow" shadow="hover">
                 <div class="lineTitleBar">
@@ -67,7 +67,7 @@ function getLineEcharts(xAxisData,radius){
                     },
                     dataView: { readOnly: false ,title: '数据展示', lang:['数据视图', '关闭', '刷新'] },
                     magicType: { type: ['line', 'bar'],title: { line: '切换为折线图',bar: '切换为柱形图'} },
-                    restore: {title: '重置'},
+                    // restore: {title: '重置'},
                     saveAsImage: {title: '下载图表'}
                 }
             },

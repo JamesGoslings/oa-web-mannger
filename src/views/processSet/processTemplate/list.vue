@@ -62,8 +62,8 @@
             </el-dialog>
 
             <!-- 预览表单对话框 -->
-            <el-dialog v-model="isShow" :title="funDialogTitle" width="400"
-            draggable :close-on-click-modal="false">
+            <el-dialog @close="isShow = false" v-model="isShow" :title="funDialogTitle" width="400"
+            draggable :close-on-click-modal="false" v-if="checkedProcessTemplate.id">
                 <div>
                     <form-create
                     :rule="JSON.parse(checkedProcessTemplate.formProps)"
@@ -243,6 +243,7 @@ function runFunMode(i){
 let openChoiseDialog = ref(false)
 // 初始化新建对话框
 function saveDialogInit(){
+    isShow.value = false
     checkedProcessTemplate.value = {}
     funDialogTitle.value = '新建审批模板'
     funType.value = 0
