@@ -23,10 +23,9 @@
                 <div autoresize ref="circleImg" id="circleImg"></div>
             </el-card>
 
-            <el-card class="statistic" shadow="hover">
+            <el-card class="statistic" shadow="hover" style="overflow: auto;">
                 <div class="myBar">
-                    <div class="barTitle">今日未打卡员工统计</div>
-
+                    <div class="barTitle">未打卡员工统计</div>
                     <div>
                         <!-- 打卡类型选择框 -->
                         <el-select
@@ -35,6 +34,7 @@
                         placeholder="选择打卡类型"
                         class="typeSelect"
                         style="width: 7vw;margin-right: 1vw;"
+                        @change="getNotUsers()"
                         >
                             <el-option
                             v-for="(typeOne,i) in [{type: 0, label: '上班打卡'},{ type: 1,label: '下班打卡'}]"
@@ -43,7 +43,21 @@
                             :value="typeOne.type"
                             />
                         </el-select>
-
+                        <!-- 选择天数 -->           
+                        <el-select
+                        v-model="chooseUserDay"
+                        filterable
+                        placeholder="选择统计的日期"
+                        style="width: 5vw;;margin-right: 1vw;"
+                        @change="getNotUsers()"
+                        >
+                            <el-option
+                            v-for="dayObj in myDays"
+                            :key="dayObj.num"
+                            :label="dayObj.label"
+                            :value="dayObj.num"
+                            />
+                        </el-select> 
                         <!-- 部门选择框 -->
                         <el-select
                         v-model="chooseDeptId"
@@ -51,6 +65,7 @@
                         placeholder="选择员工部门"
                         class="userSelect"
                         style="width: 10vw;"
+                        @change="getNotUsers()"
                         >
                             <el-option
                             v-for="(dept,i) in allDept"
@@ -59,6 +74,14 @@
                             :value="dept.id"
                             />
                         </el-select>
+                    </div>
+                </div>
+                <div>总计：{{notUsers.length}}人</div>
+                <div class="userCard" v-for="user in notUsers" :key="user.id">
+                    <el-avatar class="avatar" :src="getAvatar(user.avatarUrl)" />
+                    <div class="userMsg">
+                        <div class="name">{{user.name}}</div>
+                        <div>{{user.post}}</div>
                     </div>
                 </div>
             </el-card>
@@ -89,12 +112,42 @@
 
 <script setup>
 import * as echarts from 'echarts'
-import { listRadiusByDays,listDeptRadius} from '@/api/attendance'
+import { listRadiusByDays,listDeptRadius,listNotUsersInDept} from '@/api/attendance'
 import { choreDateStr } from '@/utils/stringUtil'
 import { getAllTotalDeptList } from '@/api/dept'
 import SelectDaysBar from '@/components/SelectDaysBar.vue'
 
 
+// 存获取的员工
+let notUsers = ref([])
+// 设置头像
+function getAvatar(avatarUrl){
+    if(avatarUrl == null || avatarUrl === ''){
+        return 'src/assets/img/default_avatar.png'
+    }
+    return avatarUrl
+}
+// 获取某一天某个部门的未打卡员工名单
+const getNotUsers = async()=>{
+
+    let {data} = await listNotUsersInDept(chooseDeptId.value,chooseType.value,chooseUserDay.value)
+    notUsers.value = data
+    console.log('=====================>>>>')
+    console.log(chooseDeptId.value)
+    console.log(chooseType.value)
+    console.log(chooseUserDay.value)
+
+    console.log(data)
+    console.log('=====================>>>>')
+}
+
+
+// 存天与描述的映射
+let myDays = ref([
+    {num: 0,label: '今天'},{num: 1,label: '昨天'},{num: 2,label: '前天'},{num: 3,label: '大前天'}
+])
+//存查具体哪天
+let chooseUserDay = ref(0)
 
 // 存选中的打卡类型
 let chooseType = ref(0)
@@ -273,6 +326,7 @@ onMounted(()=>{
     getLineEcharts()
     getRadiusList()
     getDeptsRadius()
+    getNotUsers()
 })
 </script>
 
@@ -282,6 +336,9 @@ onMounted(()=>{
 @import '/src/styles/listSize.scss';
 @import '/src/styles/commonStyles.scss';
 
+::-webkit-scrollbar {
+    width: 0px;
+}
 .recordAll{
     margin-left: $left-distance;
     margin-top: $top-distance;
@@ -322,6 +379,31 @@ onMounted(()=>{
             #circleImg{
                 width: 100%;
                 height: 45vh;
+            }
+            .userCard{
+                width: 98%;
+                box-shadow: $common-box-shodow;
+                margin: 2vh 0;
+                @include flex-box;
+                justify-content: left;
+                padding: 0.5vh 1%;
+                .avatar{
+                    height: 60px;
+                    width: 60px;
+                }
+                .userMsg{
+                    margin-left: 1.5vw;
+                    font-size: $common-font-size - 2;
+                    color: $third-show-color;
+                    .name{
+                        font-size: $common-font-size;
+                        color: rgb(36,47,87);
+                        font-weight: 550;
+                    }
+                }
+            }
+            .userCard:hover{
+                box-shadow: $large-box-shadow;
             }
         }
     }

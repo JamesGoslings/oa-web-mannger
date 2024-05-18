@@ -17,3 +17,11 @@ export function listDeptRadius(idList = [],days = 0){
         data: idList
     })
 }
+
+// 获取某一天的某个部门的未打卡名单
+export function listNotUsersInDept(deptId = 0,type = 0,days = 0){
+    return request({
+        url: ATTENDANCE_URL + `notUsers/${deptId}/${type}/${days}`,
+        method: 'GET'
+    })
+}
