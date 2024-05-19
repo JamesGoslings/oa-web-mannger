@@ -55,11 +55,25 @@ export function getProcessTemplateById(id){
     })
 }
 
-// 保存模板的流程图信息并进行发布
-export function saveImgAndPublish(xmlStr = "",tempId = 0){
+// 保存模板的流程图信息
+export function saveImg(data = {}){
     return request({
-        url: PROCESS_TEMPLETE_URL + 'saveXmlAndPublish',
+        url: PROCESS_TEMPLETE_URL + 'saveXml',
         method: 'POST',
-        data: {xmlStr,tempId}
+        data: data
+    })
+}
+// 发布模板
+export function publishTemp(tempId){
+    return request({
+        url:PROCESS_TEMPLETE_URL + 'publishXml/' + tempId,
+        method: 'POST',
+    })
+}
+// 获取模板的xml字符串
+export function getProcessTemplateXmlStr(tempId){
+    return request({
+        url:PROCESS_TEMPLETE_URL + 'xml/' + tempId,
+        method: 'GET'
     })
 }

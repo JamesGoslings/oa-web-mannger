@@ -22,7 +22,7 @@
 <script setup>
 import ActButton from '@/components/ActButton.vue';
 import{useTips,useSimpleConfirm} from '@/utils/msgTip'
-import {getProcessTemplateById} from '@/api/processTemplate'
+import {getProcessTemplateById,saveImg,publishTemp,getProcessTemplateXmlStr} from '@/api/processTemplate'
 import { useRoute,useRouter } from 'vue-router'
 import { onMounted, markRaw } from 'vue';
  // bpmn-js相关
@@ -47,7 +47,8 @@ function goBackPage(){
 // 保存并退出
 function saveAndQuit(){
     useSimpleConfirm(`你确定要保存 “${thisTemplate.value.name}” 模板的流程图吗？`).then(async ()=>{
-        await updateFormMsg()
+        // await updateFormMsg()
+        exportXML()
         // router.go(-1)
     })
 }
@@ -65,10 +66,22 @@ function exportXML() {
       console.error('导出错误:', err);
     } else {
       let myXml = xml.replace(/camunda.org\/schema\/1.0\/bpmn/ig,"activiti.org/bpmn").replace(/camunda/ig,"activiti");
-      console.log('导出的XML:', myXml);
-      
+      console.log('导出的XML:');
+      console.log(myXml)
+      saveImgMsg(myXml)
     }
   });
+}
+// 保存并发布流程图信息的具体方法
+const saveImgMsg = async(xmlStr)=>{
+    let xmlData = {xmlStr: xmlStr,tempId: thisTemplate.value.id}
+    let data1 = await saveImg(xmlData)
+    if(data1.code !== 200){
+        useTips(`666`,data1)
+        return
+    }
+    let data = await publishTemp(thisTemplate.value.id)
+    useTips(`成功保存 “${thisTemplate.value.name}” 模板的流程图`,data)
 }
 
 const route = useRoute()
@@ -79,9 +92,23 @@ const getThisTemplate = async()=>{
     let{data} = await getProcessTemplateById(route.query.templateId);
     thisTemplate.value = data
 }
-
+// 获取当前模板的xml信息并进行流程图显示
+const getThisXmlStr = async()=>{
+    let {data} = await getProcessTemplateXmlStr(thisTemplate.value.id)
+    // console.log(data.xmlStr)
+    // 导入xml字符串
+    if(data.xmlStr){
+        bpmnModeler.value.importXML(data.xmlStr, (err) => {
+            if (err) {
+                console.error('导入 BPMN XML 失败:', err);
+            }
+        });
+    }
+}
 onMounted(() => {
-    getThisTemplate()
+    getThisTemplate().then(()=>{
+        getThisXmlStr()
+    })
     containerEl.value = document.getElementById('container');
     bpmnModeler.value = markRaw(new BpmnModeler({
         container: containerEl.value,
