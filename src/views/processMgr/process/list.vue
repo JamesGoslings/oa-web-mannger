@@ -34,6 +34,7 @@
             v-model="searchObj.keyword"
             style="width: 42vw"
             placeholder="搜索审批申请，请输入审批申请的标题或描述"
+            @input="selectPageBykey()"
             clearable
             />
         </el-card>
@@ -162,25 +163,25 @@ let dateArr = ref([])
 // 存用于条件查询的对象
 let searchObj = ref({})
 // 存所有用户
-let userList = ref([])
+let userList = ref([{}])
 // 获取所有用户的列表
 const getUserAll = async()=>{
     let {data} = await getAllUserMsg()
-    userList.value = data
+    userList.value.push(...data)
 }
 // 存所有的模板对象
-let templateAll = ref([])
+let templateAll = ref([{}])
 // 获取所有的模板对象
 const getTemplateAll = async()=>{
     let {data} = await getProcessTemplateAll()
-    templateAll.value = data
+    templateAll.value.push(...data)
 }
 // 存所有的审批类型
 let allTypes = ref([{name: '全部',id: -1}])
 // 获取所有的审批类型
 const listProcessType = async()=>{
     let {data} = await getAllProcessTypes()
-    allTypes.value.push(... data)
+    allTypes.value.push(...data)
 }
 // 设置选中样式
 let chooseIndex = ref(0)
