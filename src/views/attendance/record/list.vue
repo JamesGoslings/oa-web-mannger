@@ -129,16 +129,8 @@ function getAvatar(avatarUrl){
 }
 // 获取某一天某个部门的未打卡员工名单
 const getNotUsers = async()=>{
-
     let {data} = await listNotUsersInDept(chooseDeptId.value,chooseType.value,chooseUserDay.value)
     notUsers.value = data
-    console.log('=====================>>>>')
-    console.log(chooseDeptId.value)
-    console.log(chooseType.value)
-    console.log(chooseUserDay.value)
-
-    console.log(data)
-    console.log('=====================>>>>')
 }
 
 

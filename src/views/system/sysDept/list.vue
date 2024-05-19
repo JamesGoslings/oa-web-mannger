@@ -122,7 +122,7 @@
                     </div>
                 </div>
             </div>
-            <div class="funTitle" @click="fun()">部门组织结构图</div>
+            <div class="funTitle">部门组织结构图</div>
             <div class="baseCard treeImg">
                 <div style="margin-right: 10px"><el-switch v-model="horizontal"></el-switch> 横向</div>
                 <vue3-tree-org
@@ -311,9 +311,6 @@ function updateThisDept (){
 }
 // 存正在操作的部门（赋值时要深拷贝）
 let editDept = ref({})
-function fun(){
-    alert(checkedDept.value.isAddChildrenCount)
-}
 // 存所有用户
 let userList = ref([])
 // 获取用户信息

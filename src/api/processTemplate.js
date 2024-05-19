@@ -54,3 +54,12 @@ export function getProcessTemplateById(id){
         method: 'GET'
     })
 }
+
+// 保存模板的流程图信息并进行发布
+export function saveImgAndPublish(xmlStr = "",tempId = 0){
+    return request({
+        url: PROCESS_TEMPLETE_URL + 'saveXmlAndPublish',
+        method: 'POST',
+        data: {xmlStr,tempId}
+    })
+}
