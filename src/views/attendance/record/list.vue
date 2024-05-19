@@ -310,7 +310,7 @@ function getLineEcharts(xAxisData,radius){
 // 获取打卡率
 const getRadiusList = async()=>{
     let {data} = await listRadiusByDays(chooseDay.value - 1)
-    console.log(data)
+    // console.log(data)
     setEchartsData(data)
 }
 onMounted(()=>{

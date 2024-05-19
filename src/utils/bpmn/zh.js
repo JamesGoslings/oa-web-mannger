@@ -196,7 +196,7 @@ export default {
     "Wait for Completion": "等待完成",
     "Activity Ref": "活动参考",
     "Version Tag": "版本标签",
-    "Executable": "可执行文件",
+    "Executable": "可执行文件(注：不勾选该审批就无法进行,但不影响流程图设计)",
     "External Task Configuration": "扩展任务配置",
     "Task Priority": "任务优先级",
     "External": "外部",
