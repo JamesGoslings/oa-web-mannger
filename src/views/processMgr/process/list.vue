@@ -7,6 +7,7 @@
             filterable
             placeholder="选择申请人"
             style="margin-right: 1vw;"
+            @change="selectPageBykey()"
             >
                 <el-option
                 v-for="user in userList"
@@ -20,6 +21,7 @@
             filterable
             placeholder="选择申请的模板"
             style="margin-right: 2.5vw;"
+            @change="selectPageBykey()"
             >
                 <el-option
                 v-for="template in templateAll"
@@ -39,7 +41,8 @@
             <div class="tabBar">
                 <div class="types">
                     <span class="type" :style="getActStyle(i)" v-for="(type,i) in allTypes"
-                     :key="type.id" @click="()=>{chooseIndex = i;searchObj.processTypeId = type.id}">{{type.name}}申请</span>
+                     :key="type.id" @click="changeType(i,type)">{{type.name}}申请</span>
+                     <!-- ()=>{chooseIndex = i;searchObj.processTypeId = type.id;selectPageBykey()} -->
                 </div>
                 <div class="block">
                     <el-date-picker
@@ -50,17 +53,19 @@
                         format="YYYY-MM-DD HH:mm:ss"
                         date-format="YYYY/MM/DD ddd"
                         time-format="A hh:mm:ss"
+                        @change="selectPageBykey()"
                     />
                 </div>
             </div>
             <div class="table">
                 <el-table :data="pageData" style="width: 100%">
                     <el-table-column prop="createTime" label="申请时间" width="180" />
+                    <el-table-column prop="name" label="申请人"/>
                     <el-table-column prop="title" label="申请标题"/>
                     <el-table-column prop="description" label="申请描述" />
                     <el-table-column prop="processTemplateName" label="申请模板名称" />
                     <el-table-column prop="processTypeName" label="申请类型" />
-                    <el-table-column label="当前申请状态" >
+                    <el-table-column label="当前申请状态" width="150">
                         <template  v-slot="scope">
                             <div class="statusShow" :style="{background: getStatusObj(scope.row.status).backColor
                             ,color: getStatusObj(scope.row.status).fontColor}"
@@ -80,9 +85,10 @@
             <el-pagination
             class="page"
             background
-            :page="page"
+            v-model:current-page="page"
             :pageSize="limit"
             layout="prev, pager, next"
+            @current-change="selectPageBykey"
             :total="50"
             />
         </el-card>
@@ -109,6 +115,14 @@ import { getStatusObj } from '@/utils/staticData'
 import { onMounted } from 'vue'
 
 
+// 改变类型后的方法
+const changeType = async(i,type)=>{
+    chooseIndex.value = i;
+    if(i !== 0){
+        searchObj.value.processTypeId = type.id;
+    }
+    await selectPageBykey()
+}
 // 存展示的申请的信息
 const thisFormValues = computed(() => {
     return JSON.parse(thisProcess.value.formValues);  
@@ -120,9 +134,6 @@ let openFormDialog = ref(false)
 // 展示申请表单的数据
 function showFormData(process){
     thisProcess.value = process
-    console.log('=====================>>>')
-    console.log(process)
-    console.log('=====================>>>')
     openFormDialog.value = true
 }
 // 存分页数据
