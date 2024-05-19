@@ -25,3 +25,20 @@ export const processIconList = [
     '&#xe64d;','&#xe6c7;','&#xeabb;','&#xebcc;',
     '&#xebf0;'
 ]
+
+// 根据审批的status获取状态名和样式
+export function getStatusObj(status){
+    let statusObj = {name: '已驳回',backColor: 'rgb(252,245,237)',fontColor: 'rgb(234,123,54)'}
+    if(status === 1){
+        statusObj.name = '申请中'
+        statusObj.backColor = 'rgb(244,249,255)'
+        statusObj.fontColor = 'rgb(60,118,244)'
+    }else if(status === 2){
+        statusObj.name = '已通过'
+        statusObj.backColor = 'rgb(239, 252, 237)'
+        status.fontColor = 'rgb(234,123,54)'
+    }else if(status === 0){
+        statusObj.name = '无状态'
+    }
+    return statusObj
+}
