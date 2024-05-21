@@ -35,8 +35,8 @@ export function getStatusObj(status){
         statusObj.fontColor = 'rgb(60,118,244)'
     }else if(status === 2){
         statusObj.name = '已通过'
-        statusObj.backColor = 'rgb(239, 252, 237)'
-        statusObj.fontColor = 'rgb(234,123,54)'
+        statusObj.backColor = 'rgb(240,249,235)'
+        statusObj.fontColor = '#67C23A'
     }else if(status === 0){
         statusObj.name = '无状态'
     }
