@@ -96,9 +96,14 @@ const getThisTemplate = async()=>{
 const getThisXmlStr = async()=>{
     let {data} = await getProcessTemplateXmlStr(thisTemplate.value.id)
     // console.log(data.xmlStr)
+    // 将activiti的xml转成Camunda的
+    let camundaXml = data.xmlStr  
+    .replace(/activiti.org\/bpmn/ig, "camunda.org/schema/1.0/bpmn") // 替换Activiti的命名空间为Camunda的  
+    .replace(/activiti/ig, "camunda"); // 替换所有Activiti文本为Camunda
     // 导入xml字符串
-    if(data.xmlStr){
-        bpmnModeler.value.importXML(data.xmlStr, (err) => {
+    if(camundaXml){
+        console.log(camundaXml)
+        bpmnModeler.value.importXML(camundaXml, (err) => {
             if (err) {
                 console.error('导入 BPMN XML 失败:', err);
             }

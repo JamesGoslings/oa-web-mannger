@@ -63,7 +63,7 @@
                     <el-table-column prop="createTime" label="申请时间" width="180" />
                     <el-table-column prop="name" label="申请人"/>
                     <el-table-column prop="title" label="申请标题"/>
-                    <el-table-column prop="description" label="申请描述" />
+                    <el-table-column prop="description" label="申请描述" width="300"/>
                     <el-table-column prop="processTemplateName" label="申请模板名称" />
                     <el-table-column prop="processTypeName" label="申请类型" />
                     <el-table-column label="当前申请状态" width="150">
@@ -119,6 +119,7 @@ import { onMounted } from 'vue'
 // 改变类型后的方法
 const changeType = async(i,type)=>{
     chooseIndex.value = i;
+    searchObj.value.processTypeId = null
     if(i !== 0){
         searchObj.value.processTypeId = type.id;
     }
@@ -152,6 +153,7 @@ const selectPageBykey = async()=>{
     }
     let {data} = await listPageProcess(page.value,limit.value,searchObj.value)
     pageData.value = data.records
+    console.log(data.records)
 }
 
 // 存分页要求
