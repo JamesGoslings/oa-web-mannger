@@ -87,10 +87,10 @@
             class="page"
             background
             v-model:current-page="page"
+            :total="totalNum"
             :pageSize="limit"
             layout="prev, pager, next"
             @current-change="selectPageBykey"
-            :total="50"
             />
         </el-card>
         <el-dialog @close="thisProcess = {}" v-model="openFormDialog" :title="`查看 “${thisProcess.title}” `" width="400"
@@ -140,6 +140,7 @@ function showFormData(process){
 }
 // 存分页数据
 let pageData = ref([])
+let totalNum = ref(1)
 // 分页条件查询
 const selectPageBykey = async()=>{
     // 处理条件查询对象
@@ -153,6 +154,7 @@ const selectPageBykey = async()=>{
     }
     let {data} = await listPageProcess(page.value,limit.value,searchObj.value)
     pageData.value = data.records
+    totalNum.value = data.total
     console.log(data.records)
 }
 
@@ -243,7 +245,7 @@ onMounted(()=>{
                 }
                 .type:hover{
                     color: rgb(106,183,255);
-                    border-bottom: rgb(106,183,255) 2.5px solid;
+                    // border-bottom: rgb(106,183,255) 2.5px solid;
                     border-radius: 2px;
                 }
             }
