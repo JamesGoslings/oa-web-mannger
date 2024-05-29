@@ -7,6 +7,7 @@
                     <div class="cardTitle funTitle">{{post.name}}</div>
                     <div class="cardField">{{`部门: ${post.deptName}`}}</div>
                     <div class="cardField">{{`编码: ${post.postCode}`}}</div>
+                    <!-- 1 -->
                 </div>
                 <span class="iconfont ico">&#xe641;</span>
             </el-card>
