@@ -444,8 +444,6 @@ onMounted(()=>{
             width: 79%;
             background: #FFF;
             padding: $page-padding;
-            .myTitle{
-            }
             .funCards{
                 width: 100%;
                 @include flex-box;
