@@ -1,19 +1,28 @@
 <!-- 菜单树型列表的展示 -->
 <template>
-    <div class="allTreeList" v-for="(menu,i) in menuDataList" :key="i">
-        <div class="listOneBar"  :style="getBorder(menu.children ==null)"  >
-            <div class="msg" @click="checkDetailDialog(menu)">
-                <span class="icoRound iconfont" v-html="menu.icon"></span>
-                <span class="menuTxt">
-                    <span class="txtTitle">{{menu.name}}</span>
-                    <span v-if="menu.children != null && menu.children.length != 0" class="txt">{{`${num[floor - 1]}级父菜单`}}</span>
-                    <span v-else class="txt">子菜单</span>
-                </span>
-            </div>
-            <treeList v-if="menu.children != null && menu.children.length != 0" :parentName="getChildrenAllParentName(menu)" :menuDataList="menu.children" :floor="floor + 1" />
-        </div>
+  <div class="allTreeList" v-for="(menu, i) in menuDataList" :key="i">
+    <div class="listOneBar" :style="getBorder(menu.children == null)">
+      <div class="msg" @click="checkDetailDialog(menu)">
+        <span class="icoRound iconfont" v-html="menu.icon"></span>
+        <span class="menuTxt">
+          <span class="txtTitle">{{ menu.name }}</span>
+          <span
+            v-if="menu.children != null && menu.children.length != 0"
+            class="txt"
+            >{{ `${num[floor - 1]}级父菜单` }}</span
+          >
+          <span v-else class="txt">子菜单</span>
+        </span>
+      </div>
+      <treeList
+        v-if="menu.children != null && menu.children.length != 0"
+        :parentName="getChildrenAllParentName(menu)"
+        :menuDataList="menu.children"
+        :floor="floor + 1"
+      />
     </div>
-    <!-- <el-dialog v-model="openDialog" :title="detailTitle" width="500"
+  </div>
+  <!-- <el-dialog v-model="openDialog" :title="detailTitle" width="500"
     draggable :close-on-click-modal="false">
     
         <el-form :model="form">
@@ -97,131 +106,132 @@
 </template>
 
 <script setup>
-import treeList from '@/components/TreeMenuList.vue'
-import { getCurrentInstance } from 'vue'
-
+import treeList from "@/components/TreeMenuList.vue";
+import { getCurrentInstance } from "vue";
 
 let props = defineProps({
-	menuDataList: {
-		type: Array,
-		default(){
-			return []
-		}
-	},
-    floor: {
-        type: Number,
-        default(){
-			return 1
-		}
+  menuDataList: {
+    type: Array,
+    default() {
+      return [];
     },
-    parentName: {
-        type: String,
-        default(){
-            return ''
-        }
-    }
-})
-let num = ref(['一','二','三','四','五','六','七','八','九','十'])
+  },
+  floor: {
+    type: Number,
+    default() {
+      return 1;
+    },
+  },
+  parentName: {
+    type: String,
+    default() {
+      return "";
+    },
+  },
+});
+let num = ref(["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"]);
 
-function getBorder(f){
-    return f ? {borderBottom: 'rgb(209,213,219) 1px solid',marginLeft: props.floor + 'vw'} : {marginLeft: props.floor + 'vw'};
+function getBorder(f) {
+  return f
+    ? {
+        borderBottom: "rgb(209,213,219) 1px solid",
+        marginLeft: props.floor + "vw",
+      }
+    : { marginLeft: props.floor + "vw" };
 }
 
-let checkedMenu = ref({})
-function checkDetailDialog(menu){
-    checkedMenu.value = menu
-    let needMyName = props.floor === 1 ?  `${menu.name}` : ` >> ${menu.name}`
-    checkedMenu.value.totalName = `${props.parentName}${needMyName}`
-    emitMitt(checkedMenu.value)
+let checkedMenu = ref({});
+function checkDetailDialog(menu) {
+  checkedMenu.value = menu;
+  let needMyName = props.floor === 1 ? `${menu.name}` : ` >> ${menu.name}`;
+  checkedMenu.value.totalName = `${props.parentName}${needMyName}`;
+  emitMitt(checkedMenu.value);
 }
 
-function getChildrenAllParentName (menu){
-    // 非顶级菜单的目录
-    if(props.floor > 1){
-        return `${props.parentName} >> ${ menu.name }`
-    }
-    return menu.name + ''
+function getChildrenAllParentName(menu) {
+  // 非顶级菜单的目录
+  if (props.floor > 1) {
+    return `${props.parentName} >> ${menu.name}`;
+  }
+  return menu.name + "";
 }
-
 
 // 通过全局事件传输当前要查看的menu
-const cxt  = getCurrentInstance()
-const bus = cxt.appContext.config.globalProperties.$bus
-const emitMitt = function(menu = {}){
-    bus.emit('menuEvent',menu)
-}
+const cxt = getCurrentInstance();
+const bus = cxt.appContext.config.globalProperties.$bus;
+const emitMitt = function (menu = {}) {
+  bus.emit("menuEvent", menu);
+};
 </script>
 
 <style lang="scss" scoped>
-@import url('/src/assets/font-icon/iconfont.css');
-@import '/src/styles/commonStyles.scss';
-@import '/src/styles/listSize.scss';
+@import url("/src/assets/font-icon/iconfont.css");
+@import "/src/styles/commonStyles.scss";
+@import "/src/styles/listSize.scss";
 
-
-.allTreeList{
-    width: 100%;
-    // padding: 1vh 2vw;
-    border-bottom: rgb(209,213,219) 1px solid;
-    user-select: none;
-    .listOneBar{
-        padding: 3vh 0;
-        margin: 1vh 0;
-        // border-bottom: rgb(209,213,219) 1px solid;
-        .msg{
-            @include flex-box;
-            justify-content: left;
-            .icoRound{
-                @include flex-box;
-                width: 45px;
-                height: 45px;
-                background: rgb(209,213,219);
-                border-radius: 50%;
-                color: #FFF;
-                font-size: 20px;
-            }
-            .menuTxt{
-                @include flex-box;
-                margin-left: 1vw;
-                justify-content: left;
-                .txtTitle{
-                    font-weight: bold;
-                    width: 100%;
-                    margin-bottom: 1vh;
-                }
-                .txt{
-                    color: rgb(209,213,219);
-                    font-size: $common-font-size;
-                }
-            }
+.allTreeList {
+  width: 100%;
+  // padding: 1vh 2vw;
+  border-bottom: rgb(209, 213, 219) 1px solid;
+  user-select: none;
+  .listOneBar {
+    padding: 3vh 0;
+    margin: 1vh 0;
+    // border-bottom: rgb(209,213,219) 1px solid;
+    .msg {
+      @include flex-box;
+      justify-content: left;
+      .icoRound {
+        @include flex-box;
+        width: 45px;
+        height: 45px;
+        background: rgb(209, 213, 219);
+        border-radius: 50%;
+        color: #fff;
+        font-size: 20px;
+      }
+      .menuTxt {
+        @include flex-box;
+        margin-left: 1vw;
+        justify-content: left;
+        .txtTitle {
+          font-weight: bold;
+          width: 100%;
+          margin-bottom: 1vh;
         }
-        .msg:hover{
-            color: $main-show-color;
-            .icoRound{
-                background: #FFF;
-                color: $main-show-color;
-                border: $main-show-color 1px solid;
-            }
-            .txt{
-                color: $main-show-color;
-            }
+        .txt {
+          color: rgb(209, 213, 219);
+          font-size: $common-font-size;
         }
-        .msg:active{
-            color: $ipt-font-color;
-            .icoRound{
-                background: #FFF;
-                color: $ipt-font-color;
-                border: $ipt-font-color 1px solid;
-            }
-            .txt{
-                color: $ipt-font-color;
-            }
-        }
+      }
     }
-    
-    .ico{
-        font-size: 30px;
+    .msg:hover {
+      color: $main-show-color;
+      .icoRound {
+        background: #fff;
+        color: $main-show-color;
+        border: $main-show-color 1px solid;
+      }
+      .txt {
+        color: $main-show-color;
+      }
+    }
+    .msg:active {
+      color: $ipt-font-color;
+      .icoRound {
+        background: #fff;
         color: $ipt-font-color;
+        border: $ipt-font-color 1px solid;
+      }
+      .txt {
+        color: $ipt-font-color;
+      }
     }
-}
+  }
 
+  .ico {
+    font-size: 30px;
+    color: $ipt-font-color;
+  }
+}
 </style>
