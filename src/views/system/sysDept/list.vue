@@ -151,7 +151,7 @@
             
             <!-- 图表设置对话框 -->
             <el-dialog v-model="openSettingDialog" title="配置饼图显示信息" width="400"
-            draggable :close-on-click-modal="false">
+            draggable :close-on-click-modal="false" append-to-body>
                 <div style="color: rgb(249,190,23);">{{errMsg}}</div>  
                 <div class="iptAll">
                     <div class="iptMsg">
@@ -181,7 +181,7 @@
             </el-dialog>
 
             <!-- 查看全部的弹窗页面 -->
-            <el-dialog v-model="openDialog" title="全部部门" width="900">
+            <el-dialog v-model="openDialog" title="全部部门" width="900" append-to-body>
                 <myInputBar class="myIpt" radius="10px" text="搜索部门，请输入名称或编码"
                 @on-enter="handleEnter" v-model="iptKeyword" />
                 <el-radio-group v-model="chooseDeptId">

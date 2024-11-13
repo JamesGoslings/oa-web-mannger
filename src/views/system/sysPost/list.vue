@@ -85,7 +85,7 @@
         </div>
 
         <!-- 查看所有岗位时的弹窗界面 -->
-        <el-dialog v-model="openDialog" title="全部岗位" width="900">
+        <el-dialog v-model="openDialog" title="全部岗位" width="900" append-to-body>
             <myInputBar class="myIpt" radius="10px" text="搜索岗位，请输入名称或编码"
             @on-enter="handleEnter" v-model="iptKeyword" />
             <el-radio-group v-model="choosePostIndex">
@@ -104,7 +104,7 @@
 
         <!-- 图表设置对话框 -->
         <el-dialog v-model="openSettingDialog" title="设置饼图显示岗位数目" width="400"
-        draggable :close-on-click-modal="false">
+        draggable :close-on-click-modal="false" append-to-body>
             <div style="color: rgb(249,190,23);">{{errMsg}}</div>
             <el-input style="width: 80%;" @input="checkIptNum()" v-model="iptKeyword" :placeholder="`请输入显示数目 0~${totalPosts.length}`" autocomplete="off" />
             <el-button type="primary" @click="setShowNum()" :disabled="!checkIptNum()">确定</el-button>

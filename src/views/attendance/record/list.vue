@@ -89,7 +89,7 @@
 
         <!-- 多选部门的对话框 -->
         <el-dialog v-model="openDialog" title="选择显示打卡率的部门（多选）" width="400"
-            draggable :close-on-click-modal="false">
+            draggable :close-on-click-modal="false" append-to-body>
                 <el-checkbox-group v-model="chooseDeptIds">
                     <div class="choiceRow" v-for="dept in allDept" :key="dept.id">
                         <el-checkbox :value="dept.id">

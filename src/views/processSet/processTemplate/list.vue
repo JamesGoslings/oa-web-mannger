@@ -35,7 +35,7 @@
 
             <!-- 显示可 编辑/删除 审批类型的对话框 -->
             <el-dialog v-model="openChoiseDialog" :title="funDialogTitle" width="400"
-                    draggable :close-on-click-modal="false">
+                    draggable :close-on-click-modal="false" append-to-body>
                         <!-- 处理编辑选项的单选框列表 -->
                         <el-radio-group v-model="chooseProcessTemplateIndex" v-if="funType === 2">
                             <div v-for="(processTemlate,i) in allProcessTemlate" :key="processTemlate.id" class="choiceRow"
@@ -63,7 +63,7 @@
 
             <!-- 预览表单对话框 -->
             <el-dialog @close="isShow = false" v-model="isShow" :title="funDialogTitle" width="400"
-            draggable :close-on-click-modal="false" v-if="checkedProcessTemplate.id">
+            draggable :close-on-click-modal="false" v-if="checkedProcessTemplate.id" append-to-body>
                 <div>
                     <form-create
                     :rule="JSON.parse(checkedProcessTemplate.formProps)"
@@ -75,7 +75,7 @@
             <!-- 编辑审批类型的对话框 -->
 
             <el-dialog v-model="openDialog" :title="funDialogTitle" width="400"
-            draggable :close-on-click-modal="false">
+            draggable :close-on-click-modal="false" append-to-body>
                 <el-form :model="form">
                     <el-form-item label="模板名称">
                         <el-input v-model="checkedProcessTemplate.name" autocomplete="off" />

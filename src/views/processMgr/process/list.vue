@@ -94,7 +94,7 @@
             />
         </el-card>
         <el-dialog @close="thisProcess = {}" v-model="openFormDialog" :title="`查看 “${thisProcess.title}” `" width="400"
-        draggable :close-on-click-modal="false" v-if="thisProcess.id">
+        draggable :close-on-click-modal="false" v-if="thisProcess.id" append-to-body>
             <div>
                 <form-create
                 v-model="thisFormValues"

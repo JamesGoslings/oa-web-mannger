@@ -17,7 +17,7 @@
     
         <!-- 查看/修改/新建 菜单的对话框 -->
         <el-dialog v-model="openDialog" :title="detailTitle" width="500"
-        draggable :close-on-click-modal="false">
+        draggable :close-on-click-modal="false" append-to-body>
         
         <el-form :model="form">
             <el-form-item label="菜单名称">

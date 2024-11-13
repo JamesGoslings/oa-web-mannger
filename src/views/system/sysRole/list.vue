@@ -25,7 +25,7 @@
             </el-table>
             <!-- 显示可 编辑/删除 角色的对话框 -->
             <el-dialog v-model="openChoiseDialog" :title="editOrSaveDialogTitle" width="400"
-            draggable :close-on-click-modal="false">
+            draggable :close-on-click-modal="false" append-to-body>
                 <!-- 处理编辑选项的单选框列表 -->
                 <el-radio-group v-model="chooseRoleIndex" v-if="funType === 2">
                     <div v-for="(role,i) in allRoles" :key="role.id" class="choiceRow"
@@ -54,7 +54,7 @@
             <!-- 编辑角色的对话框 -->
 
             <el-dialog v-model="openDialog" :title="editOrSaveDialogTitle" width="400"
-            draggable :close-on-click-modal="false">
+            draggable :close-on-click-modal="false" append-to-body>
                 <el-form :model="form">
                     <el-form-item label="角色名称">
                         <el-input v-model="changedRole.roleName" autocomplete="off" />
@@ -368,8 +368,8 @@ onMounted(()=>{
             width: 79%;
             background: #FFF;
             padding: $page-padding;
-            .myTitle{
-            }
+            // .myTitle{
+            // }
             .funCards{
                 width: 100%;
                 @include flex-box;

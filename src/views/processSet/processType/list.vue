@@ -27,7 +27,7 @@
 
             <!-- 显示可 编辑/删除 审批类型的对话框 -->
             <el-dialog v-model="openChoiseDialog" :title="funDialogTitle" width="400"
-                    draggable :close-on-click-modal="false">
+                    draggable :close-on-click-modal="false" append-to-body>
                         <!-- 处理编辑选项的单选框列表 -->
                         <el-radio-group v-model="chooseProcessTypeIndex" v-if="funType === 2">
                             <div v-for="(processType,i) in allProcessTypes" :key="processType.id" class="choiceRow"
@@ -56,7 +56,7 @@
             <!-- 编辑审批类型的对话框 -->
 
             <el-dialog v-model="openDialog" :title="funDialogTitle" width="400"
-            draggable :close-on-click-modal="false">
+            draggable :close-on-click-modal="false" append-to-body>
                 <el-form :model="form">
                     <el-form-item label="类型名称">
                         <el-input v-model="checkedProcessType.name" autocomplete="off" />

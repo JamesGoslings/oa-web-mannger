@@ -11,7 +11,7 @@
                 <!-- 添加/修改用户的弹窗 -->
 
                 <el-dialog v-model="dialogFormVisible" :title="saveOrUpdateDialogTitle" width="500" class="dialog"
-                draggable :close-on-click-modal="false" v-if="dialogFormVisible">
+                draggable :close-on-click-modal="false" v-if="dialogFormVisible" append-to-body>
                     <el-form :model="form">
                         <el-form-item label="姓名" label-width="140px">
                         <el-input v-model="changedUser.name" autocomplete="off" />
@@ -132,7 +132,7 @@
             </table>
                 <!-- 分配角色的提示框 -->
                 <el-dialog v-model="assignDialogOpen" :title="assignTitle" width="500" class="dialog"
-                draggable :close-on-click-modal="false">
+                draggable :close-on-click-modal="false" append-to-body>
                     <div class="checkBoxes">
                         <span v-for="(role,i) in allRoles" :key="i" style="margin: 0 5px" >
                             <span>
@@ -153,7 +153,7 @@
 
                 <!-- 删除单用户的提示框  -->
                 <el-dialog v-model="removeDialogOpen" :title="removeDialogTitle"  width="400" class="dialog"
-                draggable :close-on-click-modal="false">
+                draggable :close-on-click-modal="false" append-to-body>
                     <template #footer>
                         <div class="dialog-footer">
                             <el-button @click="removeDialogOpen = false">取消</el-button>
